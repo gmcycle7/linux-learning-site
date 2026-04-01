@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 7: Processes &amp; Jobs — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing Files</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions &amp; Ownership</a>
+    <a class="sidebar__link active" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking Basics</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives &amp; Compression</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Real-World Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Command Comparisons</a>
+  </div>
+
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index (A-Z)</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Practice Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &raquo; <span>Processes &amp; Jobs</span>
+  </nav>
+
+  <h1>Chapter 7: Processes &amp; Jobs</h1>
+
+  <p>Every time you run a command, open an application, or start a service, Linux creates a <strong>process</strong>. Understanding processes is essential for managing your system: you need to know what is running, how to stop misbehaving programs, how to run tasks in the background, and how to control resource usage. This chapter covers everything a beginner needs to know about processes and job control.</p>
+
+  <!-- ===== SECTION 1: What is a Process? ===== -->
+  <h2 id="what-is-a-process">1. What is a Process?</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Processes</div>
+    <p>Think of your Linux system as an office building. Every running program is a <strong>worker</strong> (process) with their own desk (memory), employee badge number (<strong>PID</strong> &mdash; Process ID), and a manager they report to (<strong>parent process</strong>). The building manager is <code>init</code> or <code>systemd</code> (PID 1), and every worker ultimately reports up to them.</p>
+    <p>When you type a command in the terminal, the shell (your current process) creates a <strong>child process</strong> to run that command. When the command finishes, the child process exits and reports back to the parent.</p>
+  </div>
+
+  <h3>Key Concepts</h3>
+  <ul>
+    <li><strong>PID (Process ID)</strong> &mdash; A unique number assigned to every running process. No two processes share the same PID at the same time.</li>
+    <li><strong>PPID (Parent Process ID)</strong> &mdash; The PID of the process that started this one. Every process has a parent (except PID 1).</li>
+    <li><strong>UID</strong> &mdash; The user ID of the person who started the process. Determines what the process can access.</li>
+    <li><strong>Process States</strong> &mdash; A process is always in one of several states:
+      <ul>
+        <li><strong>Running (R)</strong> &mdash; Currently executing on the CPU or ready to run.</li>
+        <li><strong>Sleeping (S)</strong> &mdash; Waiting for something (input, a timer, a resource).</li>
+        <li><strong>Stopped (T)</strong> &mdash; Paused, usually by a signal like Ctrl+Z.</li>
+        <li><strong>Zombie (Z)</strong> &mdash; Finished executing but its parent has not yet read its exit status.</li>
+        <li><strong>Dead (X)</strong> &mdash; Being cleaned up (you rarely see this).</li>
+      </ul>
+    </li>
+  </ul>
+
+  <h3>Process Lifecycle Diagram</h3>
+  <div class="code-box">
+<pre>
+  +-----------+      fork()       +----------+
+  |  Parent   | -----------------&gt; |  Child   |
+  |  Process  |                    | (new PID)|
+  +-----------+                    +----------+
+                                        |
+                              exec() loads program
+                                        |
+                                   +---------+
+                                   | Running |
+                                   |   (R)   |
+                                   +---------+
+                                   /    |     \
+                              wait   signal   I/O wait
+                               /      |         \
+                      +--------+ +--------+ +----------+
+                      |Sleeping| |Stopped | |  Sleeping|
+                      |  (S)   | |  (T)   | | (D=disk) |
+                      +--------+ +--------+ +----------+
+                           \        |        /
+                            \  SIGCONT/fg   /
+                             \     |      /
+                              +---------+
+                              | Running |
+                              |   (R)   |
+                              +---------+
+                                   |
+                                 exit()
+                                   |
+                              +---------+
+                              | Zombie  |
+                              |   (Z)   |
+                              +---------+
+                                   |
+                           parent reads status
+                                   |
+                              +---------+
+                              |  Dead   |
+                              |   (X)   |
+                              +---------+
+</pre>
+  </div>
+
+  <!-- ===== SECTION 2: ps ===== -->
+  <h2 id="ps">2. <code>ps</code> &mdash; List Processes</h2>
+
+  <p>The <code>ps</code> command gives you a snapshot of currently running processes. Unlike <code>top</code>, it does not update in real time &mdash; it shows you the state at the moment you run it.</p>
+
+  <h3>Basic usage &mdash; your own processes</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps
+<span class="output">  PID TTY          TIME CMD
+ 2451 pts/0    00:00:00 bash
+ 2489 pts/0    00:00:00 ps</span>
+</pre>
+  </div>
+  <p>By default, <code>ps</code> shows only processes belonging to your current terminal session.</p>
+
+  <h3>Show all processes (BSD style) &mdash; <code>ps aux</code></h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps aux
+<span class="output">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.1 169344 13200 ?        Ss   09:00   0:03 /sbin/init
+root         2  0.0  0.0      0     0 ?        S    09:00   0:00 [kthreadd]
+root       312  0.0  0.1  45892  8456 ?        Ss   09:00   0:01 /lib/systemd/systemd-journald
+alice     2451  0.0  0.0  21384  5248 pts/0    Ss   10:15   0:00 -bash
+alice     2489  0.0  0.0  37092  3344 pts/0    R+   10:22   0:00 ps aux
+www-data  1087  0.1  0.5 272816 41200 ?        S    09:01   0:12 /usr/sbin/apache2 -k start
+mysql     1124  0.5  2.3 1234567 187000 ?      Sl   09:01   1:45 /usr/sbin/mysqld
+root       998  0.0  0.0  72296  6712 ?        Ss   09:01   0:00 /usr/sbin/sshd -D</span>
+</pre>
+  </div>
+  <p>Column breakdown: <strong>USER</strong> = who owns the process, <strong>PID</strong> = process ID, <strong>%CPU</strong> = CPU usage, <strong>%MEM</strong> = memory usage, <strong>VSZ</strong> = virtual memory (KB), <strong>RSS</strong> = physical memory (KB), <strong>TTY</strong> = terminal (<code>?</code> means no terminal, i.e. a daemon), <strong>STAT</strong> = state code, <strong>START</strong> = when it started, <strong>TIME</strong> = CPU time consumed, <strong>COMMAND</strong> = the command that launched the process.</p>
+
+  <h3>Show all processes (System V style) &mdash; <code>ps -ef</code></h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps -ef
+<span class="output">UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 09:00 ?        00:00:03 /sbin/init
+root         2     1  0 09:00 ?        00:00:00 [kthreadd]
+alice     2451  2449  0 10:15 pts/0    00:00:00 -bash
+alice     2500  2451  0 10:24 pts/0    00:00:00 ps -ef</span>
+</pre>
+  </div>
+  <p>The <code>-ef</code> format shows <strong>PPID</strong> (parent PID), which is very useful for understanding which process launched which.</p>
+
+  <h3>Processes for a specific user</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps -u alice
+<span class="output">  PID TTY          TIME CMD
+ 2451 pts/0    00:00:00 bash
+ 2510 pts/0    00:00:02 vim
+ 2530 pts/1    00:00:00 bash
+ 2548 pts/1    00:00:05 python3</span>
+</pre>
+  </div>
+
+  <h3>Show process tree</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps auxf
+<span class="output">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.1 169344 13200 ?        Ss   09:00   0:03 /sbin/init
+root       998  0.0  0.0  72296  6712 ?        Ss   09:01   0:00  \_ /usr/sbin/sshd -D
+root      2449  0.0  0.1  76500  8432 ?        Ss   10:15   0:00      \_ sshd: alice [priv]
+alice     2450  0.0  0.0  76500  4200 ?        S    10:15   0:00          \_ sshd: alice@pts/0
+alice     2451  0.0  0.0  21384  5248 pts/0    Ss   10:15   0:00              \_ -bash
+alice     2560  0.0  0.0  37092  3344 pts/0    R+   10:30   0:00                  \_ ps auxf</span>
+</pre>
+  </div>
+
+  <h3>Filter with grep</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps aux | grep nginx
+<span class="output">root      1055  0.0  0.1  62816  8200 ?        Ss   09:01   0:00 nginx: master process /usr/sbin/nginx
+www-data  1056  0.0  0.1  63240  9100 ?        S    09:01   0:02 nginx: worker process
+www-data  1057  0.0  0.1  63240  8800 ?        S    09:01   0:01 nginx: worker process
+alice     2575  0.0  0.0  17664   728 pts/0    S+   10:32   0:00 grep --color=auto nginx</span>
+</pre>
+  </div>
+  <p>Notice the last line is the <code>grep</code> command itself. To exclude it:</p>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps aux | grep [n]ginx
+<span class="output">root      1055  0.0  0.1  62816  8200 ?        Ss   09:01   0:00 nginx: master process /usr/sbin/nginx
+www-data  1056  0.0  0.1  63240  9100 ?        S    09:01   0:02 nginx: worker process
+www-data  1057  0.0  0.1  63240  8800 ?        S    09:01   0:01 nginx: worker process</span>
+</pre>
+  </div>
+  <p>The bracket trick <code>[n]ginx</code> makes the regex not match the <code>grep</code> command itself.</p>
+
+  <h3>Show specific columns</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps -eo pid,ppid,user,%cpu,%mem,comm --sort=-%cpu | head -10
+<span class="output">  PID  PPID USER     %CPU %MEM COMMAND
+ 3201  2451 alice    45.2  3.1 firefox
+ 1124     1 mysql     2.3  8.5 mysqld
+ 1087     1 www-data  0.5  1.2 apache2
+ 2548  2530 alice     0.3  0.8 python3
+    1     0 root      0.0  0.1 systemd
+  312     1 root      0.0  0.1 systemd-journal
+  998     1 root      0.0  0.0 sshd</span>
+</pre>
+  </div>
+  <p>The <code>-o</code> flag lets you pick exactly which columns to display, and <code>--sort</code> orders the results. A leading <code>-</code> means descending order.</p>
+
+  <h3>Count processes</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps aux | wc -l
+<span class="output">187</span>
+</pre>
+  </div>
+
+  <h3>Show threads</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps -eLf | head -5
+<span class="output">UID        PID  PPID   LWP  C NLWP STIME TTY          TIME CMD
+root         1     0     1  0    1 09:00 ?        00:00:03 /sbin/init
+root         2     0     2  0    1 09:00 ?        00:00:00 [kthreadd]
+root       312     1   312  0    1 09:00 ?        00:00:01 /lib/systemd/systemd-journald
+mysql     1124     1  1124  0   28 09:01 ?        00:00:45 /usr/sbin/mysqld</span>
+</pre>
+  </div>
+
+  <!-- ===== SECTION 3: top ===== -->
+  <h2 id="top">3. <code>top</code> &mdash; Live Process Monitor</h2>
+
+  <p><code>top</code> is a real-time, continuously updating view of system processes. It shows CPU and memory usage, load averages, and lets you interact with processes.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> top
+<span class="output">top - 10:45:23 up  1:45,  2 users,  load average: 0.52, 0.38, 0.29
+Tasks: 186 total,   2 running, 183 sleeping,   0 stopped,   1 zombie
+%Cpu(s):  5.2 us,  1.8 sy,  0.0 ni, 92.3 id,  0.5 wa,  0.0 hi,  0.2 si,  0.0 st
+MiB Mem :   7953.4 total,   3241.2 free,   2567.8 used,   2144.4 buff/cache
+MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   4892.3 avail Mem
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+ 3201 alice     20   0 2345678 253412 102400 R  45.2   3.1   2:34.56 firefox
+ 1124 mysql     20   0 1234567 187000  28416 S   2.3   2.3   1:45.12 mysqld
+ 1087 www-data  20   0  272816  41200  22528 S   0.5   0.5   0:12.03 apache2
+ 2548 alice     20   0   45892  62144  12288 S   0.3   0.8   0:05.91 python3
+    1 root      20   0  169344  13200   8576 S   0.0   0.2   0:03.22 systemd</span>
+</pre>
+  </div>
+
+  <h3>Reading the top display</h3>
+  <ul>
+    <li><strong>Load average</strong> (0.52, 0.38, 0.29) &mdash; Average number of processes waiting to run over the last 1, 5, and 15 minutes. On a single-core system, 1.0 means fully loaded. On a 4-core system, 4.0 means fully loaded.</li>
+    <li><strong>us</strong> &mdash; User space CPU time (your programs).</li>
+    <li><strong>sy</strong> &mdash; System/kernel CPU time.</li>
+    <li><strong>ni</strong> &mdash; Nice'd (re-prioritized) processes.</li>
+    <li><strong>id</strong> &mdash; Idle CPU time (higher is better).</li>
+    <li><strong>wa</strong> &mdash; Time waiting for I/O (high values suggest disk bottleneck).</li>
+    <li><strong>PR</strong> &mdash; Priority. <strong>NI</strong> &mdash; Nice value (-20 to 19).</li>
+    <li><strong>VIRT</strong> &mdash; Total virtual memory. <strong>RES</strong> &mdash; Resident (physical) memory. <strong>SHR</strong> &mdash; Shared memory.</li>
+  </ul>
+
+  <h3>Key commands inside top</h3>
+  <table>
+    <thead>
+      <tr><th>Key</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>q</code></td><td>Quit top</td></tr>
+      <tr><td><code>h</code> or <code>?</code></td><td>Help screen</td></tr>
+      <tr><td><code>k</code></td><td>Kill a process (prompts for PID and signal)</td></tr>
+      <tr><td><code>M</code></td><td>Sort by memory usage</td></tr>
+      <tr><td><code>P</code></td><td>Sort by CPU usage (default)</td></tr>
+      <tr><td><code>T</code></td><td>Sort by running time</td></tr>
+      <tr><td><code>N</code></td><td>Sort by PID</td></tr>
+      <tr><td><code>r</code></td><td>Renice (change priority of) a process</td></tr>
+      <tr><td><code>u</code></td><td>Show processes for a specific user</td></tr>
+      <tr><td><code>1</code></td><td>Toggle per-CPU core display</td></tr>
+      <tr><td><code>c</code></td><td>Toggle full command path</td></tr>
+      <tr><td><code>V</code></td><td>Tree/forest view</td></tr>
+      <tr><td><code>Space</code></td><td>Force immediate refresh</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Run top in batch mode for scripting</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> top -b -n 1 | head -20       <span class="comment"># One snapshot, first 20 lines</span>
+<span class="prompt">$</span> top -b -n 5 -d 2 > top.log   <span class="comment"># 5 snapshots, 2 sec apart, save to file</span>
+</pre>
+  </div>
+
+  <!-- ===== SECTION 4: htop ===== -->
+  <h2 id="htop">4. <code>htop</code> &mdash; Interactive Process Monitor</h2>
+
+  <p><code>htop</code> is a more modern, user-friendly alternative to <code>top</code>. It provides color-coded output, mouse support, and easier navigation. You may need to install it: <code>sudo apt install htop</code>.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> htop
+<span class="output">  CPU[||||||||||||                      32.5%]   Tasks: 186, 421 thr; 2 running
+  Mem[||||||||||||||||||||            4.7G/7.8G]   Load average: 0.52 0.38 0.29
+  Swp[                                0K/2.0G]   Uptime: 01:45:23
+
+  PID USER      PRI  NI  VIRT   RES   SHR S CPU%  MEM%   TIME+  Command
+ 3201 alice      20   0 2345M  247M  100M R 45.2   3.1  2:34.56 /usr/lib/firefox/firefox
+ 1124 mysql      20   0 1205M  182M 27.7M S  2.3   2.3  1:45.12 /usr/sbin/mysqld
+ 1087 www-data   20   0  266M 40.2M 22.0M S  0.5   0.5  0:12.03 /usr/sbin/apache2
+ 2548 alice      20   0 44.8M 60.7M 12.0M S  0.3   0.8  0:05.91 python3 server.py
+
+  F1Help  F2Setup  F3Search  F4Filter  F5Tree  F6SortBy  F7Nice-  F8Nice+  F9Kill  F10Quit</span>
+</pre>
+  </div>
+
+  <h3>htop navigation and features</h3>
+  <ul>
+    <li><strong>Arrow keys</strong> &mdash; Scroll through the process list.</li>
+    <li><strong>F3 or /</strong> &mdash; Search for a process by name.</li>
+    <li><strong>F4 or \</strong> &mdash; Filter: only show processes matching a pattern.</li>
+    <li><strong>F5</strong> &mdash; Tree view: shows parent-child relationships visually.</li>
+    <li><strong>F6</strong> &mdash; Choose which column to sort by.</li>
+    <li><strong>F7 / F8</strong> &mdash; Decrease / increase nice value (change priority).</li>
+    <li><strong>F9</strong> &mdash; Send a signal (kill) to the selected process. A menu of signals appears.</li>
+    <li><strong>F10 or q</strong> &mdash; Quit htop.</li>
+    <li><strong>Space</strong> &mdash; Tag (select) a process. You can tag multiple processes and then kill them all at once.</li>
+    <li><strong>u</strong> &mdash; Filter by user.</li>
+    <li><strong>t</strong> &mdash; Toggle tree view.</li>
+    <li><strong>H</strong> &mdash; Toggle hiding of user threads.</li>
+    <li><strong>K</strong> &mdash; Toggle hiding of kernel threads.</li>
+  </ul>
+
+  <h3>top vs htop comparison</h3>
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>top</th><th>htop</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Pre-installed</td><td>Yes (on virtually all systems)</td><td>No (needs installation)</td></tr>
+      <tr><td>Color output</td><td>Limited</td><td>Full color, customizable</td></tr>
+      <tr><td>Mouse support</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Scroll horizontally</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Scroll vertically</td><td>Limited</td><td>Full scrolling</td></tr>
+      <tr><td>Tree view</td><td>With <code>V</code> key</td><td>Built-in with <code>F5</code></td></tr>
+      <tr><td>Kill process</td><td>Type <code>k</code>, then PID</td><td>Select with arrows, press <code>F9</code></td></tr>
+      <tr><td>Search/filter</td><td>Basic</td><td>Incremental search and filter</td></tr>
+      <tr><td>CPU bar graph</td><td>Text percentage</td><td>Visual bar per core</td></tr>
+      <tr><td>Configuration</td><td>Limited</td><td>Full setup menu (<code>F2</code>)</td></tr>
+      <tr><td>Best for</td><td>Scripts, remote servers, minimal systems</td><td>Interactive daily use</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ===== SECTION 5: pgrep ===== -->
+  <h2 id="pgrep">5. <code>pgrep</code> &mdash; Find Processes by Name</h2>
+
+  <p><code>pgrep</code> searches for processes by name (or other attributes) and returns their PIDs. It is cleaner than <code>ps aux | grep</code> because it never matches itself.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pgrep firefox
+<span class="output">3201</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pgrep -l firefox          <span class="comment"># -l = show name alongside PID</span>
+<span class="output">3201 firefox</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pgrep -a firefox          <span class="comment"># -a = show full command line</span>
+<span class="output">3201 /usr/lib/firefox/firefox -new-window</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pgrep -u alice            <span class="comment"># All PIDs owned by alice</span>
+<span class="output">2451
+2510
+2530
+2548
+3201</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pgrep -c bash             <span class="comment"># -c = count matching processes</span>
+<span class="output">3</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pgrep -u root -l sshd     <span class="comment"># Find sshd processes owned by root</span>
+<span class="output">998 sshd
+2449 sshd</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pgrep -x bash             <span class="comment"># -x = exact match only (not "bash-helper")</span>
+<span class="output">2451
+2530</span>
+</pre>
+  </div>
+
+  <!-- ===== SECTION 6: Signals Concept ===== -->
+  <div class="concept-box">
+    <div class="concept-box__title">Signals &mdash; How Processes Communicate</div>
+    <p>Signals are the way the operating system (and you) communicate with running processes. Think of it like this:</p>
+    <ul>
+      <li><strong>SIGTERM (15)</strong> is like politely tapping someone on the shoulder and saying "Please finish up and leave." The process can clean up, save data, and shut down gracefully.</li>
+      <li><strong>SIGKILL (9)</strong> is like pulling the power plug. The process has no chance to clean up. Data may be lost. Use this only as a last resort.</li>
+      <li><strong>SIGINT (2)</strong> is like pressing Ctrl+C &mdash; "Please stop what you are doing."</li>
+      <li><strong>SIGHUP (1)</strong> is like telling a process "Your terminal went away." Many daemons reload their configuration when they receive this signal.</li>
+    </ul>
+  </div>
+
+  <!-- ===== SECTION 6: kill ===== -->
+  <h2 id="kill">6. <code>kill</code> &mdash; Send Signals to Processes</h2>
+
+  <p>Despite its name, <code>kill</code> does not always kill a process. It sends a <strong>signal</strong> to a process. The default signal is SIGTERM (15), which asks the process to terminate gracefully.</p>
+
+  <h3>Common signals reference table</h3>
+  <table>
+    <thead>
+      <tr><th>Signal</th><th>Number</th><th>Name</th><th>Description</th><th>Can be caught?</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SIGHUP</td><td>1</td><td>Hang Up</td><td>Terminal closed or config reload for daemons</td><td>Yes</td></tr>
+      <tr><td>SIGINT</td><td>2</td><td>Interrupt</td><td>Same as pressing Ctrl+C</td><td>Yes</td></tr>
+      <tr><td>SIGQUIT</td><td>3</td><td>Quit</td><td>Like SIGINT but produces a core dump</td><td>Yes</td></tr>
+      <tr><td>SIGKILL</td><td>9</td><td>Kill</td><td>Force kill &mdash; process cannot ignore this</td><td>No</td></tr>
+      <tr><td>SIGTERM</td><td>15</td><td>Terminate</td><td>Polite request to stop (default signal)</td><td>Yes</td></tr>
+      <tr><td>SIGSTOP</td><td>19</td><td>Stop</td><td>Pause the process (like Ctrl+Z but cannot be caught)</td><td>No</td></tr>
+      <tr><td>SIGTSTP</td><td>20</td><td>Terminal Stop</td><td>Ctrl+Z &mdash; suspend the foreground process</td><td>Yes</td></tr>
+      <tr><td>SIGCONT</td><td>18</td><td>Continue</td><td>Resume a stopped process</td><td>Yes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> kill 3201                 <span class="comment"># Send SIGTERM (default) to PID 3201</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> kill -15 3201             <span class="comment"># Same as above, explicit SIGTERM</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> kill -SIGTERM 3201        <span class="comment"># Same, using signal name</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> kill -9 3201              <span class="comment"># SIGKILL: force kill (last resort!)</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> kill -STOP 3201           <span class="comment"># Pause (freeze) the process</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> kill -CONT 3201           <span class="comment"># Resume the paused process</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> kill -HUP 998             <span class="comment"># Tell sshd to reload its configuration</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> kill -l                   <span class="comment"># List all available signal names</span>
+<span class="output"> 1) SIGHUP       2) SIGINT       3) SIGQUIT      4) SIGILL       5) SIGTRAP
+ 6) SIGABRT      7) SIGBUS       8) SIGFPE       9) SIGKILL     10) SIGUSR1
+11) SIGSEGV     12) SIGUSR2     13) SIGPIPE     14) SIGALRM     15) SIGTERM
+...</span>
+</pre>
+  </div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Never use kill -9 as your first resort!</div>
+    <p>Always try <code>kill PID</code> (SIGTERM) first and wait a few seconds. SIGTERM lets the process clean up: save files, close database connections, remove temporary files, and notify child processes. <code>kill -9</code> yanks the rug out immediately &mdash; the process has zero chance to tidy up. This can lead to:</p>
+    <ul>
+      <li>Corrupted files or databases</li>
+      <li>Orphaned child processes</li>
+      <li>Leftover lock files that prevent the program from restarting</li>
+      <li>Lost unsaved data</li>
+    </ul>
+    <p><strong>The escalation order should be:</strong> <code>kill PID</code> &rarr; wait 5 seconds &rarr; <code>kill -15 PID</code> &rarr; wait 5 seconds &rarr; <code>kill -9 PID</code></p>
+  </div>
+
+  <!-- ===== SECTION 7: killall ===== -->
+  <h2 id="killall">7. <code>killall</code> &mdash; Kill Processes by Name</h2>
+
+  <p><code>killall</code> sends a signal to <strong>all</strong> processes matching a given name. This is convenient but requires caution &mdash; you might kill more processes than intended.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> killall firefox           <span class="comment"># SIGTERM to all firefox processes</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> killall -9 firefox        <span class="comment"># Force kill all firefox processes</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> killall -u alice python3  <span class="comment"># Kill only alice's python3 processes</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> killall -i firefox        <span class="comment"># Interactive: confirm each kill</span>
+<span class="output">Kill firefox(3201) ? (y/N) y
+Kill firefox(3245) ? (y/N) n</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> killall -v nginx          <span class="comment"># Verbose: report what was killed</span>
+<span class="output">Killed nginx(1055) with signal 15
+Killed nginx(1056) with signal 15
+Killed nginx(1057) with signal 15</span>
+</pre>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Warning: killall behaves differently on some Unix systems!</div>
+    <p>On Linux, <code>killall</code> kills processes by name. On some older Solaris and Unix systems, <code>killall</code> kills <strong>every single process</strong> on the system. If you are on an unfamiliar system, always use <code>pkill</code> instead, or verify with <code>man killall</code> first.</p>
+  </div>
+
+  <!-- ===== SECTION 8: pkill ===== -->
+  <h2 id="pkill">8. <code>pkill</code> &mdash; Kill Processes by Pattern</h2>
+
+  <p><code>pkill</code> works like <code>pgrep</code> but sends a signal instead of printing PIDs. It matches process names using patterns, which makes it flexible.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pkill firefox             <span class="comment"># SIGTERM to processes matching "firefox"</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pkill -9 firefox          <span class="comment"># SIGKILL all matching processes</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pkill -u alice            <span class="comment"># Kill all processes owned by user alice</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pkill -f "python3 server.py"  <span class="comment"># -f = match against full command line</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pkill -x bash             <span class="comment"># -x = exact name match only</span>
+</pre>
+  </div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">pgrep + pkill: the safe pattern</div>
+    <p>Before using <code>pkill</code>, run <code>pgrep -a</code> with the same pattern to see what would be affected. This prevents accidentally killing the wrong processes.</p>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> pgrep -a "python3"        <span class="comment"># Preview: what will be killed?</span>
+<span class="output">2548 python3 server.py
+2590 python3 backup_script.py</span>
+<span class="prompt">$</span> pkill -f "python3 server.py"  <span class="comment"># Now kill only the one you want</span>
+</pre>
+  </div>
+
+  <!-- ===== SECTION 9: Job Control ===== -->
+  <h2 id="jobs">9. <code>jobs</code> &mdash; List Background Jobs</h2>
+
+  <p>When you run commands in your terminal, they normally run in the <strong>foreground</strong> &mdash; they take over your terminal until they finish. <strong>Job control</strong> lets you move commands to the background, pause them, and resume them.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> sleep 300 &amp;               <span class="comment"># Start a job in the background</span>
+<span class="output">[1] 4001</span>
+<span class="prompt">$</span> sleep 600 &amp;               <span class="comment"># Start another background job</span>
+<span class="output">[2] 4002</span>
+<span class="prompt">$</span> vim notes.txt              <span class="comment"># Start vim, then press Ctrl+Z to suspend</span>
+<span class="output">[3]+  Stopped                 vim notes.txt</span>
+<span class="prompt">$</span> jobs
+<span class="output">[1]   Running                 sleep 300 &amp;
+[2]-  Running                 sleep 600 &amp;
+[3]+  Stopped                 vim notes.txt</span>
+</pre>
+  </div>
+
+  <p>The output shows:</p>
+  <ul>
+    <li><strong>[1], [2], [3]</strong> &mdash; Job numbers (different from PIDs).</li>
+    <li><strong>+</strong> &mdash; The most recent (current) job. <strong>-</strong> &mdash; The previous job.</li>
+    <li><strong>Running</strong> &mdash; Job is active in the background.</li>
+    <li><strong>Stopped</strong> &mdash; Job is paused (suspended).</li>
+  </ul>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> jobs -l                   <span class="comment"># -l = show PIDs alongside job numbers</span>
+<span class="output">[1]   4001 Running                 sleep 300 &amp;
+[2]-  4002 Running                 sleep 600 &amp;
+[3]+  4010 Stopped                 vim notes.txt</span>
+</pre>
+  </div>
+
+  <!-- ===== SECTION 10: bg ===== -->
+  <h2 id="bg">10. <code>bg</code> &mdash; Resume a Job in the Background</h2>
+
+  <p>If you suspended a job with Ctrl+Z, you can resume it in the background using <code>bg</code>. The job continues running, but your terminal is free for other commands.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> python3 long_task.py      <span class="comment"># Running in foreground... press Ctrl+Z</span>
+<span class="output">^Z
+[1]+  Stopped                 python3 long_task.py</span>
+<span class="prompt">$</span> bg                        <span class="comment"># Resume it in the background</span>
+<span class="output">[1]+ python3 long_task.py &amp;</span>
+<span class="prompt">$</span>                           <span class="comment"># Terminal is free again!</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> bg %2                     <span class="comment"># Resume specifically job number 2</span>
+<span class="output">[2]+ sleep 600 &amp;</span>
+</pre>
+  </div>
+
+  <!-- ===== SECTION 11: fg ===== -->
+  <h2 id="fg">11. <code>fg</code> &mdash; Bring a Job to the Foreground</h2>
+
+  <p><code>fg</code> brings a background or stopped job back to the foreground so you can interact with it directly.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> fg                        <span class="comment"># Bring the most recent job to foreground</span>
+<span class="output">vim notes.txt              </span> <span class="comment"># You are back inside vim</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> fg %1                     <span class="comment"># Bring job number 1 to foreground</span>
+<span class="output">sleep 300</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> fg %?server               <span class="comment"># Bring the job whose command contains "server"</span>
+<span class="output">python3 server.py</span>
+</pre>
+  </div>
+
+  <!-- ===== SECTION 12: & ===== -->
+  <h2 id="ampersand">12. <code>&amp;</code> &mdash; Run a Command in the Background</h2>
+
+  <p>Appending <code>&amp;</code> to any command starts it in the background immediately, returning control to your terminal.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> cp -r /data/backup /mnt/external/ &amp;
+<span class="output">[1] 4100</span>
+<span class="prompt">$</span>                           <span class="comment"># Terminal is free while copy runs</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> find / -name "*.log" -size +100M > big_logs.txt 2>/dev/null &amp;
+<span class="output">[1] 4150</span>
+<span class="prompt">$</span>                           <span class="comment"># Long search runs in background</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> python3 web_server.py &amp;
+<span class="output">[1] 4200</span>
+<span class="prompt">$</span> curl http://localhost:8080   <span class="comment"># You can use the terminal while the server runs</span>
+<span class="output">Hello, World!</span>
+</pre>
+  </div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Background output can be messy</div>
+    <p>Background processes still print to your terminal by default. Redirect their output to keep things clean:</p>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ./noisy_script.sh > output.log 2>&amp;1 &amp;
+<span class="output">[1] 4250</span>
+</pre>
+  </div>
+  <p>This sends both stdout and stderr to <code>output.log</code>, keeping your terminal clear.</p>
+
+  <!-- ===== SECTION 13: nohup ===== -->
+  <h2 id="nohup">13. <code>nohup</code> &mdash; Keep Running After Logout</h2>
+
+  <p>When you close your terminal or log out of an SSH session, all processes in that session receive SIGHUP and typically die. <code>nohup</code> makes a process immune to the hangup signal, so it survives after you disconnect.</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> nohup python3 long_task.py &amp;
+<span class="output">[1] 4300
+nohup: ignoring input and appending output to 'nohup.out'</span>
+</pre>
+  </div>
+  <p>By default, <code>nohup</code> redirects output to a file called <code>nohup.out</code> in the current directory. You can check on it later:</p>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> tail -f nohup.out         <span class="comment"># Watch the output in real time</span>
+<span class="output">Processing batch 1 of 50...
+Processing batch 2 of 50...
+Processing batch 3 of 50...</span>
+</pre>
+  </div>
+
+  <h3>Redirect nohup output to a custom file</h3>
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> nohup ./backup.sh > /var/log/backup.log 2>&amp;1 &amp;
+<span class="output">[1] 4350</span>
+</pre>
+  </div>
+
+  <h3>The nohup + & pattern</h3>
+  <p>Almost always, you combine <code>nohup</code> with <code>&amp;</code>:</p>
+  <ul>
+    <li><code>nohup</code> alone &mdash; Protects from SIGHUP but still runs in the foreground.</li>
+    <li><code>&amp;</code> alone &mdash; Runs in background but the process dies if you close the terminal.</li>
+    <li><code>nohup ... &amp;</code> &mdash; Both: runs in the background AND survives terminal close.</li>
+  </ul>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> nohup python3 data_pipeline.py > pipeline.log 2>&amp;1 &amp;
+<span class="output">[1] 4400</span>
+<span class="prompt">$</span> exit                      <span class="comment"># Safe to log out; the script keeps running</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="comment"># Check later if it is still running</span>
+<span class="prompt">$</span> pgrep -a data_pipeline
+<span class="output">4400 python3 data_pipeline.py</span>
+</pre>
+  </div>
+
+  <!-- ===== SECTION 14: nice / renice ===== -->
+  <h2 id="nice-renice">14. <code>nice</code> / <code>renice</code> &mdash; Process Priority</h2>
+
+  <p>Every process has a <strong>nice value</strong> that influences how much CPU time the scheduler gives it. The name "nice" comes from the idea that a "nicer" process yields more CPU to others.</p>
+
+  <ul>
+    <li>Nice values range from <strong>-20</strong> (highest priority, least nice) to <strong>19</strong> (lowest priority, most nice).</li>
+    <li>The default nice value is <strong>0</strong>.</li>
+    <li>Only root (or sudo) can set negative nice values (higher priority).</li>
+    <li>Regular users can only make their processes nicer (higher nice value, lower priority).</li>
+  </ul>
+
+  <div class="code-box">
+<pre>
+  Priority Scale:
+  -20 ........... 0 ........... 19
+   ^               ^               ^
+   |               |               |
+  Highest        Default         Lowest
+  priority       priority        priority
+  (greedy)       (normal)        (generous)
+  Root only      Anyone          Anyone
+</pre>
+  </div>
+
+  <h3><code>nice</code> &mdash; start a process with a specific priority</h3>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> nice -n 10 tar czf backup.tar.gz /home/alice/
+<span class="comment"># Runs tar at nice 10 (low priority, won't slow down other work)</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> nice -n 19 find / -name "*.tmp" -delete
+<span class="comment"># Lowest priority: runs only when CPU is idle</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> sudo nice -n -10 /opt/critical-app/start.sh
+<span class="comment"># High priority (needs root): gets more CPU time than normal processes</span>
+</pre>
+  </div>
+
+  <h3><code>renice</code> &mdash; change priority of a running process</h3>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> renice 15 -p 3201         <span class="comment"># Set PID 3201 to nice 15</span>
+<span class="output">3201 (process ID) old priority 0, new priority 15</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> sudo renice -5 -p 998     <span class="comment"># Root can increase priority (negative nice)</span>
+<span class="output">998 (process ID) old priority 0, new priority -5</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> renice 10 -u alice        <span class="comment"># Set all of alice's processes to nice 10</span>
+</pre>
+  </div>
+
+  <div class="code-box">
+<pre>
+<span class="prompt">$</span> ps -eo pid,ni,comm | head -5    <span class="comment"># Check nice values</span>
+<span class="output">  PID  NI COMMAND
+    1   0 systemd
+    2   0 kthreadd
+  312   0 systemd-journal
+ 3201  15 firefox</span>
+</pre>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert__title">When to use nice / renice</div>
+    <p>Use nice for long-running, resource-heavy tasks that you do not want to slow down interactive work. Examples: backups, file compression, data processing scripts, large compiles. This way, the task takes CPU when available but steps aside when the system is busy with more important work.</p>
+  </div>
+
+  <!-- ===== Exercises ===== -->
+  <h2 id="exercises">Exercises</h2>
+
+  <div class="exercise-box">
+    <div class="exercise-box__title">Exercise 1: Process Detective</div>
+    <p>Complete these tasks in order:</p>
+    <ol>
+      <li>Open three terminal windows and run <code>sleep 1000</code> in two of them.</li>
+      <li>In the third terminal, use <code>ps aux | grep sleep</code> to find the sleep processes.</li>
+      <li>Use <code>pgrep -a sleep</code> to find them more cleanly.</li>
+      <li>Send SIGTERM to one of them with <code>kill</code>.</li>
+      <li>Send SIGKILL to the other with <code>kill -9</code>.</li>
+      <li>Verify both are gone with <code>pgrep sleep</code>.</li>
+    </ol>
+    <details>
+      <summary>Show solution</summary>
+      <div class="code-box">
+<pre>
+<span class="comment"># Terminal 1:</span>
+<span class="prompt">$</span> sleep 1000
+
+<span class="comment"># Terminal 2:</span>
+<span class="prompt">$</span> sleep 1000
+
+<span class="comment"># Terminal 3:</span>
+<span class="prompt">$</span> pgrep -a sleep
+<span class="output">5001 sleep 1000
+5002 sleep 1000</span>
+<span class="prompt">$</span> kill 5001               <span class="comment"># Graceful termination</span>
+<span class="prompt">$</span> kill -9 5002            <span class="comment"># Force kill</span>
+<span class="prompt">$</span> pgrep sleep             <span class="comment"># No output = both are gone</span>
+</pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="exercise-box">
+    <div class="exercise-box__title">Exercise 2: Job Control Workflow</div>
+    <p>Practice the full job control workflow:</p>
+    <ol>
+      <li>Run <code>sleep 500 &amp;</code> to start a background job.</li>
+      <li>Run <code>sleep 600</code> (foreground), then press Ctrl+Z to suspend it.</li>
+      <li>Run <code>jobs</code> to see both jobs.</li>
+      <li>Use <code>bg %2</code> to resume the second job in the background.</li>
+      <li>Use <code>fg %1</code> to bring the first job to the foreground.</li>
+      <li>Press Ctrl+C to kill it.</li>
+      <li>Use <code>kill %2</code> to terminate the remaining job.</li>
+      <li>Run <code>jobs</code> to confirm no jobs remain.</li>
+    </ol>
+    <details>
+      <summary>Show solution</summary>
+      <div class="code-box">
+<pre>
+<span class="prompt">$</span> sleep 500 &amp;
+<span class="output">[1] 5100</span>
+<span class="prompt">$</span> sleep 600
+<span class="output">^Z
+[2]+  Stopped                 sleep 600</span>
+<span class="prompt">$</span> jobs
+<span class="output">[1]-  Running                 sleep 500 &amp;
+[2]+  Stopped                 sleep 600</span>
+<span class="prompt">$</span> bg %2
+<span class="output">[2]+ sleep 600 &amp;</span>
+<span class="prompt">$</span> fg %1
+<span class="output">sleep 500
+^C</span>
+<span class="prompt">$</span> kill %2
+<span class="output">[2]+  Terminated              sleep 600</span>
+<span class="prompt">$</span> jobs
+<span class="comment"># No output = no jobs left</span>
+</pre>
+      </div>
+    </details>
+  </div>
+
+  <div class="exercise-box">
+    <div class="exercise-box__title">Exercise 3: Surviving Logout with nohup</div>
+    <p>Test that <code>nohup</code> keeps a process alive:</p>
+    <ol>
+      <li>In a terminal, run: <code>nohup sleep 300 &amp;</code></li>
+      <li>Check the PID: <code>pgrep -a sleep</code></li>
+      <li>Close the terminal window completely.</li>
+      <li>Open a new terminal and run <code>pgrep -a sleep</code> &mdash; the process should still be running.</li>
+      <li>Clean up: <code>pkill -f "sleep 300"</code></li>
+    </ol>
+    <details>
+      <summary>Show solution</summary>
+      <div class="code-box">
+<pre>
+<span class="prompt">$</span> nohup sleep 300 &amp;
+<span class="output">[1] 5200
+nohup: ignoring input and appending output to 'nohup.out'</span>
+<span class="prompt">$</span> pgrep -a sleep
+<span class="output">5200 sleep 300</span>
+<span class="comment"># Close this terminal, open a new one:</span>
+<span class="prompt">$</span> pgrep -a sleep
+<span class="output">5200 sleep 300             </span><span class="comment"># Still running!</span>
+<span class="prompt">$</span> pkill -f "sleep 300"     <span class="comment"># Clean up</span>
+</pre>
+      </div>
+    </details>
+  </div>
+
+  <!-- ===== Quizzes ===== -->
+  <h2 id="quizzes">Quizzes</h2>
+
+  <div class="exercise-box">
+    <div class="exercise-box__title">Quiz 1: Signals and Processes</div>
+    <ol>
+      <li>What is the default signal sent by <code>kill PID</code>?</li>
+      <li>Which signal cannot be caught or ignored by a process?</li>
+      <li>What does SIGHUP do when sent to many daemon processes?</li>
+      <li>What keyboard shortcut sends SIGINT to a foreground process?</li>
+      <li>What is a zombie process, and is it harmful?</li>
+    </ol>
+    <details>
+      <summary>Show answers</summary>
+      <ol>
+        <li><strong>SIGTERM (signal 15)</strong> &mdash; a polite request to terminate.</li>
+        <li><strong>SIGKILL (signal 9)</strong> and <strong>SIGSTOP (signal 19)</strong> cannot be caught or ignored.</li>
+        <li>Many daemons (like nginx, apache, sshd) <strong>reload their configuration</strong> when they receive SIGHUP, rather than terminating.</li>
+        <li><strong>Ctrl+C</strong> sends SIGINT (signal 2) to the foreground process.</li>
+        <li>A zombie is a process that has <strong>finished executing</strong> but whose parent has not yet read its exit status. A few zombies are normal and harmless. Many zombies indicate a buggy parent process that is not properly reaping its children.</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="exercise-box">
+    <div class="exercise-box__title">Quiz 2: Job Control and Background Processes</div>
+    <ol>
+      <li>What is the difference between <code>command &amp;</code> and <code>nohup command &amp;</code>?</li>
+      <li>How do you suspend a running foreground process?</li>
+      <li>After suspending a process, how do you resume it in the background?</li>
+      <li>What does the <code>+</code> sign mean in the output of <code>jobs</code>?</li>
+      <li>If you start a process with nice value 10 and want to change it to 5, what command do you use?</li>
+      <li>Can a regular (non-root) user decrease the nice value (increase priority) of their process from 10 to 5?</li>
+    </ol>
+    <details>
+      <summary>Show answers</summary>
+      <ol>
+        <li><code>command &amp;</code> runs in the background but <strong>dies when the terminal closes</strong>. <code>nohup command &amp;</code> runs in the background AND <strong>survives terminal closure</strong> because it ignores SIGHUP.</li>
+        <li>Press <strong>Ctrl+Z</strong>. This sends SIGTSTP (signal 20) which suspends the process.</li>
+        <li>Use the <code>bg</code> command (or <code>bg %N</code> for a specific job number).</li>
+        <li>The <code>+</code> marks the <strong>current (most recent) job</strong> &mdash; the one that <code>fg</code> and <code>bg</code> will act on by default.</li>
+        <li><code>renice 5 -p PID</code> (replace PID with the process ID).</li>
+        <li><strong>No.</strong> Regular users can only increase the nice value (lower priority). Decreasing the nice value (raising priority) requires root/sudo: <code>sudo renice 5 -p PID</code>.</li>
+      </ol>
+    </details>
+  </div>
+
+  <!-- ===== Chapter Summary ===== -->
+  <h2 id="summary">Chapter Summary</h2>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Purpose</th><th>Key Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>ps aux</code></td><td>Snapshot of all processes</td><td><code>ps aux | grep nginx</code></td></tr>
+      <tr><td><code>ps -ef</code></td><td>All processes with parent PIDs</td><td><code>ps -ef | grep sshd</code></td></tr>
+      <tr><td><code>top</code></td><td>Live process monitor</td><td><code>top</code> then press <code>M</code> to sort by memory</td></tr>
+      <tr><td><code>htop</code></td><td>Interactive process monitor</td><td><code>htop</code> then F5 for tree view</td></tr>
+      <tr><td><code>pgrep</code></td><td>Find PID by name</td><td><code>pgrep -a firefox</code></td></tr>
+      <tr><td><code>kill</code></td><td>Send signal to PID</td><td><code>kill 1234</code> or <code>kill -9 1234</code></td></tr>
+      <tr><td><code>killall</code></td><td>Kill all by exact name</td><td><code>killall firefox</code></td></tr>
+      <tr><td><code>pkill</code></td><td>Kill by pattern</td><td><code>pkill -f "python3 server"</code></td></tr>
+      <tr><td><code>jobs</code></td><td>List background/stopped jobs</td><td><code>jobs -l</code></td></tr>
+      <tr><td><code>bg</code></td><td>Resume job in background</td><td><code>bg %1</code></td></tr>
+      <tr><td><code>fg</code></td><td>Bring job to foreground</td><td><code>fg %2</code></td></tr>
+      <tr><td><code>&amp;</code></td><td>Start command in background</td><td><code>./script.sh &amp;</code></td></tr>
+      <tr><td><code>nohup</code></td><td>Survive terminal close</td><td><code>nohup ./task.sh &amp;</code></td></tr>
+      <tr><td><code>nice</code></td><td>Start with set priority</td><td><code>nice -n 10 make -j4</code></td></tr>
+      <tr><td><code>renice</code></td><td>Change running process priority</td><td><code>renice 15 -p 1234</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Navigation -->
+  <div class="chapter-nav">
+    <a class="chapter-nav__prev" href="../06-permissions/index.html">&larr; 6. Permissions &amp; Ownership</a>
+    <a class="chapter-nav__next" href="../08-system-disk/index.html">8. System &amp; Disk Info &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; Chapter 7: Processes &amp; Jobs
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

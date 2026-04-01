@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux Learning Guide — Learn Linux from Scratch</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link active" href="index.html">Home</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="pages/04-viewing-editing/index.html">4. Viewing &amp; Editing Files</a>
+    <a class="sidebar__link" href="pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="pages/06-permissions/index.html">6. Permissions &amp; Ownership</a>
+    <a class="sidebar__link" href="pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="pages/09-networking/index.html">9. Networking Basics</a>
+    <a class="sidebar__link" href="pages/10-archives/index.html">10. Archives &amp; Compression</a>
+    <a class="sidebar__link" href="pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="pages/13-workflows/index.html">13. Real-World Workflows</a>
+    <a class="sidebar__link" href="pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="pages/15-comparisons/index.html">15. Command Comparisons</a>
+  </div>
+
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="reference/command-index.html">Command Index (A-Z)</a>
+    <a class="sidebar__link" href="reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="reference/exercises.html">Practice Exercises</a>
+    <a class="sidebar__link" href="reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+  <h1>Learn Linux from Scratch</h1>
+
+  <p>Welcome! This site is a complete, beginner-friendly guide to learning Linux. Whether you have never opened a terminal before or you know a few commands and want to get better, this guide will walk you through everything step by step.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">How to use this guide</div>
+    <p>Start from <strong>Chapter 1</strong> and work your way through in order. Each chapter builds on the previous one. Use the sidebar to jump to any topic. Use the search bar to find specific commands.</p>
+  </div>
+
+  <h2>Learning Path</h2>
+  <p>The chapters are arranged in the order a beginner should learn them:</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <a href="pages/01-fundamentals/index.html">
+        <div class="card__number">Chapter 1</div>
+        <div class="card__title">Linux Fundamentals</div>
+        <div class="card__desc">What Linux is, distributions, kernel vs shell, the filesystem, paths, environment variables, and users.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/02-terminal-basics/index.html">
+        <div class="card__number">Chapter 2</div>
+        <div class="card__title">Terminal Basics</div>
+        <div class="card__desc">Your first commands: pwd, ls, cd, man, echo, history, and getting around the terminal.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/03-files-directories/index.html">
+        <div class="card__number">Chapter 3</div>
+        <div class="card__title">Files &amp; Directories</div>
+        <div class="card__desc">Create, copy, move, rename, delete files and folders. Links, file info, and the directory tree.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/04-viewing-editing/index.html">
+        <div class="card__number">Chapter 4</div>
+        <div class="card__title">Viewing &amp; Editing Files</div>
+        <div class="card__desc">Read files with cat, less, head, tail. Edit with nano and vim. Transform text with sort, cut, tr, and more.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/05-search-filtering/index.html">
+        <div class="card__number">Chapter 5</div>
+        <div class="card__title">Search &amp; Filtering</div>
+        <div class="card__desc">Find files with find and locate. Search text with grep. Process text with awk and sed. Regex basics.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/06-permissions/index.html">
+        <div class="card__number">Chapter 6</div>
+        <div class="card__title">Permissions &amp; Ownership</div>
+        <div class="card__desc">Understand rwx, chmod, chown, sudo, umask. Keep your files safe and your system secure.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/07-processes/index.html">
+        <div class="card__number">Chapter 7</div>
+        <div class="card__title">Processes &amp; Jobs</div>
+        <div class="card__desc">See what is running, stop processes, background jobs, priorities, and keeping programs alive.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/08-system-disk/index.html">
+        <div class="card__number">Chapter 8</div>
+        <div class="card__title">System &amp; Disk Info</div>
+        <div class="card__desc">Check disk space, memory, CPU, uptime, block devices, and system identity.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/09-networking/index.html">
+        <div class="card__number">Chapter 9</div>
+        <div class="card__title">Networking Basics</div>
+        <div class="card__desc">IP addresses, ping, curl, wget, SSH, SCP, rsync, DNS tools, and basic network troubleshooting.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/10-archives/index.html">
+        <div class="card__number">Chapter 10</div>
+        <div class="card__title">Archives &amp; Compression</div>
+        <div class="card__desc">Create and extract archives with tar, gzip, zip, and xz. Understand compression formats.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/11-packages/index.html">
+        <div class="card__number">Chapter 11</div>
+        <div class="card__title">Package Management</div>
+        <div class="card__desc">Install, update, and remove software. apt, dpkg, yum, dnf, rpm, and pacman across distributions.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/12-shell-scripting/index.html">
+        <div class="card__number">Chapter 12</div>
+        <div class="card__title">Shell &amp; Scripting</div>
+        <div class="card__desc">Bash basics: pipes, redirection, variables, aliases, command substitution, and writing your first scripts.</div>
+      </a>
+    </div>
+  </div>
+
+  <h2>Practical Skills &amp; Reference</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <a href="pages/13-workflows/index.html">
+        <div class="card__number">Chapter 13</div>
+        <div class="card__title">Real-World Workflows</div>
+        <div class="card__desc">Practical recipes: find large files, search logs, batch rename, backup folders, and more.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/14-troubleshooting/index.html">
+        <div class="card__number">Chapter 14</div>
+        <div class="card__title">Troubleshooting &amp; Safety</div>
+        <div class="card__desc">Fix common errors, avoid dangerous commands, recover from mistakes, and use man pages effectively.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/15-comparisons/index.html">
+        <div class="card__number">Chapter 15</div>
+        <div class="card__title">Command Comparisons</div>
+        <div class="card__desc">cp vs mv, grep vs find, apt vs apt-get, curl vs wget, soft vs hard links, and more side-by-side.</div>
+      </a>
+    </div>
+  </div>
+
+  <h2>Advanced Topics</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <a href="pages/16-cron-systemd/index.html">
+        <div class="card__number">Chapter 16</div>
+        <div class="card__title">Cron &amp; Systemd</div>
+        <div class="card__desc">Schedule tasks with cron and crontab. Manage services and units with systemd, systemctl, and journalctl.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/17-git-basics/index.html">
+        <div class="card__number">Chapter 17</div>
+        <div class="card__title">Git Basics</div>
+        <div class="card__desc">Version control fundamentals: init, add, commit, branch, merge, push, pull, and working with remotes.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="pages/18-docker-basics/index.html">
+        <div class="card__number">Chapter 18</div>
+        <div class="card__title">Docker Basics</div>
+        <div class="card__desc">Container fundamentals: images, containers, Dockerfiles, volumes, networking, and docker-compose.</div>
+      </a>
+    </div>
+  </div>
+
+  <h2>Quick Reference</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <a href="reference/cheatsheet.html">
+        <div class="card__title">Cheat Sheet</div>
+        <div class="card__desc">One-page quick reference of common commands grouped by category.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="reference/command-index.html">
+        <div class="card__title">Command Index (A-Z)</div>
+        <div class="card__desc">Searchable alphabetical list of every command covered in this guide.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="reference/glossary.html">
+        <div class="card__title">Glossary</div>
+        <div class="card__desc">Definitions of Linux terms, jargon, and abbreviations.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="reference/top-30-commands.html">
+        <div class="card__title">Top 30 Commands</div>
+        <div class="card__desc">If you only remember 30 commands, remember these.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="reference/dangerous-commands.html">
+        <div class="card__title">Dangerous Commands</div>
+        <div class="card__desc">Commands that can cause damage and how to stay safe.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="reference/exercises.html">
+        <div class="card__title">Practice Exercises</div>
+        <div class="card__desc">Hands-on tasks with answers to test your knowledge.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="reference/daily-workflow.html">
+        <div class="card__title">Daily Workflow</div>
+        <div class="card__desc">A typical day using Linux: the commands you will use most often.</div>
+      </a>
+    </div>
+
+    <div class="card">
+      <a href="reference/interview-commands.html">
+        <div class="card__title">Interview Commands</div>
+        <div class="card__desc">Common Linux questions and commands for job interviews and the workplace.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

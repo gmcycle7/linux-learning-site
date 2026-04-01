@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 15: Command Comparisons — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link active" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &rsaquo;
+    <span>Chapter 15: Command Comparisons</span>
+  </nav>
+
+  <h1>Chapter 15: Command Comparisons</h1>
+
+  <p>Linux offers multiple tools that seem to do similar things. Knowing <strong>when to use which</strong> is what separates a proficient user from someone who just memorizes commands. This chapter puts frequently confused commands side by side so you can see exactly how they differ and when to reach for each one.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">How to Read This Chapter</div>
+    <p>Each section contains a summary, a comparison table, use-case recommendations, and examples. Bookmark the tables &mdash; they make excellent quick-reference material.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="cp-vs-mv">1. <code>cp</code> vs <code>mv</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> <code>cp</code> creates a duplicate of a file (the original remains). <code>mv</code> relocates or renames a file (the original is gone from its old location).</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>cp</code></th><th><code>mv</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>What it does</td><td>Copies files (original stays)</td><td>Moves or renames files (original removed)</td></tr>
+      <tr><td>Disk usage</td><td>Doubles the space used</td><td>No extra space (on same filesystem)</td></tr>
+      <tr><td>Speed (same disk)</td><td>Slow for large files (copies data)</td><td>Instant (just changes directory entry)</td></tr>
+      <tr><td>Speed (across disks)</td><td>Slow (copies data)</td><td>Slow (copies then deletes original)</td></tr>
+      <tr><td>Preserves original</td><td>Yes</td><td>No</td></tr>
+      <tr><td>Can rename</td><td>Yes (copy with new name)</td><td>Yes (primary way to rename)</td></tr>
+      <tr><td>Recursive flag</td><td><code>-r</code> (required for directories)</td><td>Works on directories by default</td></tr>
+      <tr><td>Safe flag</td><td><code>-i</code> (interactive), <code>-n</code> (no clobber)</td><td><code>-i</code> (interactive), <code>-n</code> (no clobber)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong>Use <code>cp</code></strong> when you need the file in two places, when creating a backup, or when you want to keep the original safe.</li>
+    <li><strong>Use <code>mv</code></strong> when you want to rename a file, reorganize files into different directories, or move files without using extra disk space.</li>
+  </ul>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> cp report.txt report_backup.txt     # Create a backup copy
+<span class="prompt">$</span> cp -r /project /project_backup       # Copy an entire directory
+
+<span class="prompt">$</span> mv report.txt final_report.txt       # Rename a file
+<span class="prompt">$</span> mv report.txt /archive/              # Move to another directory
+<span class="prompt">$</span> mv old_name/ new_name/               # Rename a directory</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>If you want to move a file but keep a backup, do both: <code>cp file.txt file.txt.bak && mv file.txt /new/location/</code></p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="grep-vs-find">2. <code>grep</code> vs <code>find</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> <code>grep</code> searches <em>inside</em> files for text patterns. <code>find</code> searches the <em>filesystem</em> for files by name, size, date, permissions, and other attributes.</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>grep</code></th><th><code>find</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Searches</td><td>File <strong>contents</strong></td><td>File <strong>names, attributes, metadata</strong></td></tr>
+      <tr><td>Input</td><td>Text / file contents / stdin</td><td>Directory tree</td></tr>
+      <tr><td>Pattern type</td><td>Regular expressions</td><td>Glob patterns, conditions</td></tr>
+      <tr><td>Answer to</td><td>"Which files contain this text?"</td><td>"Where is this file?"</td></tr>
+      <tr><td>Recursive</td><td><code>grep -r</code></td><td>Recursive by default</td></tr>
+      <tr><td>Can execute commands</td><td>No (use with <code>xargs</code>)</td><td>Yes (<code>-exec</code>)</td></tr>
+      <tr><td>Filter by size</td><td>No</td><td>Yes (<code>-size</code>)</td></tr>
+      <tr><td>Filter by date</td><td>No</td><td>Yes (<code>-mtime</code>, <code>-newer</code>)</td></tr>
+      <tr><td>Filter by type</td><td>No</td><td>Yes (<code>-type f</code>, <code>-type d</code>)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong>Use <code>grep</code></strong> when you want to find specific text inside files: error messages, function names, configuration values.</li>
+    <li><strong>Use <code>find</code></strong> when you want to locate files by name, extension, size, modification date, or permissions.</li>
+    <li><strong>Use both together</strong> for powerful searches: <code>find /project -name "*.py" -exec grep -l "import os" {} \;</code></li>
+  </ul>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> grep -rn "TODO" /project/src/          # Find "TODO" inside source files
+<span class="output">/project/src/main.py:15:# TODO: refactor
+/project/src/utils.py:42:# TODO: add tests</span>
+
+<span class="prompt">$</span> find /project -name "*.py" -size +10k   # Find Python files larger than 10KB
+<span class="output">/project/src/main.py
+/project/tests/test_all.py</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="apt-vs-apt-get">3. <code>apt</code> vs <code>apt-get</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> Both manage packages on Debian/Ubuntu systems. <code>apt</code> is the newer, more user-friendly command. <code>apt-get</code> is the older, more scriptable command. They use the same package database and repositories.</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>apt</code></th><th><code>apt-get</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Progress bar</td><td>Yes (visual)</td><td>No</td></tr>
+      <tr><td>Color output</td><td>Yes</td><td>No</td></tr>
+      <tr><td>Recommended for</td><td>Interactive terminal use</td><td>Scripts and automation</td></tr>
+      <tr><td>Stable output format</td><td>No (may change between versions)</td><td>Yes (reliable for parsing)</td></tr>
+      <tr><td>Install packages</td><td><code>apt install pkg</code></td><td><code>apt-get install pkg</code></td></tr>
+      <tr><td>Remove packages</td><td><code>apt remove pkg</code></td><td><code>apt-get remove pkg</code></td></tr>
+      <tr><td>Update package list</td><td><code>apt update</code></td><td><code>apt-get update</code></td></tr>
+      <tr><td>Upgrade all packages</td><td><code>apt upgrade</code></td><td><code>apt-get upgrade</code></td></tr>
+      <tr><td>Search packages</td><td><code>apt search pkg</code></td><td><code>apt-cache search pkg</code></td></tr>
+      <tr><td>Show package info</td><td><code>apt show pkg</code></td><td><code>apt-cache show pkg</code></td></tr>
+      <tr><td>List installed</td><td><code>apt list --installed</code></td><td><code>dpkg --list</code></td></tr>
+      <tr><td>Auto-remove orphans</td><td><code>apt autoremove</code></td><td><code>apt-get autoremove</code></td></tr>
+      <tr><td>Full upgrade</td><td><code>apt full-upgrade</code></td><td><code>apt-get dist-upgrade</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong>Use <code>apt</code></strong> for day-to-day interactive use. It is easier to type and gives better visual feedback.</li>
+    <li><strong>Use <code>apt-get</code></strong> in shell scripts, cron jobs, and automation. Its output format is stable and predictable.</li>
+  </ul>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> sudo apt update && sudo apt upgrade    # Interactive: update and upgrade
+<span class="prompt">$</span> sudo apt install nginx                  # Interactive: install a package
+<span class="prompt">$</span> apt search "text editor"                # Interactive: search for packages
+
+# In a script:
+sudo apt-get update -qq
+sudo apt-get install -y nginx            # -y auto-confirms</code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Note</div>
+    <p><code>apt</code> is essentially a nicer front-end that combines features of <code>apt-get</code> and <code>apt-cache</code>. Under the hood, they do the same thing.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="top-vs-htop">4. <code>top</code> vs <code>htop</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> Both show real-time system resource usage (CPU, memory, processes). <code>top</code> is pre-installed on every Linux system. <code>htop</code> is a more visual, user-friendly alternative that usually needs to be installed.</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>top</code></th><th><code>htop</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Pre-installed</td><td>Yes (everywhere)</td><td>Usually needs installing</td></tr>
+      <tr><td>Colors</td><td>Limited</td><td>Full color, visual bars</td></tr>
+      <tr><td>Mouse support</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Scroll process list</td><td>Limited</td><td>Full vertical and horizontal scrolling</td></tr>
+      <tr><td>Kill a process</td><td>Press <code>k</code>, type PID</td><td>Select with arrows, press <code>F9</code></td></tr>
+      <tr><td>Sort by column</td><td>Press <code>P</code> (CPU), <code>M</code> (memory)</td><td>Click column header or press <code>F6</code></td></tr>
+      <tr><td>Filter processes</td><td>Press <code>o</code> (limited)</td><td>Press <code>F4</code> (easy filter)</td></tr>
+      <tr><td>Tree view</td><td>Press <code>V</code></td><td>Press <code>F5</code></td></tr>
+      <tr><td>Per-CPU display</td><td>Press <code>1</code></td><td>Always visible as bars</td></tr>
+      <tr><td>Search</td><td>Press <code>L</code></td><td>Press <code>F3</code> or <code>/</code></td></tr>
+      <tr><td>Customizable</td><td>Limited</td><td>Press <code>F2</code> for setup screen</td></tr>
+      <tr><td>Show full command</td><td>Press <code>c</code></td><td>Always visible (scrollable)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong>Use <code>top</code></strong> on any system where you cannot install software (minimal servers, containers, recovery environments). It is always available.</li>
+    <li><strong>Use <code>htop</code></strong> on systems where you can install it. It is easier to use, more visual, and more interactive.</li>
+  </ul>
+
+  <h3>Installation</h3>
+
+  <pre><code><span class="prompt">$</span> sudo apt install htop       # Debian/Ubuntu
+<span class="prompt">$</span> sudo yum install htop       # CentOS/RHEL
+<span class="prompt">$</span> sudo pacman -S htop         # Arch</code></pre>
+
+  <h3>What You See</h3>
+
+  <p><code>top</code> shows a text-only display with summary statistics at the top and a process list below. Columns include PID, USER, %CPU, %MEM, COMMAND, and more.</p>
+
+  <p><code>htop</code> shows colored CPU and memory bars at the top, followed by the same process list but with color coding, mouse support, and easier navigation. You can click column headers to sort, click processes to select them, and use function keys for common actions.</p>
+
+  <!-- ============================================================ -->
+  <h2 id="curl-vs-wget">5. <code>curl</code> vs <code>wget</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> Both download files from the internet. <code>curl</code> is a versatile data transfer tool supporting many protocols. <code>wget</code> specializes in downloading files, especially recursively.</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>curl</code></th><th><code>wget</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Primary purpose</td><td>Data transfer (flexible)</td><td>File downloading (focused)</td></tr>
+      <tr><td>Output default</td><td>Prints to stdout</td><td>Saves to file</td></tr>
+      <tr><td>Save to file</td><td><code>-o file</code> or <code>-O</code></td><td>Automatic (or <code>-O file</code>)</td></tr>
+      <tr><td>Recursive download</td><td>No</td><td>Yes (<code>-r</code>)</td></tr>
+      <tr><td>Resume downloads</td><td><code>-C -</code></td><td><code>-c</code></td></tr>
+      <tr><td>Protocols supported</td><td>HTTP, HTTPS, FTP, SFTP, SCP, LDAP, SMTP, and many more</td><td>HTTP, HTTPS, FTP</td></tr>
+      <tr><td>POST requests</td><td><code>-X POST -d "data"</code></td><td><code>--post-data="data"</code></td></tr>
+      <tr><td>Custom headers</td><td><code>-H "Header: value"</code></td><td><code>--header="Header: value"</code></td></tr>
+      <tr><td>API testing</td><td>Excellent (widely used)</td><td>Not typical</td></tr>
+      <tr><td>JSON support</td><td><code>--json '{"key":"val"}'</code></td><td>Manual</td></tr>
+      <tr><td>Follow redirects</td><td><code>-L</code> (must specify)</td><td>Automatic (up to 20)</td></tr>
+      <tr><td>Mirror website</td><td>No</td><td><code>--mirror</code></td></tr>
+      <tr><td>Background download</td><td>No built-in</td><td><code>-b</code></td></tr>
+      <tr><td>Download from list</td><td>No built-in</td><td><code>-i urls.txt</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong>Use <code>curl</code></strong> for API calls, testing endpoints, uploading data, working with REST APIs, or any protocol beyond HTTP/FTP.</li>
+    <li><strong>Use <code>wget</code></strong> for downloading files, mirroring websites, downloading multiple files from a list, or resuming interrupted downloads.</li>
+  </ul>
+
+  <h3>Examples</h3>
+
+  <pre><code># Download a file
+<span class="prompt">$</span> wget https://example.com/file.zip               # Saves to file.zip
+<span class="prompt">$</span> curl -O https://example.com/file.zip             # -O saves with original name
+
+# Test an API
+<span class="prompt">$</span> curl -s https://api.example.com/users | jq .     # Pretty-print JSON
+
+# POST JSON data
+<span class="prompt">$</span> curl -X POST -H "Content-Type: application/json" \
+    -d '{"name":"test"}' https://api.example.com/users
+
+# Mirror a website
+<span class="prompt">$</span> wget --mirror --convert-links https://example.com/
+
+# Download multiple files
+<span class="prompt">$</span> wget -i list-of-urls.txt</code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="soft-vs-hard-link">6. Soft Link vs Hard Link</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> Both create references to files, but they work fundamentally differently at the filesystem level.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Understanding Inodes</div>
+    <div class="diagram">
+      <pre>
+  Filename        Inode       Data Blocks
+  --------        -----       -----------
+  file.txt  --->  [12345] --> [actual data on disk]
+                     ^
+  hardlink  --------/         (points to SAME inode)
+
+  softlink  ---> "file.txt"   (points to the FILENAME, not the inode)
+      </pre>
+    </div>
+    <p>Every file on disk has an <strong>inode</strong> &mdash; a data structure that stores the file's metadata and the location of its data blocks. A filename is just a pointer to an inode.</p>
+    <ul>
+      <li>A <strong>hard link</strong> is another filename pointing to the <em>same inode</em>. Both names are equally "real".</li>
+      <li>A <strong>soft link</strong> (symbolic link / symlink) is a special file that contains a path to another filename. It is like a shortcut.</li>
+    </ul>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>Hard Link</th><th>Soft Link (Symlink)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Points to</td><td>The same inode (data)</td><td>A filename / path</td></tr>
+      <tr><td>If original is deleted</td><td>Link still works (data remains)</td><td>Link breaks (dangling symlink)</td></tr>
+      <tr><td>Cross filesystem</td><td>No (must be same filesystem)</td><td>Yes</td></tr>
+      <tr><td>Link to directory</td><td>No (usually not allowed)</td><td>Yes</td></tr>
+      <tr><td>Inode number</td><td>Same as original</td><td>Different from original</td></tr>
+      <tr><td>File size of link</td><td>Same as original</td><td>Small (stores path string)</td></tr>
+      <tr><td>Create command</td><td><code>ln file link</code></td><td><code>ln -s file link</code></td></tr>
+      <tr><td>Identify</td><td>Same inode number (<code>ls -i</code>)</td><td><code>l</code> in permissions, <code>-></code> in ls output</td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong>Use soft links</strong> in most cases. They are more flexible: they work across filesystems, can point to directories, and are easy to identify.</li>
+    <li><strong>Use hard links</strong> when you need a file reference that survives the original being deleted, or for efficient backups (tools like <code>rsnapshot</code> use hard links to save space).</li>
+  </ul>
+
+  <h3>Examples Showing the Difference</h3>
+
+  <pre><code><span class="prompt">$</span> echo "Hello" > original.txt
+
+# Create both types of links
+<span class="prompt">$</span> ln original.txt hardlink.txt
+<span class="prompt">$</span> ln -s original.txt softlink.txt
+
+# Check inodes
+<span class="prompt">$</span> ls -li
+<span class="output">12345 -rw-r--r-- 2 user user 6 Mar 15 10:00 hardlink.txt
+12345 -rw-r--r-- 2 user user 6 Mar 15 10:00 original.txt
+67890 lrwxrwxrwx 1 user user 12 Mar 15 10:00 softlink.txt -> original.txt</span></code></pre>
+
+  <p>Notice: <code>hardlink.txt</code> and <code>original.txt</code> share inode 12345 (and the link count is 2). The soft link has its own inode (67890) and shows an arrow pointing to the original.</p>
+
+  <pre><code># Now delete the original
+<span class="prompt">$</span> rm original.txt
+
+<span class="prompt">$</span> cat hardlink.txt
+<span class="output">Hello</span>              # STILL WORKS - data is still on disk via inode 12345
+
+<span class="prompt">$</span> cat softlink.txt
+<span class="output">cat: softlink.txt: No such file or directory</span>   # BROKEN - the path it points to no longer exists</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Practical Example</div>
+    <p>Symlinks are commonly used to switch between versions of software: <code>ln -s /opt/python-3.12/bin/python3 /usr/local/bin/python3</code>. When you upgrade, just change where the symlink points.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="less-vs-more">7. <code>less</code> vs <code>more</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> Both are pagers that let you view file contents one screen at a time. <code>less</code> is the improved version of <code>more</code>, and the saying goes: "less is more."</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>less</code></th><th><code>more</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Scroll backward</td><td>Yes (<kbd>b</kbd> or arrow keys)</td><td>No (forward only on most systems)</td></tr>
+      <tr><td>Scroll forward</td><td>Yes (<kbd>f</kbd>, <kbd>Space</kbd>, arrows)</td><td>Yes (<kbd>Space</kbd>)</td></tr>
+      <tr><td>Search forward</td><td><code>/pattern</code></td><td><code>/pattern</code></td></tr>
+      <tr><td>Search backward</td><td><code>?pattern</code></td><td>No</td></tr>
+      <tr><td>Line numbers</td><td><code>-N</code> flag</td><td>No</td></tr>
+      <tr><td>Does not load entire file</td><td>Correct (fast on huge files)</td><td>Loads entire file</td></tr>
+      <tr><td>Horizontal scrolling</td><td>Yes (arrow keys)</td><td>No (wraps lines)</td></tr>
+      <tr><td>Exit at end of file</td><td>No (stays open)</td><td>Yes (quits automatically)</td></tr>
+      <tr><td>Can read from pipe</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Widely available</td><td>Nearly everywhere</td><td>Everywhere</td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong>Use <code>less</code></strong> almost always. It does everything <code>more</code> does plus backward scrolling, searching, and handles large files efficiently.</li>
+    <li><strong>Use <code>more</code></strong> only in minimal environments where <code>less</code> is not available (rare).</li>
+  </ul>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> less /var/log/syslog          # Open a file
+<span class="prompt">$</span> less -N /var/log/syslog       # With line numbers
+<span class="prompt">$</span> dmesg | less                  # Pipe command output into less
+<span class="prompt">$</span> less +F /var/log/syslog       # Follow mode (like tail -f, press Ctrl+C to stop following)</code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="cat-less-head-tail">8. <code>cat</code> vs <code>less</code> vs <code>head</code> vs <code>tail</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> All four display file contents, but each is designed for a different use case.</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>cat</code></th><th><code>less</code></th><th><code>head</code></th><th><code>tail</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Shows</td><td>Entire file at once</td><td>One screen at a time</td><td>First N lines</td><td>Last N lines</td></tr>
+      <tr><td>Scrollable</td><td>No (dumps everything)</td><td>Yes (forward/backward)</td><td>No</td><td>No</td></tr>
+      <tr><td>Good for large files</td><td>No (floods terminal)</td><td>Yes</td><td>Yes (reads only beginning)</td><td>Yes (reads only end)</td></tr>
+      <tr><td>Follow mode</td><td>No</td><td><code>less +F</code></td><td>No</td><td><code>tail -f</code></td></tr>
+      <tr><td>Default lines</td><td>All</td><td>One screenful</td><td>10</td><td>10</td></tr>
+      <tr><td>Concatenate files</td><td>Yes (primary purpose)</td><td>No</td><td>No</td><td>No</td></tr>
+      <tr><td>Show line numbers</td><td><code>-n</code></td><td><code>-N</code></td><td><code>-n</code> (means count)</td><td><code>-n</code> (means count)</td></tr>
+      <tr><td>Good for piping</td><td>Yes</td><td>Yes (as pager)</td><td>Yes</td><td>Yes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong><code>cat</code></strong> &mdash; small files (under 50 lines), concatenating multiple files, piping to other commands.</li>
+    <li><strong><code>less</code></strong> &mdash; reading any file you want to browse, searching within files, large files.</li>
+    <li><strong><code>head</code></strong> &mdash; quickly checking what is at the beginning of a file (format, headers, first few records).</li>
+    <li><strong><code>tail</code></strong> &mdash; checking the latest entries in log files, monitoring logs in real time with <code>-f</code>.</li>
+  </ul>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> cat config.txt                  # Small file, view it all
+<span class="prompt">$</span> cat file1.txt file2.txt > merged.txt  # Concatenate files
+
+<span class="prompt">$</span> less /var/log/syslog            # Browse a large log file
+
+<span class="prompt">$</span> head -20 data.csv               # Check the first 20 lines (column headers, etc.)
+<span class="prompt">$</span> head -1 data.csv                # Just see the header row
+
+<span class="prompt">$</span> tail -50 /var/log/nginx/error.log       # Last 50 lines of error log
+<span class="prompt">$</span> tail -f /var/log/nginx/access.log       # Watch log in real time</code></pre>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Using cat for Large Files</div>
+      <pre><code><span class="prompt">$</span> cat /var/log/syslog     # Floods your terminal with thousands of lines</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right: Use the Appropriate Tool</div>
+      <pre><code><span class="prompt">$</span> less /var/log/syslog    # Browse it at your own pace
+<span class="prompt">$</span> tail -100 /var/log/syslog   # Just see the latest entries</code></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="kill-killall-pkill">9. <code>kill</code> vs <code>killall</code> vs <code>pkill</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> All three send signals to processes, most commonly to stop them. They differ in <em>how you identify</em> which process to signal.</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>kill</code></th><th><code>killall</code></th><th><code>pkill</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Identifies process by</td><td>PID (process ID number)</td><td>Exact process name</td><td>Pattern matching on name</td></tr>
+      <tr><td>Targets</td><td>One specific process</td><td>All processes with that name</td><td>All matching processes</td></tr>
+      <tr><td>Requires knowing PID</td><td>Yes</td><td>No</td><td>No</td></tr>
+      <tr><td>Pattern matching</td><td>No</td><td>No (exact name only)</td><td>Yes (regex)</td></tr>
+      <tr><td>Default signal</td><td>SIGTERM (15)</td><td>SIGTERM (15)</td><td>SIGTERM (15)</td></tr>
+      <tr><td>Force kill</td><td><code>kill -9 PID</code></td><td><code>killall -9 name</code></td><td><code>pkill -9 pattern</code></td></tr>
+      <tr><td>Availability</td><td>Built into every system</td><td>Most Linux systems</td><td>Most Linux systems</td></tr>
+      <tr><td>Filter by user</td><td>No</td><td><code>-u user</code></td><td><code>-u user</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong><code>kill</code></strong> &mdash; when you know the exact PID and want to target one specific process.</li>
+    <li><strong><code>killall</code></strong> &mdash; when you want to stop all instances of a specific program (e.g., all <code>firefox</code> processes).</li>
+    <li><strong><code>pkill</code></strong> &mdash; when you know part of the process name or want to match with a pattern.</li>
+  </ul>
+
+  <h3>Examples</h3>
+
+  <pre><code># Using kill (need the PID first)
+<span class="prompt">$</span> ps aux | grep nginx
+<span class="output">root      1234  0.0  0.2  nginx: master process
+www-data  1235  0.0  0.3  nginx: worker process</span>
+<span class="prompt">$</span> kill 1234                    # Send SIGTERM to PID 1234
+<span class="prompt">$</span> kill -9 1234                 # Force kill if it does not respond
+
+# Using killall (by exact name)
+<span class="prompt">$</span> killall firefox              # Kill all firefox processes
+<span class="prompt">$</span> killall -9 python3           # Force kill all python3 processes
+
+# Using pkill (pattern matching)
+<span class="prompt">$</span> pkill -f "python.*server"    # Kill any process whose full command matches
+<span class="prompt">$</span> pkill -u user1 python        # Kill python processes owned by user1</code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Caution</div>
+    <p><code>killall</code> and <code>pkill</code> can affect multiple processes at once. Always check what matches first with <code>pgrep</code> (which uses the same matching as <code>pkill</code> but only shows PIDs):</p>
+    <pre><code><span class="prompt">$</span> pgrep -a python             # Show PIDs and command lines that match
+<span class="output">1234 python3 server.py
+5678 python3 worker.py</span></code></pre>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="scp-vs-rsync">10. <code>scp</code> vs <code>rsync</code></h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Summary:</strong> Both copy files between machines over SSH. <code>rsync</code> is the more powerful and efficient option in almost every scenario.</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th><code>scp</code></th><th><code>rsync</code></th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Transfer method</td><td>Full copy every time</td><td>Incremental (only changed bytes)</td></tr>
+      <tr><td>Resume interrupted transfer</td><td>No (starts over)</td><td>Yes (<code>--partial</code>)</td></tr>
+      <tr><td>Compression</td><td>Yes (<code>-C</code>)</td><td>Yes (<code>-z</code>)</td></tr>
+      <tr><td>Preserve permissions</td><td>Yes (<code>-p</code>)</td><td>Yes (<code>-a</code> or <code>-p</code>)</td></tr>
+      <tr><td>Preserve timestamps</td><td>Yes (<code>-p</code>)</td><td>Yes (<code>-a</code> or <code>-t</code>)</td></tr>
+      <tr><td>Delete extra files at dest</td><td>No</td><td>Yes (<code>--delete</code>)</td></tr>
+      <tr><td>Exclude files</td><td>No</td><td>Yes (<code>--exclude</code>)</td></tr>
+      <tr><td>Dry run</td><td>No</td><td>Yes (<code>--dry-run</code>)</td></tr>
+      <tr><td>Show progress</td><td>Default</td><td><code>--progress</code> or <code>-P</code></td></tr>
+      <tr><td>Bandwidth limit</td><td><code>-l</code> (some versions)</td><td><code>--bwlimit=KBPS</code></td></tr>
+      <tr><td>Copy symlinks</td><td>Follows by default</td><td>Configurable (<code>-l</code>, <code>-L</code>)</td></tr>
+      <tr><td>Simplicity</td><td>Simpler syntax</td><td>More flags but more power</td></tr>
+      <tr><td>Speed (repeated transfers)</td><td>Slow (copies everything again)</td><td>Fast (only copies changes)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>When to Use Each</h3>
+
+  <ul>
+    <li><strong>Use <code>scp</code></strong> for quick, one-time file copies when simplicity matters and you do not need any advanced features.</li>
+    <li><strong>Use <code>rsync</code></strong> for everything else: regular syncs, large transfers, backups, transfers that might be interrupted, or when you need to exclude files.</li>
+  </ul>
+
+  <h3>Examples</h3>
+
+  <pre><code># scp: simple file copy
+<span class="prompt">$</span> scp file.txt user@server:/home/user/
+<span class="prompt">$</span> scp -r /project user@server:/backup/
+
+# rsync: smarter copy
+<span class="prompt">$</span> rsync -avz /project/ user@server:/backup/project/
+<span class="prompt">$</span> rsync -avz --exclude='.git' --exclude='node_modules' /project/ user@server:/deploy/
+<span class="prompt">$</span> rsync -avz --dry-run /data/ user@server:/data/    # Preview first
+<span class="prompt">$</span> rsync -avz --delete /project/ user@server:/mirror/  # Mirror exactly</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Practical Advice</div>
+    <p>If you are copying a single small file once, <code>scp</code> is fine. For anything more involved &mdash; large directories, repeated syncs, backups, or when you want a dry run &mdash; use <code>rsync</code>. Many system administrators use <code>rsync</code> exclusively.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="summary">Chapter Summary</h2>
+  <!-- ============================================================ -->
+
+  <div class="concept-box">
+    <div class="concept-box__title">Quick Decision Guide</div>
+    <table>
+      <thead>
+        <tr><th>I Want To...</th><th>Use This</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Duplicate a file</td><td><code>cp</code></td></tr>
+        <tr><td>Rename or move a file</td><td><code>mv</code></td></tr>
+        <tr><td>Find files by name, size, date</td><td><code>find</code></td></tr>
+        <tr><td>Search text inside files</td><td><code>grep</code></td></tr>
+        <tr><td>Install a package interactively</td><td><code>apt</code></td></tr>
+        <tr><td>Install a package in a script</td><td><code>apt-get</code></td></tr>
+        <tr><td>Monitor processes (nice UI)</td><td><code>htop</code></td></tr>
+        <tr><td>Monitor processes (any system)</td><td><code>top</code></td></tr>
+        <tr><td>Download a file</td><td><code>wget</code></td></tr>
+        <tr><td>Test an API</td><td><code>curl</code></td></tr>
+        <tr><td>Create a shortcut to a file</td><td><code>ln -s</code> (symlink)</td></tr>
+        <tr><td>Create a resilient file reference</td><td><code>ln</code> (hard link)</td></tr>
+        <tr><td>Read a long file</td><td><code>less</code></td></tr>
+        <tr><td>See the end of a log file</td><td><code>tail</code></td></tr>
+        <tr><td>Kill a process by PID</td><td><code>kill</code></td></tr>
+        <tr><td>Kill all processes by name</td><td><code>killall</code> or <code>pkill</code></td></tr>
+        <tr><td>Copy files to a server once</td><td><code>scp</code></td></tr>
+        <tr><td>Sync files to a server efficiently</td><td><code>rsync</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+  <!-- ============================================================ -->
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Choose the Right Command</div>
+    <p>For each scenario, choose the best command and explain why:</p>
+    <ol>
+      <li>You want to find all files in <code>/var/log</code> modified in the last 24 hours.</li>
+      <li>You want to find all lines containing "ERROR" in <code>/var/log/syslog</code>.</li>
+      <li>You want to keep a remote server's project directory in sync with your local copy.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <ol>
+        <li><code>find /var/log -mtime 0</code> &mdash; <code>find</code> searches by file attributes, and <code>-mtime 0</code> means modified within the last 24 hours.</li>
+        <li><code>grep "ERROR" /var/log/syslog</code> &mdash; <code>grep</code> searches inside file contents.</li>
+        <li><code>rsync -avz /project/ user@server:/project/</code> &mdash; <code>rsync</code> only transfers changed files, making it efficient for repeated syncing.</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Link Behavior</div>
+    <p>Create a file called <code>data.txt</code>, make a hard link and a soft link to it, then delete the original. What happens to each link? Verify by reading both links.</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> echo "test data" > data.txt
+<span class="prompt">$</span> ln data.txt hard.txt
+<span class="prompt">$</span> ln -s data.txt soft.txt
+<span class="prompt">$</span> rm data.txt
+<span class="prompt">$</span> cat hard.txt
+<span class="output">test data</span>         # Works! Hard link still has the data.
+<span class="prompt">$</span> cat soft.txt
+<span class="output">cat: soft.txt: No such file or directory</span>   # Broken! Points to deleted name.</code></pre>
+    </details>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">Quick Quiz: Which command is better for API testing &mdash; <code>curl</code> or <code>wget</code>?</div>
+    <button class="quiz__check">Show Answer</button>
+    <div class="quiz__answer"><code>curl</code> is better for API testing. It outputs to stdout by default, supports many protocols, handles POST/PUT/DELETE requests naturally, and is the industry standard for testing REST APIs.</div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="prev-next">
+    <a class="prev-next__link prev-next__prev" href="../14-troubleshooting/index.html">&larr; 14. Troubleshooting</a>
+    <a class="prev-next__link prev-next__next" href="../../reference/cheatsheet.html">Cheat Sheet &rarr;</a>
+  </nav>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 14: Troubleshooting &amp; Safety — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link active" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &rsaquo;
+    <span>Chapter 14: Troubleshooting &amp; Safety</span>
+  </nav>
+
+  <h1>Chapter 14: Troubleshooting &amp; Safety</h1>
+
+  <p>Every Linux user, from beginner to expert, runs into errors. The difference between frustration and productivity is knowing how to <strong>read error messages</strong>, <strong>diagnose problems</strong>, and <strong>avoid dangerous mistakes</strong>. This chapter covers the most common errors you will encounter, how to fix them, and critical safety habits that will protect your data.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">The Golden Rule of Linux Troubleshooting</div>
+    <p><strong>Read the error message.</strong> Linux error messages are usually precise and informative. Most beginners skip past them and start guessing. The answer is almost always in the message itself.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="permission-denied">1. "Permission denied"</h2>
+  <!-- ============================================================ -->
+
+  <p>This is the single most common error beginners encounter. It means you are trying to do something that your current user account is not allowed to do.</p>
+
+  <h3>What It Looks Like</h3>
+
+  <pre><code><span class="prompt">$</span> cat /etc/shadow
+<span class="output">cat: /etc/shadow: Permission denied</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> ./script.sh
+<span class="output">bash: ./script.sh: Permission denied</span></code></pre>
+
+  <h3>Common Causes and Solutions</h3>
+
+  <h4>Cause 1: The File Belongs to Root</h4>
+
+  <pre><code><span class="prompt">$</span> ls -la /etc/shadow
+<span class="output">-rw-r----- 1 root shadow 1234 Mar 15 10:00 /etc/shadow</span></code></pre>
+
+  <p>The file is readable only by <code>root</code> and the <code>shadow</code> group. Your normal user cannot read it.</p>
+
+  <p><strong>Solution:</strong> Use <code>sudo</code> if you legitimately need to access it:</p>
+
+  <pre><code><span class="prompt">$</span> sudo cat /etc/shadow</code></pre>
+
+  <h4>Cause 2: The Script is Not Executable</h4>
+
+  <pre><code><span class="prompt">$</span> ls -la script.sh
+<span class="output">-rw-r--r-- 1 user user 256 Mar 15 10:00 script.sh</span></code></pre>
+
+  <p>Notice there is no <code>x</code> (execute) permission.</p>
+
+  <p><strong>Solution:</strong> Add execute permission:</p>
+
+  <pre><code><span class="prompt">$</span> chmod +x script.sh
+<span class="prompt">$</span> ./script.sh</code></pre>
+
+  <h4>Cause 3: Wrong Directory Permissions</h4>
+
+  <p>Even if you own a file, you cannot access it if you lack permission on a parent directory:</p>
+
+  <pre><code><span class="prompt">$</span> ls -la /restricted/
+<span class="output">drwx------ 2 root root 4096 Mar 15 10:00 data/</span></code></pre>
+
+  <p>You need at least <code>x</code> (execute) permission on a directory to enter it.</p>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Blindly Using sudo for Everything</div>
+      <pre><code><span class="prompt">$</span> sudo cat myfile.txt          # This is YOUR file, sudo is unnecessary
+<span class="prompt">$</span> sudo nano /home/user/notes    # You own this, no sudo needed
+<span class="prompt">$</span> sudo rm ~/temp.txt            # Dangerous habit, never rm with sudo unless needed</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right: Use sudo Only When Needed</div>
+      <pre><code><span class="prompt">$</span> cat myfile.txt                # Your own file, no sudo
+<span class="prompt">$</span> sudo cat /etc/shadow           # System file that requires root
+<span class="prompt">$</span> sudo systemctl restart nginx   # System service requires root</code></pre>
+    </div>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Danger: Never <code>chmod 777</code> as a Fix</div>
+    <p>When beginners get "Permission denied", they often resort to <code>chmod 777 filename</code>. This makes the file readable, writable, and executable by <strong>everyone</strong> on the system. This is almost never the correct fix and creates a serious security vulnerability. Instead, understand <em>why</em> the permission is denied and apply the minimum needed permission.</p>
+  </div>
+
+  <h3>Diagnostic Steps</h3>
+
+  <ol>
+    <li>Check the file permissions: <code>ls -la filename</code></li>
+    <li>Check who owns it: look at the user and group columns</li>
+    <li>Check who you are: <code>whoami</code></li>
+    <li>Check your groups: <code>groups</code></li>
+    <li>Decide: do you need <code>sudo</code>, or do you need <code>chmod</code>/<code>chown</code>?</li>
+  </ol>
+
+  <!-- ============================================================ -->
+  <h2 id="command-not-found">2. "Command not found"</h2>
+  <!-- ============================================================ -->
+
+  <p>You type a command and the shell tells you it does not exist. This does not always mean the command is not installed.</p>
+
+  <h3>What It Looks Like</h3>
+
+  <pre><code><span class="prompt">$</span> htop
+<span class="output">bash: htop: command not found</span></code></pre>
+
+  <h3>Cause 1: The Command is Not Installed</h3>
+
+  <p><strong>Diagnosis:</strong></p>
+
+  <pre><code><span class="prompt">$</span> which htop
+<span class="output">(no output = not found)</span>
+
+<span class="prompt">$</span> apt list --installed 2>/dev/null | grep htop
+<span class="output">(no output = not installed)</span></code></pre>
+
+  <p><strong>Fix:</strong></p>
+
+  <pre><code><span class="prompt">$</span> sudo apt install htop</code></pre>
+
+  <h3>Cause 2: The Command is Not in Your PATH</h3>
+
+  <p>The shell searches for commands in the directories listed in your <code>PATH</code> variable:</p>
+
+  <pre><code><span class="prompt">$</span> echo $PATH
+<span class="output">/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</span></code></pre>
+
+  <p>If you installed a program to <code>/opt/myapp/bin/</code>, it will not be found unless that path is in your <code>PATH</code>.</p>
+
+  <p><strong>Fix:</strong> Add the directory to your PATH:</p>
+
+  <pre><code><span class="prompt">$</span> export PATH="$PATH:/opt/myapp/bin"</code></pre>
+
+  <p>To make it permanent, add the line to <code>~/.bashrc</code> or <code>~/.profile</code>.</p>
+
+  <h3>Cause 3: Typo</h3>
+
+  <pre><code><span class="prompt">$</span> ssytemctl status nginx
+<span class="output">bash: ssytemctl: command not found</span></code></pre>
+
+  <p>Check your spelling. Common typos include <code>systemclt</code>, <code>ssytemctl</code>, <code>suod</code> instead of <code>sudo</code>.</p>
+
+  <p><strong>Fix:</strong> Use tab completion. Type the first few letters and press <kbd>Tab</kbd>:</p>
+
+  <pre><code><span class="prompt">$</span> syst<kbd>Tab</kbd>
+<span class="output">systemctl</span></code></pre>
+
+  <h3>Cause 4: Missing <code>./</code> for Local Scripts</h3>
+
+  <pre><code><span class="prompt">$</span> myscript.sh
+<span class="output">bash: myscript.sh: command not found</span></code></pre>
+
+  <p>The current directory is usually not in your PATH. You need to explicitly reference it:</p>
+
+  <pre><code><span class="prompt">$</span> ./myscript.sh</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Quick Diagnosis</div>
+    <p>Use <code>type</code> or <code>which</code> to check if and where a command exists:</p>
+    <pre><code><span class="prompt">$</span> type ls
+<span class="output">ls is aliased to 'ls --color=auto'</span>
+<span class="prompt">$</span> type htop
+<span class="output">bash: type: htop: not found</span>
+<span class="prompt">$</span> which python3
+<span class="output">/usr/bin/python3</span></code></pre>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="no-such-file">3. "No such file or directory"</h2>
+  <!-- ============================================================ -->
+
+  <p>This error means the path you specified does not exist. It could be the file, or any directory in the path.</p>
+
+  <h3>What It Looks Like</h3>
+
+  <pre><code><span class="prompt">$</span> cat /home/user/documens/report.txt
+<span class="output">cat: /home/user/documens/report.txt: No such file or directory</span></code></pre>
+
+  <h3>Cause 1: Typo in the Path</h3>
+
+  <p>Notice the typo: <code>documens</code> instead of <code>documents</code>.</p>
+
+  <p><strong>Fix:</strong> Use tab completion to avoid typos. Type the first few characters and press <kbd>Tab</kbd>.</p>
+
+  <h3>Cause 2: Wrong Directory</h3>
+
+  <p>You might be in a different directory than you think:</p>
+
+  <pre><code><span class="prompt">$</span> pwd
+<span class="output">/home/user</span>
+<span class="prompt">$</span> cat report.txt
+<span class="output">cat: report.txt: No such file or directory</span>
+<span class="prompt">$</span> ls
+<span class="output">Documents  Downloads  Pictures</span></code></pre>
+
+  <p>The file is not in your current directory. Check with <code>ls</code> or use the full path.</p>
+
+  <h3>Cause 3: File Was Deleted or Moved</h3>
+
+  <pre><code><span class="prompt">$</span> ls -la report.txt
+<span class="output">ls: cannot access 'report.txt': No such file or directory</span></code></pre>
+
+  <p>Try searching for it:</p>
+
+  <pre><code><span class="prompt">$</span> find /home/user -name "report.txt" 2>/dev/null
+<span class="output">/home/user/Documents/report.txt</span></code></pre>
+
+  <h3>Cause 4: Hidden Characters or Encoding Issues</h3>
+
+  <p>Sometimes files have invisible characters in their names (common when copied from Windows or the web):</p>
+
+  <pre><code><span class="prompt">$</span> ls -la | cat -A
+<span class="output">-rw-r--r-- 1 user user  256 Mar 15 10:00 report.txt^M$</span></code></pre>
+
+  <p>The <code>^M</code> is a carriage return. Use <code>mv</code> with tab completion to rename the file.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Diagnostic Checklist</div>
+    <ol>
+      <li>Check your current directory: <code>pwd</code></li>
+      <li>List files to see what is actually there: <code>ls -la</code></li>
+      <li>Check each part of the path exists: <code>ls -la /home/user/documents/</code></li>
+      <li>Use tab completion to avoid typos</li>
+      <li>Search for the file: <code>find ~ -name "filename"</code></li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="rm-rf-danger">4. Why <code>rm -rf</code> is Dangerous</h2>
+  <!-- ============================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: This Section Discusses Destructive Commands</div>
+    <p>The commands discussed here can permanently destroy data. <strong>Never run these commands</strong> unless you are absolutely certain of what you are deleting. There is no recycle bin, no undo, no recovery (in most cases).</p>
+  </div>
+
+  <h3>What <code>rm -rf</code> Does</h3>
+
+  <ul>
+    <li><code>rm</code> &mdash; remove files</li>
+    <li><code>-r</code> &mdash; recursive (delete directories and everything inside them)</li>
+    <li><code>-f</code> &mdash; force (no confirmation prompts, no error messages for missing files)</li>
+  </ul>
+
+  <p>Combined, <code>rm -rf</code> silently and permanently deletes everything in the specified path, including all subdirectories and files, without asking for confirmation.</p>
+
+  <h3>Why It is So Dangerous</h3>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Linux Trusts You</div>
+    <p>Unlike Windows or macOS, Linux assumes you know what you are doing. When you say "delete this", Linux deletes it. Immediately. Permanently. No recycle bin. No "Are you sure?" (with <code>-f</code>). The data is gone.</p>
+  </div>
+
+  <h3>Dangerous Scenarios</h3>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">WRONG: Space in the Wrong Place</div>
+      <pre><code><span class="prompt">$</span> rm -rf /home/user/ documents     # DISASTER: deletes /home/user/ AND 'documents'
+<span class="prompt">$</span> rm -rf / home/user/temp           # CATASTROPHIC: the space after / starts deleting EVERYTHING</code></pre>
+      <p>A single accidental space can cause the deletion of your entire home directory or even the entire filesystem.</p>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">RIGHT: Careful, Quoted Paths</div>
+      <pre><code><span class="prompt">$</span> rm -rf "/home/user/documents"     # Correct, quoted path
+<span class="prompt">$</span> rm -ri /home/user/temp/            # Using -i for interactive confirmation</code></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">WRONG: Variable Expansion Gone Wrong</div>
+      <pre><code><span class="prompt">$</span> rm -rf $DIR/temp    # If $DIR is empty, this becomes: rm -rf /temp
+<span class="prompt">$</span> rm -rf ${FOLDER}/*   # If $FOLDER is empty, this becomes: rm -rf /*  (!!)</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">RIGHT: Always Quote and Validate Variables</div>
+      <pre><code><span class="prompt">$</span> if [ -n "$DIR" ]; then rm -rf "$DIR/temp"; fi
+<span class="prompt">$</span> rm -rf "${FOLDER:?Variable not set}/"</code></pre>
+      <p>The <code>:?</code> syntax causes the script to abort with an error if the variable is empty, preventing accidental deletion.</p>
+    </div>
+  </div>
+
+  <h3>Real-World Horror Stories</h3>
+
+  <p>System administrators have accidentally destroyed production servers by running <code>rm -rf /</code> or <code>rm -rf /*</code>. Entire companies have lost data from a misplaced space or an unset variable. These are not hypothetical scenarios &mdash; they happen regularly. Modern Linux distributions have a safeguard (<code>--preserve-root</code>) that prevents <code>rm -rf /</code>, but variants like <code>rm -rf /*</code> or <code>rm -rf /home/*</code> bypass this protection.</p>
+
+  <h3>How to Use <code>rm</code> Safely</h3>
+
+  <ol>
+    <li><strong>Always double-check the path</strong> before pressing Enter</li>
+    <li><strong>Use <code>ls</code> first</strong> to see what would be deleted: <code>ls /path/to/delete</code></li>
+    <li><strong>Use <code>rm -ri</code></strong> instead of <code>rm -rf</code> to get confirmation prompts</li>
+    <li><strong>Use <code>trash-cli</code></strong> instead of <code>rm</code> (moves to trash instead of deleting)</li>
+    <li><strong>Never use <code>rm -rf</code> with <code>sudo</code></strong> unless absolutely necessary</li>
+    <li><strong>Never use wildcards with <code>rm -rf</code></strong> without checking first</li>
+  </ol>
+
+  <!-- ============================================================ -->
+  <h2 id="inspect-before-deleting">5. How to Inspect Before Deleting</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The rule:</strong> Before every destructive command, verify what will be affected.</p>
+
+  <h3>Step 1: Use <code>ls</code> First</h3>
+
+  <p>Before running <code>rm</code>, run <code>ls</code> with the same pattern to see what matches:</p>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Delete Without Looking</div>
+      <pre><code><span class="prompt">$</span> rm -rf *.log</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right: Check First, Then Delete</div>
+      <pre><code><span class="prompt">$</span> ls *.log
+<span class="output">app.log  error.log  access.log</span>
+<span class="prompt">$</span> rm *.log      # Now you know exactly what will be deleted</code></pre>
+    </div>
+  </div>
+
+  <h3>Step 2: Use <code>echo</code> to Preview</h3>
+
+  <p>Replace the command with <code>echo</code> to see what it would do:</p>
+
+  <pre><code><span class="prompt">$</span> echo rm -rf /home/user/temp/*
+<span class="output">rm -rf /home/user/temp/file1.txt /home/user/temp/file2.txt /home/user/temp/subdir</span></code></pre>
+
+  <h3>Step 3: Use the <code>-i</code> Flag</h3>
+
+  <pre><code><span class="prompt">$</span> rm -ri /home/user/temp/
+<span class="output">rm: descend into directory '/home/user/temp/'? y
+rm: remove regular file '/home/user/temp/file1.txt'? y
+rm: remove regular file '/home/user/temp/file2.txt'? n
+rm: remove directory '/home/user/temp/'? y</span></code></pre>
+
+  <h3>Step 4: Use <code>trash-cli</code> Instead of <code>rm</code></h3>
+
+  <pre><code><span class="prompt">$</span> sudo apt install trash-cli
+<span class="prompt">$</span> trash-put file.txt                    # Move to trash instead of deleting
+<span class="prompt">$</span> trash-list                             # See what is in the trash
+<span class="prompt">$</span> trash-restore                          # Restore a file from trash
+<span class="prompt">$</span> trash-empty                            # Permanently empty the trash</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Create a Safety Alias</div>
+    <p>Add this to your <code>~/.bashrc</code> to make <code>rm</code> always ask for confirmation:</p>
+    <pre><code>alias rm='rm -i'</code></pre>
+    <p>When you genuinely want to force-remove, use <code>\rm -rf</code> (the backslash bypasses the alias).</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="check-current-directory">6. How to Check Current Directory Before Destructive Commands</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You think you are in one directory but you are actually in another. Running a destructive command in the wrong directory can be catastrophic.</p>
+
+  <h3>Always <code>pwd</code> First</h3>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Assume You Know Where You Are</div>
+      <pre><code><span class="prompt">$</span> rm -rf *        # Deletes everything... but WHERE are you?</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right: Verify, Then Act</div>
+      <pre><code><span class="prompt">$</span> pwd
+<span class="output">/home/user/temp</span>
+<span class="prompt">$</span> ls
+<span class="output">old-data.txt  cache/  temp-files/</span>
+<span class="prompt">$</span> rm -rf *        # Now you know you are in /temp, safe to proceed</code></pre>
+    </div>
+  </div>
+
+  <h3>Use Full Paths</h3>
+
+  <p>Instead of relying on relative paths, use absolute paths for destructive operations:</p>
+
+  <pre><code><span class="prompt">$</span> rm -rf /home/user/temp/*    # Explicit, no ambiguity about location</code></pre>
+
+  <h3>Show the Current Directory in Your Prompt</h3>
+
+  <p>Most default shell configurations show your current directory in the prompt. If yours does not, add this to <code>~/.bashrc</code>:</p>
+
+  <pre><code>PS1='\u@\h:\w\$ '</code></pre>
+
+  <p>This gives you a prompt like <code>user@hostname:/home/user/project$</code>, so you always know where you are.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Double-Check Checklist for Destructive Commands</div>
+    <ol>
+      <li>Run <code>pwd</code> to confirm your location</li>
+      <li>Run <code>ls</code> to see what files are here</li>
+      <li>Use <code>echo</code> to preview the expansion of any wildcards</li>
+      <li>Prefer absolute paths over relative paths</li>
+      <li>Never run destructive commands with <code>sudo</code> unless truly necessary</li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="man-pages">7. How to Use <code>man</code> Pages Effectively</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>man</code> (manual) command is your built-in documentation for every command on the system. Learning to use it well eliminates the need to search the web for basic command usage.</p>
+
+  <h3>Basic Usage</h3>
+
+  <pre><code><span class="prompt">$</span> man ls
+<span class="prompt">$</span> man grep
+<span class="prompt">$</span> man chmod</code></pre>
+
+  <h3>Navigating man Pages</h3>
+
+  <table>
+    <thead>
+      <tr><th>Key</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><kbd>Space</kbd> or <kbd>f</kbd></td><td>Scroll forward one page</td></tr>
+      <tr><td><kbd>b</kbd></td><td>Scroll backward one page</td></tr>
+      <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>Scroll down / up one line</td></tr>
+      <tr><td><kbd>/pattern</kbd></td><td>Search forward for "pattern"</td></tr>
+      <tr><td><kbd>?pattern</kbd></td><td>Search backward for "pattern"</td></tr>
+      <tr><td><kbd>n</kbd></td><td>Go to next search match</td></tr>
+      <tr><td><kbd>N</kbd></td><td>Go to previous search match</td></tr>
+      <tr><td><kbd>q</kbd></td><td>Quit the man page</td></tr>
+      <tr><td><kbd>h</kbd></td><td>Show help for navigation</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Searching Within a man Page</h3>
+
+  <p>If you open <code>man grep</code> and want to find information about the <code>-r</code> flag:</p>
+
+  <ol>
+    <li>Press <kbd>/</kbd></li>
+    <li>Type <code>-r</code> and press Enter</li>
+    <li>Press <kbd>n</kbd> to jump to the next match until you find the right section</li>
+  </ol>
+
+  <h3>Man Page Sections</h3>
+
+  <p>Man pages are organized into numbered sections:</p>
+
+  <table>
+    <thead>
+      <tr><th>Section</th><th>Content</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>User commands (most common)</td></tr>
+      <tr><td>2</td><td>System calls</td></tr>
+      <tr><td>3</td><td>Library functions</td></tr>
+      <tr><td>4</td><td>Special files (/dev)</td></tr>
+      <tr><td>5</td><td>File formats (e.g., /etc/passwd)</td></tr>
+      <tr><td>6</td><td>Games</td></tr>
+      <tr><td>7</td><td>Miscellaneous</td></tr>
+      <tr><td>8</td><td>System administration commands</td></tr>
+    </tbody>
+  </table>
+
+  <p>Some names exist in multiple sections. For example, <code>passwd</code> is both a command (section 1) and a file format (section 5):</p>
+
+  <pre><code><span class="prompt">$</span> man 1 passwd    # The passwd command
+<span class="prompt">$</span> man 5 passwd    # The /etc/passwd file format</code></pre>
+
+  <h3>Alternative: <code>tldr</code></h3>
+
+  <p>If man pages feel overwhelming, install <code>tldr</code> for short, practical examples:</p>
+
+  <pre><code><span class="prompt">$</span> sudo apt install tldr
+<span class="prompt">$</span> tldr tar
+<span class="output">tar
+Archiving utility.
+
+- Create an archive from files:
+  tar cf target.tar file1 file2 file3
+
+- Extract an archive:
+  tar xf source.tar
+
+- Create a gzipped archive:
+  tar czf target.tar.gz file1 file2
+...</span></code></pre>
+
+  <h3>Other Help Options</h3>
+
+  <pre><code><span class="prompt">$</span> ls --help          # Most commands support --help for a quick summary
+<span class="prompt">$</span> info ls            # More detailed than man for some GNU tools
+<span class="prompt">$</span> apropos "copy"     # Search all man pages for the word "copy"
+<span class="output">cp (1)    - copy files and directories
+scp (1)   - secure copy (remote file copy program)
+rsync (1) - a fast, versatile, remote (and local) file-copying tool</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p><code>apropos</code> is incredibly useful when you know what you want to do but do not know which command does it. It searches all man page descriptions.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="common-mistakes">8. Common Beginner Mistakes</h2>
+  <!-- ============================================================ -->
+
+  <p>Here is a comprehensive list of mistakes that every beginner makes at least once, along with explanations and correct approaches.</p>
+
+  <!-- Mistake 1 -->
+  <h3>Mistake 1: Spaces in Filenames Without Quotes</h3>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> cp My Report.txt /backup/
+<span class="output">cp: cannot stat 'My': No such file or directory
+cp: cannot stat 'Report.txt': No such file or directory</span></code></pre>
+      <p>The shell interprets the space as a separator between two arguments: "My" and "Report.txt".</p>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> cp "My Report.txt" /backup/
+<span class="prompt">$</span> cp My\ Report.txt /backup/       # Backslash escaping also works</code></pre>
+    </div>
+  </div>
+
+  <!-- Mistake 2 -->
+  <h3>Mistake 2: Forgetting Quotes Around Variables</h3>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> FILE="my report.txt"
+<span class="prompt">$</span> rm $FILE
+<span class="output">rm: cannot remove 'my': No such file or directory
+rm: cannot remove 'report.txt': No such file or directory</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> FILE="my report.txt"
+<span class="prompt">$</span> rm "$FILE"         # Quotes preserve the space in the filename</code></pre>
+    </div>
+  </div>
+
+  <!-- Mistake 3 -->
+  <h3>Mistake 3: Running as Root Unnecessarily</h3>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Habitual sudo</div>
+      <pre><code><span class="prompt">$</span> sudo mkdir ~/mydir          # Creates directory owned by root in YOUR home
+<span class="prompt">$</span> sudo nano ~/notes.txt       # File saved as root, you cannot edit it later
+<span class="prompt">$</span> sudo pip install flask      # Installs system-wide, can break package manager</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right: Only sudo When Needed</div>
+      <pre><code><span class="prompt">$</span> mkdir ~/mydir               # Your directory, your permissions
+<span class="prompt">$</span> nano ~/notes.txt            # Your file, your ownership
+<span class="prompt">$</span> pip install --user flask    # Installs to your home directory</code></pre>
+    </div>
+  </div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Warning</div>
+    <p>Files created with <code>sudo</code> are owned by root. You will then need <code>sudo</code> to edit or delete them later, creating a cycle of unnecessary root usage.</p>
+  </div>
+
+  <!-- Mistake 4 -->
+  <h3>Mistake 4: Not Reading Error Messages</h3>
+
+  <p>Many beginners see an error and immediately search the web or ask for help, without reading the message first.</p>
+
+  <pre><code><span class="prompt">$</span> python3 app.py
+<span class="output">Traceback (most recent call last):
+  File "app.py", line 3, in &lt;module&gt;
+    import flask
+ModuleNotFoundError: No module named 'flask'</span></code></pre>
+
+  <p>The error is crystal clear: the <code>flask</code> module is not installed. The fix is <code>pip install flask</code>. Read the message before searching the web.</p>
+
+  <!-- Mistake 5 -->
+  <h3>Mistake 5: Using <code>rm -rf</code> Without Thinking</h3>
+
+  <p>Covered in detail in section 4 above. The key rules:</p>
+
+  <ul>
+    <li>Always <code>ls</code> before <code>rm</code></li>
+    <li>Never use <code>rm -rf</code> with <code>sudo</code> on important paths</li>
+    <li>Double-check every path and variable before pressing Enter</li>
+    <li>Consider using <code>trash-cli</code> as a safer alternative</li>
+  </ul>
+
+  <!-- Mistake 6 -->
+  <h3>Mistake 6: Wrong Redirection (<code>&gt;</code> vs <code>&gt;&gt;</code>)</h3>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Accidentally Overwriting</div>
+      <pre><code><span class="prompt">$</span> echo "new entry" > important-log.txt    # OVERWRITES the entire file!</code></pre>
+      <p>The single <code>&gt;</code> redirects output and <strong>replaces</strong> the entire file contents.</p>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right: Appending</div>
+      <pre><code><span class="prompt">$</span> echo "new entry" >> important-log.txt   # APPENDS to the end of the file</code></pre>
+      <p>The double <code>&gt;&gt;</code> appends to the existing file without overwriting.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Danger</div>
+    <p>Running <code>command > file</code> when you meant <code>command >> file</code> will destroy all existing content in that file. There is no undo. Always think before you type <code>&gt;</code>.</p>
+  </div>
+
+  <!-- Mistake 7 -->
+  <h3>Mistake 7: Forgetting to Save in Vim</h3>
+
+  <p>New users open a file in vim, make changes, and then cannot figure out how to save or exit.</p>
+
+  <table>
+    <thead>
+      <tr><th>What You Want</th><th>What to Press</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Save and quit</td><td><kbd>Esc</kbd> then type <code>:wq</code> and press Enter</td></tr>
+      <tr><td>Quit without saving</td><td><kbd>Esc</kbd> then type <code>:q!</code> and press Enter</td></tr>
+      <tr><td>Save without quitting</td><td><kbd>Esc</kbd> then type <code>:w</code> and press Enter</td></tr>
+      <tr><td>Enter insert mode</td><td>Press <code>i</code></td></tr>
+      <tr><td>Exit insert mode</td><td>Press <kbd>Esc</kbd></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>If you accidentally opened vim and just want to leave, press <kbd>Esc</kbd> a few times, then type <code>:q!</code> and press Enter. If you prefer a simpler editor, use <code>nano</code> instead.</p>
+  </div>
+
+  <!-- Mistake 8 -->
+  <h3>Mistake 8: Not Checking Paths Before Commands</h3>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> tar -czf backup.tar.gz /hom/user/project
+<span class="output">tar: /hom/user/project: Cannot stat: No such file or directory
+tar: Exiting with failure status due to previous errors</span></code></pre>
+      <p>Typo: <code>/hom</code> instead of <code>/home</code>. The backup appears to succeed but contains nothing.</p>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right: Verify the Path First</div>
+      <pre><code><span class="prompt">$</span> ls /home/user/project/        # Verify the path exists first
+<span class="output">src/  README.md  setup.py</span>
+<span class="prompt">$</span> tar -czf backup.tar.gz /home/user/project</code></pre>
+    </div>
+  </div>
+
+  <h3>Additional Common Mistakes</h3>
+
+  <h4>Mistake 9: Using <code>cd</code> Without Checking Success</h4>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> cd /sme/wrong/path && rm -rf *
+<span class="output">bash: cd: /sme/wrong/path: No such file or directory</span></code></pre>
+      <p>Fortunately, <code>&&</code> prevents the <code>rm</code> from running. But if you used <code>;</code> instead of <code>&&</code>, the <code>rm -rf *</code> would run in your current directory.</p>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right: Chain with &amp;&amp;</div>
+      <pre><code><span class="prompt">$</span> cd /path/to/dir && rm -rf temp/*    # rm only runs if cd succeeds</code></pre>
+    </div>
+  </div>
+
+  <h4>Mistake 10: Confusing <code>find</code> Syntax</h4>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> find *.txt                       # This is NOT how find works
+<span class="prompt">$</span> find -name /home/user *.log      # Arguments in wrong order</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> find . -name "*.txt"             # Correct: path first, then options
+<span class="prompt">$</span> find /home/user -name "*.log"    # Correct order</code></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+  <!-- ============================================================ -->
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Diagnose the Error</div>
+    <p>You run the following command and get an error. What is the cause and how do you fix it?</p>
+    <pre><code><span class="prompt">$</span> cat /var/log/auth.log
+<span class="output">cat: /var/log/auth.log: Permission denied</span></code></pre>
+    <details>
+      <summary>Show Solution</summary>
+      <p><strong>Cause:</strong> <code>/var/log/auth.log</code> is owned by root and not readable by your user.</p>
+      <p><strong>Diagnosis:</strong></p>
+      <pre><code><span class="prompt">$</span> ls -la /var/log/auth.log
+<span class="output">-rw-r----- 1 syslog adm 54321 Mar 15 10:00 /var/log/auth.log</span></code></pre>
+      <p><strong>Fix:</strong> Use <code>sudo cat /var/log/auth.log</code> or add your user to the <code>adm</code> group: <code>sudo usermod -aG adm $USER</code> (then log out and back in).</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Spot the Danger</div>
+    <p>What is wrong with this command, and what could happen?</p>
+    <pre><code>DIR=""
+rm -rf $DIR/*</code></pre>
+    <details>
+      <summary>Show Solution</summary>
+      <p><strong>The danger:</strong> Since <code>$DIR</code> is empty, the command expands to <code>rm -rf /*</code>, which attempts to delete <strong>everything on the system</strong>.</p>
+      <p><strong>Safe version:</strong></p>
+      <pre><code>DIR=""
+rm -rf "${DIR:?ERROR: DIR is not set}/"*</code></pre>
+      <p>The <code>${DIR:?message}</code> syntax causes bash to print the error message and abort if <code>DIR</code> is empty or unset.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Fix the Command</div>
+    <p>Correct each of these broken commands:</p>
+    <pre><code>1. cp My File.txt /backup/
+2. find -name "*.py" /home/user
+3. echo "hello" > log.txt   (you wanted to append, not overwrite)</code></pre>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code>1. cp "My File.txt" /backup/
+2. find /home/user -name "*.py"
+3. echo "hello" >> log.txt</code></pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="summary">Chapter Summary</h2>
+  <!-- ============================================================ -->
+
+  <div class="concept-box">
+    <div class="concept-box__title">Key Takeaways</div>
+    <ul>
+      <li><strong>Read error messages carefully</strong> &mdash; they almost always tell you exactly what is wrong</li>
+      <li><strong>"Permission denied"</strong> &mdash; check ownership and permissions with <code>ls -la</code>, use <code>sudo</code> only when appropriate</li>
+      <li><strong>"Command not found"</strong> &mdash; check if it is installed, check your PATH, check your spelling</li>
+      <li><strong>"No such file or directory"</strong> &mdash; verify the path exists, use tab completion</li>
+      <li><strong><code>rm -rf</code> is permanent</strong> &mdash; always inspect before deleting, use <code>trash-cli</code> when possible</li>
+      <li><strong>Learn to use <code>man</code></strong> &mdash; it is always available, even without internet</li>
+      <li><strong>Quote your variables and filenames</strong> &mdash; spaces in names will break commands without quotes</li>
+      <li><strong>Use <code>&gt;&gt;</code> to append, <code>&gt;</code> to overwrite</strong> &mdash; know the difference before you type</li>
+    </ul>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="prev-next">
+    <a class="prev-next__link prev-next__prev" href="../13-workflows/index.html">&larr; 13. Workflows</a>
+    <a class="prev-next__link prev-next__next" href="../15-comparisons/index.html">15. Comparisons &rarr;</a>
+  </nav>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 11: Package Management — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link active" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+  <div class="breadcrumb">
+    <a href="../../index.html">Home</a><span class="sep">/</span><span>Chapter 11: Package Management</span>
+  </div>
+
+  <h1>Chapter 11: Package Management</h1>
+
+  <p>Every Linux distribution needs a way to install, update, and remove software. That is the job of a <strong>package manager</strong>. This chapter covers all the major package managers you will encounter across different Linux distributions.</p>
+
+  <!-- ============================== -->
+  <!-- 1. What is a Package Manager?  -->
+  <!-- ============================== -->
+  <h2>1. What is a Package Manager?</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Packages, Repositories, and Dependencies</div>
+    <p>Think of a package manager like an app store for your terminal.</p>
+    <ul>
+      <li><strong>Package</strong> &mdash; A bundle containing a program's files, metadata, and instructions for where to put them. Similar to an installer on Windows or a .dmg on macOS.</li>
+      <li><strong>Repository (repo)</strong> &mdash; A remote server that stores thousands of packages. Your package manager downloads from these repos. Think of it as the shelves in the app store.</li>
+      <li><strong>Dependency</strong> &mdash; A package that another package requires to work. For example, a text editor might depend on a graphics library. The package manager handles these automatically.</li>
+    </ul>
+    <p>When you run <code>apt install firefox</code>, the package manager checks the repository, finds Firefox and all its dependencies, downloads them, and installs everything in the right locations.</p>
+  </div>
+
+  <p>Different distributions use different package managers:</p>
+  <table>
+    <tr><th>Distribution Family</th><th>High-Level Tool</th><th>Low-Level Tool</th><th>Package Format</th></tr>
+    <tr><td>Debian, Ubuntu, Mint</td><td><code>apt</code> / <code>apt-get</code></td><td><code>dpkg</code></td><td>.deb</td></tr>
+    <tr><td>RHEL, CentOS 7</td><td><code>yum</code></td><td><code>rpm</code></td><td>.rpm</td></tr>
+    <tr><td>Fedora, RHEL 8+, CentOS 8+</td><td><code>dnf</code></td><td><code>rpm</code></td><td>.rpm</td></tr>
+    <tr><td>Arch, Manjaro</td><td><code>pacman</code></td><td><code>pacman</code></td><td>.pkg.tar.zst</td></tr>
+  </table>
+
+  <p><strong>High-level</strong> tools resolve dependencies automatically and download from repos. <strong>Low-level</strong> tools install individual package files but do not handle dependencies on their own.</p>
+
+  <!-- ============================== -->
+  <!-- 2. apt (Debian/Ubuntu)          -->
+  <!-- ============================== -->
+  <h2>2. apt (Debian / Ubuntu)</h2>
+
+  <p><code>apt</code> is the modern, user-friendly command-line tool for Debian-based systems. It combines the most commonly used features of <code>apt-get</code> and <code>apt-cache</code> into one command with cleaner output and progress bars.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Always update before installing</div>
+    <p>Run <code>sudo apt update</code> before installing anything. This refreshes your local list of available packages so you get the latest versions.</p>
+  </div>
+
+  <h3>Update the package list</h3>
+  <pre><code><span class="prompt">$</span> sudo apt update
+<span class="output">Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [110 kB]
+Reading package lists... Done
+Building dependency tree... Done
+15 packages can be upgraded.</span></code></pre>
+
+  <h3>Upgrade installed packages</h3>
+  <pre><code><span class="prompt">$</span> sudo apt upgrade                   <span class="comment"># upgrade all packages</span>
+<span class="prompt">$</span> sudo apt full-upgrade               <span class="comment"># upgrade, removing obsolete packages if needed</span></code></pre>
+
+  <h3>Install a package</h3>
+  <pre><code><span class="prompt">$</span> sudo apt install nginx              <span class="comment"># install nginx web server</span>
+<span class="prompt">$</span> sudo apt install vim curl git       <span class="comment"># install multiple packages at once</span>
+<span class="prompt">$</span> sudo apt install -y nodejs          <span class="comment"># skip confirmation prompt with -y</span></code></pre>
+
+  <h3>Remove a package</h3>
+  <pre><code><span class="prompt">$</span> sudo apt remove nginx               <span class="comment"># remove package, keep config files</span>
+<span class="prompt">$</span> sudo apt purge nginx                <span class="comment"># remove package AND its config files</span>
+<span class="prompt">$</span> sudo apt autoremove                 <span class="comment"># remove unused dependencies</span></code></pre>
+
+  <h3>Search and get information</h3>
+  <pre><code><span class="prompt">$</span> apt search "web server"             <span class="comment"># search for packages by keyword</span>
+<span class="prompt">$</span> apt show nginx                      <span class="comment"># detailed info about a package</span>
+<span class="prompt">$</span> apt list --installed                <span class="comment"># list all installed packages</span>
+<span class="prompt">$</span> apt list --upgradable               <span class="comment"># list packages with updates available</span></code></pre>
+
+  <h3>Practical examples</h3>
+  <pre><code><span class="comment"># Full update workflow</span>
+<span class="prompt">$</span> sudo apt update && sudo apt upgrade -y
+
+<span class="comment"># Install a package and check it was installed</span>
+<span class="prompt">$</span> sudo apt install -y tree
+<span class="prompt">$</span> apt list --installed | grep tree
+<span class="output">tree/jammy,now 2.0.2-1 amd64 [installed]</span>
+
+<span class="comment"># Clean up cached package files to free disk space</span>
+<span class="prompt">$</span> sudo apt clean                      <span class="comment"># remove all cached .deb files</span>
+<span class="prompt">$</span> sudo apt autoclean                  <span class="comment"># remove only outdated cached .deb files</span></code></pre>
+
+  <!-- ============================== -->
+  <!-- 3. apt-get                      -->
+  <!-- ============================== -->
+  <h2>3. apt-get (Legacy Tool)</h2>
+
+  <p><code>apt-get</code> is the older command that <code>apt</code> was built to replace for interactive use. It still works and you will see it in many tutorials, scripts, and Dockerfiles.</p>
+
+  <h3>When to use which?</h3>
+  <table class="vs-table">
+    <tr><th>Feature</th><th>apt</th><th>apt-get</th></tr>
+    <tr><td>Progress bar</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Color output</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Combines apt-get + apt-cache</td><td>Yes</td><td>No (separate commands)</td></tr>
+    <tr><td>Stable CLI for scripts</td><td>No (output may change)</td><td>Yes (stable, predictable)</td></tr>
+    <tr><td>Use in Dockerfiles / scripts</td><td>Not recommended</td><td>Recommended</td></tr>
+    <tr><td>Interactive terminal use</td><td>Recommended</td><td>Works fine</td></tr>
+  </table>
+
+  <h3>Common apt-get commands</h3>
+  <pre><code><span class="prompt">$</span> sudo apt-get update                 <span class="comment"># refresh package list</span>
+<span class="prompt">$</span> sudo apt-get upgrade                <span class="comment"># upgrade all packages</span>
+<span class="prompt">$</span> sudo apt-get dist-upgrade           <span class="comment"># upgrade with dependency changes</span>
+<span class="prompt">$</span> sudo apt-get install vim             <span class="comment"># install a package</span>
+<span class="prompt">$</span> sudo apt-get remove vim              <span class="comment"># remove a package</span>
+<span class="prompt">$</span> sudo apt-get purge vim               <span class="comment"># remove package + config</span>
+<span class="prompt">$</span> sudo apt-get autoremove              <span class="comment"># clean unused dependencies</span>
+
+<span class="comment"># apt-cache is the companion for searches</span>
+<span class="prompt">$</span> apt-cache search "text editor"      <span class="comment"># search packages</span>
+<span class="prompt">$</span> apt-cache show vim                   <span class="comment"># show package details</span>
+<span class="prompt">$</span> apt-cache policy vim                 <span class="comment"># show version and repo info</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Rule of thumb</div>
+    <p>Use <code>apt</code> when typing commands yourself. Use <code>apt-get</code> inside shell scripts, cron jobs, and Dockerfiles where stable output matters.</p>
+  </div>
+
+  <!-- ============================== -->
+  <!-- 4. dpkg                         -->
+  <!-- ============================== -->
+  <h2>4. dpkg (Debian Package Tool)</h2>
+
+  <p><code>dpkg</code> is the low-level tool that works directly with <code>.deb</code> files. It does <strong>not</strong> resolve dependencies. Use it when you have downloaded a <code>.deb</code> file manually (for example, Google Chrome or VS Code).</p>
+
+  <h3>Install a local .deb file</h3>
+  <pre><code><span class="prompt">$</span> sudo dpkg -i google-chrome-stable_current_amd64.deb
+<span class="comment"># If dependencies are missing, fix them with:</span>
+<span class="prompt">$</span> sudo apt install -f               <span class="comment"># -f = fix broken dependencies</span></code></pre>
+
+  <h3>Remove a package</h3>
+  <pre><code><span class="prompt">$</span> sudo dpkg -r google-chrome-stable  <span class="comment"># remove, keep config files</span>
+<span class="prompt">$</span> sudo dpkg -P google-chrome-stable  <span class="comment"># purge (remove everything)</span></code></pre>
+
+  <h3>Query installed packages</h3>
+  <pre><code><span class="prompt">$</span> dpkg -l                            <span class="comment"># list ALL installed packages</span>
+<span class="prompt">$</span> dpkg -l | grep nginx               <span class="comment"># check if nginx is installed</span>
+<span class="prompt">$</span> dpkg -L nginx                      <span class="comment"># list all files installed by nginx</span>
+<span class="prompt">$</span> dpkg -s nginx                      <span class="comment"># show status and details of nginx</span>
+<span class="prompt">$</span> dpkg -S /usr/bin/vim               <span class="comment"># which package owns this file?</span></code></pre>
+
+  <h3>Practical examples</h3>
+  <pre><code><span class="comment"># Download and install VS Code</span>
+<span class="prompt">$</span> wget -O vscode.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+<span class="prompt">$</span> sudo dpkg -i vscode.deb
+<span class="prompt">$</span> sudo apt install -f                <span class="comment"># fix any missing dependencies</span>
+
+<span class="comment"># Check what version of a package is installed</span>
+<span class="prompt">$</span> dpkg -s bash | grep Version
+<span class="output">Version: 5.1-6ubuntu1</span>
+
+<span class="comment"># Count how many packages are installed</span>
+<span class="prompt">$</span> dpkg -l | grep "^ii" | wc -l
+<span class="output">534</span></code></pre>
+
+  <!-- ============================== -->
+  <!-- 5. yum (RHEL / CentOS 7)       -->
+  <!-- ============================== -->
+  <h2>5. yum (RHEL / CentOS 7)</h2>
+
+  <p><code>yum</code> (Yellowdog Updater, Modified) is the traditional package manager for Red Hat-based systems. It is the default on RHEL 7 and CentOS 7.</p>
+
+  <h3>Update and upgrade</h3>
+  <pre><code><span class="prompt">$</span> sudo yum check-update              <span class="comment"># check for available updates</span>
+<span class="prompt">$</span> sudo yum update                    <span class="comment"># update all packages</span>
+<span class="prompt">$</span> sudo yum update nginx               <span class="comment"># update a specific package</span></code></pre>
+
+  <h3>Install and remove</h3>
+  <pre><code><span class="prompt">$</span> sudo yum install httpd              <span class="comment"># install Apache web server</span>
+<span class="prompt">$</span> sudo yum install -y vim curl        <span class="comment"># install multiple, skip prompt</span>
+<span class="prompt">$</span> sudo yum remove httpd               <span class="comment"># remove a package</span>
+<span class="prompt">$</span> sudo yum autoremove                 <span class="comment"># remove unused dependencies</span></code></pre>
+
+  <h3>Search and info</h3>
+  <pre><code><span class="prompt">$</span> yum search "web server"             <span class="comment"># search for packages</span>
+<span class="prompt">$</span> yum info httpd                      <span class="comment"># detailed package information</span>
+<span class="prompt">$</span> yum list installed                  <span class="comment"># list all installed packages</span>
+<span class="prompt">$</span> yum list available                  <span class="comment"># list all available packages</span></code></pre>
+
+  <h3>Practical examples</h3>
+  <pre><code><span class="comment"># Install a package group (e.g., Development Tools)</span>
+<span class="prompt">$</span> sudo yum groupinstall "Development Tools"
+
+<span class="comment"># See which package provides a file</span>
+<span class="prompt">$</span> yum provides /usr/bin/dig
+<span class="output">bind-utils-9.11.4-26.P2.el7.x86_64 : Utilities for querying DNS name servers</span>
+
+<span class="comment"># View yum history (see past transactions)</span>
+<span class="prompt">$</span> sudo yum history
+<span class="prompt">$</span> sudo yum history info 15            <span class="comment"># details of transaction #15</span>
+
+<span class="comment"># Clean cached data</span>
+<span class="prompt">$</span> sudo yum clean all</code></pre>
+
+  <!-- ============================== -->
+  <!-- 6. dnf (Fedora / RHEL 8+)      -->
+  <!-- ============================== -->
+  <h2>6. dnf (Fedora / RHEL 8+)</h2>
+
+  <p><code>dnf</code> (Dandified Yum) is the successor to <code>yum</code>. It is faster, uses less memory, handles dependencies better, and is the default on Fedora and RHEL/CentOS 8 and later. The command syntax is almost identical to <code>yum</code>.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">dnf replaces yum</div>
+    <p>On RHEL 8+ and Fedora, <code>yum</code> is actually a symlink to <code>dnf</code>. Running <code>yum install</code> really runs <code>dnf install</code> behind the scenes. However, you should use <code>dnf</code> directly on these systems.</p>
+  </div>
+
+  <h3>Core commands</h3>
+  <pre><code><span class="prompt">$</span> sudo dnf check-update              <span class="comment"># check for updates</span>
+<span class="prompt">$</span> sudo dnf update                    <span class="comment"># update all packages (same as upgrade)</span>
+<span class="prompt">$</span> sudo dnf upgrade                   <span class="comment"># same as update</span>
+<span class="prompt">$</span> sudo dnf install nginx              <span class="comment"># install a package</span>
+<span class="prompt">$</span> sudo dnf install -y vim curl git    <span class="comment"># install multiple, skip prompt</span>
+<span class="prompt">$</span> sudo dnf remove nginx               <span class="comment"># remove a package</span>
+<span class="prompt">$</span> sudo dnf autoremove                 <span class="comment"># remove unneeded dependencies</span></code></pre>
+
+  <h3>Search, info, and listing</h3>
+  <pre><code><span class="prompt">$</span> dnf search "text editor"            <span class="comment"># search for packages</span>
+<span class="prompt">$</span> dnf info nginx                      <span class="comment"># show package details</span>
+<span class="prompt">$</span> dnf list installed                  <span class="comment"># list installed packages</span>
+<span class="prompt">$</span> dnf list available                  <span class="comment"># list available packages</span>
+<span class="prompt">$</span> dnf provides /usr/bin/dig           <span class="comment"># which package provides this file?</span></code></pre>
+
+  <h3>Groups and history</h3>
+  <pre><code><span class="prompt">$</span> dnf group list                      <span class="comment"># list available package groups</span>
+<span class="prompt">$</span> sudo dnf group install "Development Tools"
+<span class="prompt">$</span> dnf history                         <span class="comment"># view transaction history</span>
+<span class="prompt">$</span> sudo dnf history undo 12            <span class="comment"># undo transaction #12</span>
+<span class="prompt">$</span> sudo dnf clean all                  <span class="comment"># clean cached data</span></code></pre>
+
+  <!-- ============================== -->
+  <!-- 7. rpm                          -->
+  <!-- ============================== -->
+  <h2>7. rpm (RPM Package Manager)</h2>
+
+  <p><code>rpm</code> is the low-level tool for <code>.rpm</code> files on Red Hat-based systems. Like <code>dpkg</code> for Debian, it does <strong>not</strong> resolve dependencies. Use it to install locally downloaded <code>.rpm</code> files or to query installed packages.</p>
+
+  <h3>Install, upgrade, and remove</h3>
+  <pre><code><span class="prompt">$</span> sudo rpm -ivh package.rpm           <span class="comment"># install (-i=install, -v=verbose, -h=progress)</span>
+<span class="prompt">$</span> sudo rpm -Uvh package.rpm           <span class="comment"># upgrade (or install if not present)</span>
+<span class="prompt">$</span> sudo rpm -e package-name            <span class="comment"># erase (remove) a package</span></code></pre>
+
+  <h3>Query packages</h3>
+  <pre><code><span class="prompt">$</span> rpm -qa                             <span class="comment"># list ALL installed packages</span>
+<span class="prompt">$</span> rpm -qa | grep nginx                <span class="comment"># check if nginx is installed</span>
+<span class="prompt">$</span> rpm -qi nginx                       <span class="comment"># detailed info about an installed package</span>
+<span class="prompt">$</span> rpm -ql nginx                       <span class="comment"># list all files from an installed package</span>
+<span class="prompt">$</span> rpm -qf /usr/bin/vim                <span class="comment"># which package owns this file?</span></code></pre>
+
+  <h3>Query an .rpm file (before installing)</h3>
+  <pre><code><span class="prompt">$</span> rpm -qip package.rpm                <span class="comment"># show info from the .rpm file</span>
+<span class="prompt">$</span> rpm -qlp package.rpm                <span class="comment"># list files the .rpm would install</span>
+<span class="prompt">$</span> rpm -qRp package.rpm                <span class="comment"># list dependencies of the .rpm file</span></code></pre>
+
+  <h3>Verify installed packages</h3>
+  <pre><code><span class="prompt">$</span> rpm -V nginx                        <span class="comment"># verify integrity of installed files</span>
+<span class="prompt">$</span> rpm -Va                             <span class="comment"># verify ALL installed packages (slow)</span></code></pre>
+
+  <!-- ============================== -->
+  <!-- 8. pacman (Arch)                -->
+  <!-- ============================== -->
+  <h2>8. pacman (Arch Linux)</h2>
+
+  <p><code>pacman</code> is the package manager for Arch Linux and its derivatives (Manjaro, EndeavourOS). It uses a different flag style than the other package managers.</p>
+
+  <h3>Sync (install) and update</h3>
+  <pre><code><span class="prompt">$</span> sudo pacman -Syu                    <span class="comment"># sync repos + full system upgrade (do this first!)</span>
+<span class="prompt">$</span> sudo pacman -Sy                     <span class="comment"># sync repos only (refresh package database)</span>
+<span class="prompt">$</span> sudo pacman -S nginx                <span class="comment"># install a package</span>
+<span class="prompt">$</span> sudo pacman -S --noconfirm vim      <span class="comment"># install without confirmation</span>
+<span class="prompt">$</span> sudo pacman -S vim curl git         <span class="comment"># install multiple packages</span></code></pre>
+
+  <h3>Remove packages</h3>
+  <pre><code><span class="prompt">$</span> sudo pacman -R nginx                <span class="comment"># remove a package</span>
+<span class="prompt">$</span> sudo pacman -Rs nginx               <span class="comment"># remove + unneeded dependencies</span>
+<span class="prompt">$</span> sudo pacman -Rns nginx              <span class="comment"># remove + dependencies + config files</span></code></pre>
+
+  <h3>Search and query</h3>
+  <pre><code><span class="prompt">$</span> pacman -Ss "web server"             <span class="comment"># search remote repos</span>
+<span class="prompt">$</span> pacman -Si nginx                    <span class="comment"># info about a remote package</span>
+<span class="prompt">$</span> pacman -Qs nginx                    <span class="comment"># search installed packages</span>
+<span class="prompt">$</span> pacman -Qi nginx                    <span class="comment"># info about an installed package</span>
+<span class="prompt">$</span> pacman -Ql nginx                    <span class="comment"># list files installed by a package</span>
+<span class="prompt">$</span> pacman -Qo /usr/bin/vim             <span class="comment"># which package owns this file?</span></code></pre>
+
+  <h3>Maintenance</h3>
+  <pre><code><span class="prompt">$</span> pacman -Qdt                         <span class="comment"># list orphaned packages (unneeded deps)</span>
+<span class="prompt">$</span> sudo pacman -Rns $(pacman -Qdtq)    <span class="comment"># remove all orphaned packages</span>
+<span class="prompt">$</span> sudo pacman -Sc                     <span class="comment"># clean old cached packages</span>
+<span class="prompt">$</span> sudo pacman -Scc                    <span class="comment"># clean ALL cached packages</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Pacman flag cheat sheet</div>
+    <p><strong>-S</strong> = Sync (install/update from repos), <strong>-R</strong> = Remove, <strong>-Q</strong> = Query (installed packages), <strong>-U</strong> = Upgrade (from local file). Lowercase letters after modify the action: <strong>s</strong>=search, <strong>i</strong>=info, <strong>l</strong>=list, <strong>u</strong>=update, <strong>y</strong>=refresh db.</p>
+  </div>
+
+  <!-- ============================== -->
+  <!-- Big Comparison Table            -->
+  <!-- ============================== -->
+  <h2>Package Manager Comparison</h2>
+
+  <p>This table shows the equivalent commands across all major package managers:</p>
+
+  <table class="vs-table">
+    <tr>
+      <th>Action</th>
+      <th>apt (Debian/Ubuntu)</th>
+      <th>yum (RHEL 7)</th>
+      <th>dnf (Fedora/RHEL 8+)</th>
+      <th>pacman (Arch)</th>
+    </tr>
+    <tr>
+      <td>Refresh package list</td>
+      <td><code>apt update</code></td>
+      <td><code>yum check-update</code></td>
+      <td><code>dnf check-update</code></td>
+      <td><code>pacman -Sy</code></td>
+    </tr>
+    <tr>
+      <td>Upgrade all packages</td>
+      <td><code>apt upgrade</code></td>
+      <td><code>yum update</code></td>
+      <td><code>dnf upgrade</code></td>
+      <td><code>pacman -Syu</code></td>
+    </tr>
+    <tr>
+      <td>Install a package</td>
+      <td><code>apt install pkg</code></td>
+      <td><code>yum install pkg</code></td>
+      <td><code>dnf install pkg</code></td>
+      <td><code>pacman -S pkg</code></td>
+    </tr>
+    <tr>
+      <td>Remove a package</td>
+      <td><code>apt remove pkg</code></td>
+      <td><code>yum remove pkg</code></td>
+      <td><code>dnf remove pkg</code></td>
+      <td><code>pacman -R pkg</code></td>
+    </tr>
+    <tr>
+      <td>Remove + deps</td>
+      <td><code>apt autoremove</code></td>
+      <td><code>yum autoremove</code></td>
+      <td><code>dnf autoremove</code></td>
+      <td><code>pacman -Rs pkg</code></td>
+    </tr>
+    <tr>
+      <td>Search packages</td>
+      <td><code>apt search kw</code></td>
+      <td><code>yum search kw</code></td>
+      <td><code>dnf search kw</code></td>
+      <td><code>pacman -Ss kw</code></td>
+    </tr>
+    <tr>
+      <td>Show package info</td>
+      <td><code>apt show pkg</code></td>
+      <td><code>yum info pkg</code></td>
+      <td><code>dnf info pkg</code></td>
+      <td><code>pacman -Si pkg</code></td>
+    </tr>
+    <tr>
+      <td>List installed</td>
+      <td><code>apt list --installed</code></td>
+      <td><code>yum list installed</code></td>
+      <td><code>dnf list installed</code></td>
+      <td><code>pacman -Q</code></td>
+    </tr>
+    <tr>
+      <td>Which package owns file</td>
+      <td><code>dpkg -S /path</code></td>
+      <td><code>yum provides /path</code></td>
+      <td><code>dnf provides /path</code></td>
+      <td><code>pacman -Qo /path</code></td>
+    </tr>
+    <tr>
+      <td>Install local file</td>
+      <td><code>dpkg -i file.deb</code></td>
+      <td><code>rpm -ivh file.rpm</code></td>
+      <td><code>dnf install file.rpm</code></td>
+      <td><code>pacman -U file.pkg.tar.zst</code></td>
+    </tr>
+    <tr>
+      <td>Clean cache</td>
+      <td><code>apt clean</code></td>
+      <td><code>yum clean all</code></td>
+      <td><code>dnf clean all</code></td>
+      <td><code>pacman -Sc</code></td>
+    </tr>
+  </table>
+
+  <!-- ============================== -->
+  <!-- Low-Level vs High-Level        -->
+  <!-- ============================== -->
+  <h2>Low-Level vs High-Level Package Tools</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Two Layers of Package Management</div>
+    <p>Think of package management as having two layers:</p>
+    <ul>
+      <li><strong>Low-level tools</strong> (<code>dpkg</code>, <code>rpm</code>) &mdash; work with individual package files. They install and remove single packages but do NOT download from the internet or handle dependencies.</li>
+      <li><strong>High-level tools</strong> (<code>apt</code>, <code>yum</code>, <code>dnf</code>, <code>pacman</code>) &mdash; work with repositories. They resolve dependencies, download packages, and call the low-level tool to do the actual installation.</li>
+    </ul>
+    <p>When you run <code>apt install nginx</code>, apt figures out the dependencies, downloads all needed <code>.deb</code> files, and then calls <code>dpkg</code> to install each one.</p>
+  </div>
+
+  <table>
+    <tr><th>Scenario</th><th>Use High-Level</th><th>Use Low-Level</th></tr>
+    <tr><td>Install software from repos</td><td>Yes (<code>apt install</code>)</td><td>No</td></tr>
+    <tr><td>Install a downloaded .deb/.rpm file</td><td>Possible (<code>apt install ./file.deb</code>)</td><td>Yes (<code>dpkg -i</code>)</td></tr>
+    <tr><td>Query which package owns a file</td><td>Possible</td><td>Yes (<code>dpkg -S</code>, <code>rpm -qf</code>)</td></tr>
+    <tr><td>List all files in an installed package</td><td>No</td><td>Yes (<code>dpkg -L</code>, <code>rpm -ql</code>)</td></tr>
+    <tr><td>Upgrade the entire system</td><td>Yes (<code>apt upgrade</code>)</td><td>No</td></tr>
+  </table>
+
+  <!-- ============================== -->
+  <!-- Common Workflows                -->
+  <!-- ============================== -->
+  <h2>Common Package Management Workflows</h2>
+
+  <h3>Full system update (Debian/Ubuntu)</h3>
+  <pre><code><span class="prompt">$</span> sudo apt update                    <span class="comment"># refresh package list</span>
+<span class="prompt">$</span> sudo apt upgrade -y                <span class="comment"># upgrade all packages</span>
+<span class="prompt">$</span> sudo apt autoremove -y              <span class="comment"># remove orphaned dependencies</span>
+<span class="prompt">$</span> sudo apt clean                      <span class="comment"># free disk space from cache</span></code></pre>
+
+  <h3>Full system update (Arch)</h3>
+  <pre><code><span class="prompt">$</span> sudo pacman -Syu                    <span class="comment"># sync + full upgrade in one command</span>
+<span class="prompt">$</span> sudo pacman -Rns $(pacman -Qdtq)    <span class="comment"># remove orphans (if any)</span>
+<span class="prompt">$</span> sudo pacman -Sc                     <span class="comment"># clean cache</span></code></pre>
+
+  <h3>Find what package provides a command</h3>
+  <pre><code><span class="comment"># Debian/Ubuntu</span>
+<span class="prompt">$</span> dpkg -S $(which dig)
+<span class="output">dnsutils: /usr/bin/dig</span>
+
+<span class="comment"># Red Hat / Fedora</span>
+<span class="prompt">$</span> dnf provides /usr/bin/dig
+<span class="output">bind-utils-9.16.23-1.el9.x86_64 : Utilities for querying DNS</span>
+
+<span class="comment"># Arch</span>
+<span class="prompt">$</span> pacman -Qo /usr/bin/dig
+<span class="output">/usr/bin/dig is owned by bind 9.18.20-1</span></code></pre>
+
+  <h3>Downgrade a package (Debian/Ubuntu)</h3>
+  <pre><code><span class="comment"># List available versions</span>
+<span class="prompt">$</span> apt list -a nginx
+<span class="output">nginx/jammy-updates 1.18.0-6ubuntu14.4 amd64
+nginx/jammy 1.18.0-6ubuntu14 amd64</span>
+
+<span class="comment"># Install a specific version</span>
+<span class="prompt">$</span> sudo apt install nginx=1.18.0-6ubuntu14</code></pre>
+
+  <!-- ============================== -->
+  <!-- How to Safely Install/Remove   -->
+  <!-- ============================== -->
+  <h2>How to Safely Install and Remove Packages</h2>
+
+  <h3>Before installing</h3>
+  <ol>
+    <li><strong>Update your package list first.</strong> On Debian/Ubuntu: <code>sudo apt update</code>. On Arch: <code>sudo pacman -Sy</code>.</li>
+    <li><strong>Search before installing</strong> to make sure you have the right package name: <code>apt search nginx</code>.</li>
+    <li><strong>Check package details</strong> with <code>apt show</code> or <code>dnf info</code> to confirm it is what you expect.</li>
+    <li><strong>Review what will be installed.</strong> The package manager shows you a list of packages and dependencies before confirming. Read it.</li>
+  </ol>
+
+  <h3>Before removing</h3>
+  <ol>
+    <li><strong>Check dependencies.</strong> Removing a package may also remove packages that depend on it. Read the confirmation carefully.</li>
+    <li><strong>Use <code>remove</code> before <code>purge</code>.</strong> Start with <code>remove</code> to keep config files. Only use <code>purge</code> if you want a clean slate.</li>
+    <li><strong>Clean up afterward.</strong> Run <code>autoremove</code> to clear orphaned dependencies.</li>
+  </ol>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Warning: Do not mix package managers</div>
+    <p>Never install a <code>.rpm</code> file on a Debian system or a <code>.deb</code> file on a Red Hat system. Do not try to use <code>apt</code> on Arch or <code>pacman</code> on Ubuntu. Each distribution has its own package format, and mixing them will break your system. If you need software that is not in your distro's repos, look for a Snap, Flatpak, AppImage, or build from source.</p>
+  </div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Caution: Be careful with sudo and package removal</div>
+    <p>Running <code>sudo apt remove</code> on critical system packages (like <code>systemd</code>, <code>libc6</code>, or <code>bash</code>) can make your system unbootable. Always read what the package manager says it will remove before typing <code>y</code>.</p>
+  </div>
+
+  <!-- ============================== -->
+  <!-- Exercises                       -->
+  <!-- ============================== -->
+  <h2>Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Install, verify, and remove</div>
+    <p>On a Debian/Ubuntu system, do the following:</p>
+    <ol>
+      <li>Update your package list.</li>
+      <li>Search for a package called <code>cowsay</code>.</li>
+      <li>Install <code>cowsay</code>.</li>
+      <li>Verify it is installed using <code>dpkg -l</code>.</li>
+      <li>Run <code>cowsay "Hello Linux"</code> to test it.</li>
+      <li>Remove <code>cowsay</code> and confirm it is gone.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> sudo apt update
+<span class="prompt">$</span> apt search cowsay
+<span class="prompt">$</span> sudo apt install -y cowsay
+<span class="prompt">$</span> dpkg -l | grep cowsay
+<span class="prompt">$</span> cowsay "Hello Linux"
+<span class="prompt">$</span> sudo apt remove -y cowsay
+<span class="prompt">$</span> dpkg -l | grep cowsay          <span class="comment"># should show 'rc' (removed, config remains) or nothing</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Explore installed packages</div>
+    <p>Answer these questions using package manager commands (Debian/Ubuntu):</p>
+    <ol>
+      <li>How many packages are installed on your system?</li>
+      <li>What package provides the file <code>/usr/bin/wget</code>?</li>
+      <li>List all files installed by the <code>coreutils</code> package.</li>
+      <li>What version of <code>bash</code> is installed?</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> dpkg -l | grep "^ii" | wc -l       <span class="comment"># count installed packages</span>
+<span class="prompt">$</span> dpkg -S /usr/bin/wget               <span class="comment"># find which package owns wget</span>
+<span class="prompt">$</span> dpkg -L coreutils                   <span class="comment"># list files from coreutils</span>
+<span class="prompt">$</span> dpkg -s bash | grep Version          <span class="comment"># show bash version</span></code></pre>
+    </details>
+  </div>
+
+  <!-- ============================== -->
+  <!-- Quizzes                         -->
+  <!-- ============================== -->
+  <h2>Knowledge Check</h2>
+
+  <div class="quiz">
+    <div class="quiz__question">1. You downloaded a <code>.deb</code> file from a website. Which command installs it?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q1" value="a"> <code>apt install file.deb</code></label>
+      <label><input type="radio" name="q1" value="b"> <code>sudo dpkg -i file.deb</code></label>
+      <label><input type="radio" name="q1" value="c"> <code>sudo rpm -ivh file.deb</code></label>
+      <label><input type="radio" name="q1" value="d"> <code>sudo yum install file.deb</code></label>
+    </div>
+    <button class="quiz__check" onclick="document.getElementById('a1').classList.toggle('show')">Check Answer</button>
+    <div class="quiz__answer" id="a1"><strong>Answer: b)</strong> <code>sudo dpkg -i file.deb</code> installs a local .deb file. After installing, run <code>sudo apt install -f</code> to fix any missing dependencies. Note that <code>apt install ./file.deb</code> (with the path) also works on newer systems and handles dependencies automatically.</div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">2. What is the equivalent of <code>apt install nginx</code> on Arch Linux?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q2" value="a"> <code>pacman -R nginx</code></label>
+      <label><input type="radio" name="q2" value="b"> <code>pacman -Ss nginx</code></label>
+      <label><input type="radio" name="q2" value="c"> <code>sudo pacman -S nginx</code></label>
+      <label><input type="radio" name="q2" value="d"> <code>sudo pacman -Q nginx</code></label>
+    </div>
+    <button class="quiz__check" onclick="document.getElementById('a2').classList.toggle('show')">Check Answer</button>
+    <div class="quiz__answer" id="a2"><strong>Answer: c)</strong> <code>sudo pacman -S nginx</code> installs a package from the repos. <code>-S</code> stands for Sync. <code>-R</code> removes, <code>-Ss</code> searches, and <code>-Q</code> queries installed packages.</div>
+  </div>
+
+  <!-- ============================== -->
+  <!-- Troubleshooting Package Issues -->
+  <!-- ============================== -->
+  <h2 id="troubleshooting">Troubleshooting Package Issues</h2>
+
+  <p>Package managers usually work smoothly, but sometimes things go wrong. Here are the most common problems and how to fix them.</p>
+
+  <h3>"dpkg was interrupted" Error</h3>
+
+  <p>This happens when a previous <code>dpkg</code> or <code>apt</code> operation was interrupted (e.g., you pressed Ctrl+C during an install, or the system lost power).</p>
+
+  <pre><code><span class="prompt">$</span> sudo apt install vim
+<span class="output">E: dpkg was interrupted, you must manually run 'sudo dpkg --configure -a' to correct the problem.</span></code></pre>
+
+  <pre><code><span class="comment"># Fix: reconfigure any partially installed packages</span>
+<span class="prompt">$</span> sudo dpkg --configure -a
+<span class="comment"># Then try your command again</span>
+<span class="prompt">$</span> sudo apt install vim</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">If --configure -a does not work</div>
+    <p>In rare cases you may need to force-remove the problematic package first:</p>
+    <pre><code><span class="prompt">$</span> sudo dpkg --remove --force-remove-reinstreq package-name
+<span class="prompt">$</span> sudo apt install -f</code></pre>
+  </div>
+
+  <h3>Broken Dependencies</h3>
+
+  <p>This typically happens after installing a <code>.deb</code> file manually with <code>dpkg -i</code> when its dependencies are not installed.</p>
+
+  <pre><code><span class="prompt">$</span> sudo dpkg -i some-app.deb
+<span class="output">dpkg: dependency problems prevent configuration of some-app:
+ some-app depends on libfoo (>= 2.0); however:
+  Package libfoo is not installed.</span>
+
+<span class="comment"># Fix: let apt resolve the missing dependencies</span>
+<span class="prompt">$</span> sudo apt --fix-broken install
+<span class="comment"># or equivalently:</span>
+<span class="prompt">$</span> sudo apt install -f
+<span class="comment"># apt will download and install the missing dependencies automatically</span></code></pre>
+
+  <h3>Locked apt (Another Process Using apt)</h3>
+
+  <p>Only one package manager process can run at a time. If you see a lock error, another process (perhaps an automatic update) is already running.</p>
+
+  <pre><code><span class="prompt">$</span> sudo apt update
+<span class="output">E: Could not get lock /var/lib/dpkg/lock-frontend - open (11: Resource temporarily unavailable)
+E: Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process using it?</span></code></pre>
+
+  <pre><code><span class="comment"># Step 1: Check if another apt/dpkg process is running</span>
+<span class="prompt">$</span> ps aux | grep -E 'apt|dpkg'
+<span class="output">root      1234  ...  apt upgrade -y
+root      1235  ...  dpkg --configure -a</span>
+
+<span class="comment"># Step 2: Wait for it to finish. If it's a legitimate process, be patient.</span>
+<span class="comment"># Unattended upgrades often run in the background after boot.</span>
+
+<span class="comment"># Step 3: If the process is truly stuck or crashed, kill it:</span>
+<span class="prompt">$</span> sudo kill 1234
+<span class="comment"># Then clean up the lock files:</span>
+<span class="prompt">$</span> sudo rm /var/lib/dpkg/lock-frontend
+<span class="prompt">$</span> sudo rm /var/lib/apt/lists/lock
+<span class="prompt">$</span> sudo dpkg --configure -a</code></pre>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Do NOT blindly delete lock files</div>
+    <p>Only remove lock files if you are certain the other process is dead. Killing an active <code>dpkg</code> process can leave your system in a broken state. Always check with <code>ps</code> first, and try waiting before resorting to killing processes.</p>
+  </div>
+
+  <h3>Package Held Back</h3>
+
+  <p>Sometimes <code>apt upgrade</code> reports packages are "kept back." This means the upgrade would require installing new packages or removing existing ones, which <code>apt upgrade</code> refuses to do.</p>
+
+  <pre><code><span class="prompt">$</span> sudo apt upgrade
+<span class="output">The following packages have been kept back:
+  linux-generic linux-headers-generic linux-image-generic</span>
+
+<span class="comment"># Fix option 1: Use full-upgrade (allows installing/removing packages)</span>
+<span class="prompt">$</span> sudo apt full-upgrade
+
+<span class="comment"># Fix option 2: Install the held package explicitly</span>
+<span class="prompt">$</span> sudo apt install linux-generic</code></pre>
+
+  <p>A package can also be manually held to prevent upgrades:</p>
+
+  <pre><code><span class="comment"># Hold a package (prevent it from being upgraded)</span>
+<span class="prompt">$</span> sudo apt-mark hold nginx
+<span class="output">nginx set on hold.</span>
+
+<span class="comment"># See which packages are held</span>
+<span class="prompt">$</span> apt-mark showhold
+<span class="output">nginx</span>
+
+<span class="comment"># Unhold a package (allow upgrades again)</span>
+<span class="prompt">$</span> sudo apt-mark unhold nginx
+<span class="output">Canceled hold on nginx.</span></code></pre>
+
+  <h3>Removing PPAs</h3>
+
+  <p>PPAs (Personal Package Archives) are third-party repositories on Ubuntu. If a PPA causes problems or is no longer maintained, you should remove it.</p>
+
+  <pre><code><span class="comment"># List all PPAs currently configured</span>
+<span class="prompt">$</span> grep -r "^deb " /etc/apt/sources.list.d/
+<span class="output">/etc/apt/sources.list.d/some-ppa.list:deb https://ppa.launchpadcontent.net/user/ppa/ubuntu jammy main</span>
+
+<span class="comment"># Remove a PPA</span>
+<span class="prompt">$</span> sudo add-apt-repository --remove ppa:user/ppa-name
+<span class="prompt">$</span> sudo apt update
+
+<span class="comment"># Or manually delete the source file</span>
+<span class="prompt">$</span> sudo rm /etc/apt/sources.list.d/some-ppa.list
+<span class="prompt">$</span> sudo apt update
+
+<span class="comment"># To also downgrade packages from the removed PPA to official versions:</span>
+<span class="prompt">$</span> sudo apt install ppa-purge
+<span class="prompt">$</span> sudo ppa-purge ppa:user/ppa-name</code></pre>
+
+  <!-- ============================== -->
+  <!-- Snap and Flatpak               -->
+  <!-- ============================== -->
+  <h2 id="snap-flatpak">Snap and Flatpak</h2>
+
+  <p>Traditional package managers (<code>apt</code>, <code>dnf</code>, <code>pacman</code>) install software that integrates deeply with your system. <strong>Snap</strong> and <strong>Flatpak</strong> take a different approach: they bundle applications with their dependencies into self-contained packages that run in a sandbox. This means fewer dependency conflicts and easier cross-distribution compatibility.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">What are Snap and Flatpak?</div>
+    <ul>
+      <li><strong>Snap</strong> &mdash; Developed by Canonical (the company behind Ubuntu). Snaps are self-contained packages that include the application and all its dependencies. They auto-update in the background. Snap is pre-installed on Ubuntu.</li>
+      <li><strong>Flatpak</strong> &mdash; A community-driven project supported by Red Hat and others. Flatpaks are sandboxed applications that run isolated from the rest of the system. Flatpak uses <a href="https://flathub.org">Flathub</a> as its primary app store.</li>
+    </ul>
+    <p>Both solve the same problem: "I want to install this app on any Linux distro without worrying about dependencies." They just do it differently.</p>
+  </div>
+
+  <h3>Snap Commands</h3>
+
+  <pre><code><span class="comment"># Install a snap</span>
+<span class="prompt">$</span> sudo snap install vlc
+<span class="output">vlc 3.0.20 from VideoLAN installed</span>
+
+<span class="comment"># Remove a snap</span>
+<span class="prompt">$</span> sudo snap remove vlc
+
+<span class="comment"># List installed snaps</span>
+<span class="prompt">$</span> snap list
+<span class="output">Name     Version    Rev    Tracking       Publisher   Notes
+core22   20240111   1122   latest/stable  canonical   base
+firefox  124.0      3771   latest/stable  mozilla     -
+vlc      3.0.20     3721   latest/stable  videolan    -</span>
+
+<span class="comment"># Search for a snap</span>
+<span class="prompt">$</span> snap find "media player"
+
+<span class="comment"># Show info about a snap</span>
+<span class="prompt">$</span> snap info vlc</code></pre>
+
+  <h3>Flatpak Commands</h3>
+
+  <pre><code><span class="comment"># Install Flatpak (if not already installed)</span>
+<span class="prompt">$</span> sudo apt install flatpak
+<span class="comment"># Add the Flathub repository (main source of Flatpak apps)</span>
+<span class="prompt">$</span> flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+<span class="comment"># Install a Flatpak app</span>
+<span class="prompt">$</span> flatpak install flathub org.videolan.VLC
+
+<span class="comment"># Remove a Flatpak app</span>
+<span class="prompt">$</span> flatpak uninstall org.videolan.VLC
+
+<span class="comment"># List installed Flatpak apps</span>
+<span class="prompt">$</span> flatpak list
+<span class="output">Name         Application ID               Version   Branch   Origin
+VLC          org.videolan.VLC             3.0.20    stable   flathub
+GIMP         org.gimp.GIMP               2.10.36   stable   flathub</span>
+
+<span class="comment"># Search for a Flatpak app</span>
+<span class="prompt">$</span> flatpak search "media player"
+
+<span class="comment"># Run a Flatpak app</span>
+<span class="prompt">$</span> flatpak run org.videolan.VLC</code></pre>
+
+  <h3>Snap vs Flatpak vs apt Comparison</h3>
+
+  <table class="vs-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>apt (traditional)</th>
+        <th>Snap</th>
+        <th>Flatpak</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Managed by</td>
+        <td>Distribution maintainers</td>
+        <td>Canonical (Ubuntu)</td>
+        <td>Community / Red Hat</td>
+      </tr>
+      <tr>
+        <td>Sandboxed</td>
+        <td>No</td>
+        <td>Yes (AppArmor)</td>
+        <td>Yes (Bubblewrap)</td>
+      </tr>
+      <tr>
+        <td>Auto-updates</td>
+        <td>Manual or via unattended-upgrades</td>
+        <td>Yes (automatic)</td>
+        <td>Manual (or via GNOME Software)</td>
+      </tr>
+      <tr>
+        <td>Startup speed</td>
+        <td>Fast (native)</td>
+        <td>Slower (decompresses at launch)</td>
+        <td>Moderate</td>
+      </tr>
+      <tr>
+        <td>Disk usage</td>
+        <td>Small (shared libraries)</td>
+        <td>Larger (bundled dependencies)</td>
+        <td>Larger (bundled dependencies)</td>
+      </tr>
+      <tr>
+        <td>App store</td>
+        <td>Distribution repos</td>
+        <td>Snap Store</td>
+        <td>Flathub</td>
+      </tr>
+      <tr>
+        <td>CLI and server apps</td>
+        <td>Yes</td>
+        <td>Yes</td>
+        <td>Desktop apps only (mainly)</td>
+      </tr>
+      <tr>
+        <td>Cross-distro</td>
+        <td>No (Debian-family only)</td>
+        <td>Yes (any distro with snapd)</td>
+        <td>Yes (any distro with Flatpak)</td>
+      </tr>
+      <tr>
+        <td>Best for</td>
+        <td>System packages, servers, scripts</td>
+        <td>Ubuntu desktop apps, CLI tools</td>
+        <td>Desktop apps across any distro</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">When to use which?</div>
+    <ul>
+      <li><strong>Use apt/dnf/pacman</strong> for system tools, libraries, server software, and anything in your distro's repos.</li>
+      <li><strong>Use Snap</strong> when you are on Ubuntu and the app is available as a snap, especially for desktop apps.</li>
+      <li><strong>Use Flatpak</strong> for desktop apps when you want the latest version or the app is not in your distro's repos. Flathub often has newer versions than distribution repos.</li>
+    </ul>
+  </div>
+
+  <!-- ============================== -->
+  <!-- How to Find the Right Package  -->
+  <!-- ============================== -->
+  <h2 id="find-package">How to Find the Right Package</h2>
+
+  <p>One of the most common challenges is figuring out which package to install. You know the command you want to run or the functionality you need, but not the package name. Here are several strategies.</p>
+
+  <h3>Strategy 1: apt search</h3>
+
+  <p>Search for packages by keyword in their name or description:</p>
+
+  <pre><code><span class="prompt">$</span> apt search "image editor"
+<span class="output">gimp/jammy 2.10.30-1build1 amd64
+  GNU Image Manipulation Program
+
+kolourpaint/jammy 4:21.12.3-0ubuntu1 amd64
+  simple image editor and drawing application</span>
+
+<span class="prompt">$</span> apt search json | head -20
+<span class="comment"># Search for anything related to JSON</span>
+
+<span class="prompt">$</span> apt search --names-only python3
+<span class="comment"># Search only in package names, not descriptions</span></code></pre>
+
+  <h3>Strategy 2: apt-cache</h3>
+
+  <p><code>apt-cache</code> provides more detailed search and query capabilities:</p>
+
+  <pre><code><span class="comment"># Search with keywords</span>
+<span class="prompt">$</span> apt-cache search "pdf viewer"
+
+<span class="comment"># Show detailed info about a package</span>
+<span class="prompt">$</span> apt-cache show nginx
+<span class="output">Package: nginx
+Version: 1.18.0-6ubuntu14.4
+Description-en: small, powerful, scalable web/proxy server
+ ...</span>
+
+<span class="comment"># Show which repo provides a package and what version</span>
+<span class="prompt">$</span> apt-cache policy nginx
+<span class="output">nginx:
+  Installed: 1.18.0-6ubuntu14.4
+  Candidate: 1.18.0-6ubuntu14.4
+  Version table:
+ *** 1.18.0-6ubuntu14.4 500
+        500 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages</span>
+
+<span class="comment"># Show a package's dependencies</span>
+<span class="prompt">$</span> apt-cache depends nginx
+
+<span class="comment"># Show which packages depend on a given package</span>
+<span class="prompt">$</span> apt-cache rdepends libssl3</code></pre>
+
+  <h3>Strategy 3: apt-file (Find Which Package Provides a File)</h3>
+
+  <p><code>apt-file</code> searches all packages (even uninstalled ones) for a specific file. This is extremely useful when you need a command or library that is not installed.</p>
+
+  <pre><code><span class="comment"># Install and set up apt-file</span>
+<span class="prompt">$</span> sudo apt install apt-file
+<span class="prompt">$</span> sudo apt-file update             <span class="comment"># download the file database (takes a moment)</span>
+
+<span class="comment"># Find which package provides a specific file</span>
+<span class="prompt">$</span> apt-file search /usr/bin/convert
+<span class="output">imagemagick-6.q16: /usr/bin/convert</span>
+
+<span class="comment"># Find which package provides a command you want to run</span>
+<span class="prompt">$</span> apt-file search bin/dig
+<span class="output">bind9-dnsutils: /usr/bin/dig</span>
+
+<span class="comment"># Search for a header file (useful for compiling software)</span>
+<span class="prompt">$</span> apt-file search openssl/ssl.h
+<span class="output">libssl-dev: /usr/include/openssl/ssl.h</span>
+
+<span class="comment"># List all files that a package would install</span>
+<span class="prompt">$</span> apt-file list nginx | head -10</code></pre>
+
+  <h3>Strategy 4: "command-not-found" Hints</h3>
+
+  <p>On Ubuntu, if you type a command that is not installed, the system often tells you which package provides it:</p>
+
+  <pre><code><span class="prompt">$</span> dig example.com
+<span class="output">Command 'dig' not found, but can be installed with:
+  sudo apt install bind9-dnsutils</span>
+
+<span class="prompt">$</span> ifconfig
+<span class="output">Command 'ifconfig' not found, but can be installed with:
+  sudo apt install net-tools</span></code></pre>
+
+  <h3>Strategy 5: dpkg -S (Find Which Installed Package Owns a File)</h3>
+
+  <p>If the file already exists on your system, use <code>dpkg -S</code> to find which package installed it:</p>
+
+  <pre><code><span class="prompt">$</span> dpkg -S /usr/bin/vim
+<span class="output">vim: /usr/bin/vim</span>
+
+<span class="prompt">$</span> dpkg -S $(which python3)
+<span class="output">python3-minimal: /usr/bin/python3</span>
+
+<span class="comment"># Find all packages that installed files in a directory</span>
+<span class="prompt">$</span> dpkg -S /etc/nginx/
+<span class="output">nginx-common: /etc/nginx
+nginx-common: /etc/nginx/nginx.conf
+nginx-common: /etc/nginx/mime.types</span></code></pre>
+
+  <h3>Summary: Finding the Right Package</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Situation</th>
+        <th>Tool</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>I know a keyword about the software</td>
+        <td><code>apt search</code></td>
+        <td><code>apt search "web server"</code></td>
+      </tr>
+      <tr>
+        <td>I want to run a command but it is not installed</td>
+        <td><code>apt-file search</code></td>
+        <td><code>apt-file search bin/dig</code></td>
+      </tr>
+      <tr>
+        <td>I have a file and want to know which package owns it</td>
+        <td><code>dpkg -S</code></td>
+        <td><code>dpkg -S /usr/bin/wget</code></td>
+      </tr>
+      <tr>
+        <td>I want version and repository details</td>
+        <td><code>apt-cache policy</code></td>
+        <td><code>apt-cache policy nginx</code></td>
+      </tr>
+      <tr>
+        <td>I need a header file or library for compiling</td>
+        <td><code>apt-file search</code></td>
+        <td><code>apt-file search openssl/ssl.h</code></td>
+      </tr>
+      <tr>
+        <td>I just type the command and hope</td>
+        <td>command-not-found</td>
+        <td>Type the command; Ubuntu suggests the package</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================== -->
+  <!-- More Exercises                  -->
+  <!-- ============================== -->
+  <h2 id="more-exercises">More Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Fix Broken Packages</div>
+    <p>Simulate and fix package problems (Debian/Ubuntu):</p>
+    <ol>
+      <li>Run <code>sudo dpkg --configure -a</code> to check if any packages need reconfiguring.</li>
+      <li>Run <code>sudo apt --fix-broken install</code> to fix any broken dependencies.</li>
+      <li>Check for held packages with <code>apt-mark showhold</code>.</li>
+      <li>Hold the <code>vim</code> package, verify it shows as held, then unhold it.</li>
+      <li>List all configured APT sources (check <code>/etc/apt/sources.list</code> and <code>/etc/apt/sources.list.d/</code>).</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> sudo dpkg --configure -a
+<span class="comment"># If nothing is broken, this produces no output.</span>
+
+<span class="prompt">$</span> sudo apt --fix-broken install
+<span class="comment"># Resolves any unmet dependencies.</span>
+
+<span class="prompt">$</span> apt-mark showhold
+<span class="comment"># Lists held packages (probably empty).</span>
+
+<span class="prompt">$</span> sudo apt-mark hold vim
+<span class="output">vim set on hold.</span>
+<span class="prompt">$</span> apt-mark showhold
+<span class="output">vim</span>
+<span class="prompt">$</span> sudo apt-mark unhold vim
+<span class="output">Canceled hold on vim.</span>
+
+<span class="prompt">$</span> cat /etc/apt/sources.list
+<span class="prompt">$</span> ls /etc/apt/sources.list.d/
+<span class="comment"># Shows all configured repositories and PPAs.</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 4: Find the Right Package</div>
+    <p>Use the search tools to answer these questions (Debian/Ubuntu):</p>
+    <ol>
+      <li>Which package provides the <code>dig</code> command?</li>
+      <li>Which package provides the <code>ifconfig</code> command?</li>
+      <li>Search for packages related to "markdown." How many results are there?</li>
+      <li>What version of <code>openssh-server</code> is available in your repos?</li>
+      <li>Which installed package owns the file <code>/usr/bin/less</code>?</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="comment"># 1. Which package provides dig?</span>
+<span class="prompt">$</span> apt-file search bin/dig | grep "/dig$"
+<span class="output">bind9-dnsutils: /usr/bin/dig</span>
+<span class="comment"># Or, if dig is not installed, just type "dig" and Ubuntu will suggest the package.</span>
+
+<span class="comment"># 2. Which package provides ifconfig?</span>
+<span class="prompt">$</span> apt-file search bin/ifconfig
+<span class="output">net-tools: /sbin/ifconfig</span>
+
+<span class="comment"># 3. Search for markdown-related packages</span>
+<span class="prompt">$</span> apt search markdown | wc -l
+
+<span class="comment"># 4. Check available version of openssh-server</span>
+<span class="prompt">$</span> apt-cache policy openssh-server
+
+<span class="comment"># 5. Which package owns /usr/bin/less?</span>
+<span class="prompt">$</span> dpkg -S /usr/bin/less
+<span class="output">less: /usr/bin/less</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 5: Snap and Flatpak Exploration</div>
+    <p>Try working with alternative package formats:</p>
+    <ol>
+      <li>Check if <code>snap</code> is installed: <code>snap version</code>.</li>
+      <li>List currently installed snaps with <code>snap list</code>.</li>
+      <li>Search for a snap: <code>snap find "text editor"</code>.</li>
+      <li>Check if <code>flatpak</code> is installed: <code>flatpak --version</code>. If not, install it with <code>sudo apt install flatpak</code>.</li>
+      <li>List installed Flatpak apps (if any): <code>flatpak list</code>.</li>
+      <li>Compare: check if VLC is available via <code>apt search vlc</code>, <code>snap find vlc</code>, and <code>flatpak search vlc</code>. Which versions are offered?</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> snap version
+<span class="output">snap    2.61
+snapd   2.61
+series  16
+ubuntu  22.04</span>
+
+<span class="prompt">$</span> snap list
+<span class="comment"># Shows all installed snaps</span>
+
+<span class="prompt">$</span> snap find "text editor"
+<span class="comment"># Shows available text editor snaps</span>
+
+<span class="prompt">$</span> flatpak --version
+<span class="comment"># If "command not found":</span>
+<span class="prompt">$</span> sudo apt install flatpak
+<span class="prompt">$</span> flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+<span class="prompt">$</span> flatpak list
+<span class="comment"># Shows installed Flatpak apps (may be empty)</span>
+
+<span class="comment"># Compare VLC availability across all three</span>
+<span class="prompt">$</span> apt show vlc 2>/dev/null | grep Version
+<span class="prompt">$</span> snap info vlc 2>/dev/null | grep "latest/stable"
+<span class="prompt">$</span> flatpak search vlc 2>/dev/null</code></pre>
+    </details>
+  </div>
+
+  <!-- Prev / Next navigation -->
+  <div class="page-nav">
+    <a href="../10-archives/index.html">&larr; 10. Archives</a>
+    <a href="../12-shell-scripting/index.html">12. Shell &amp; Scripting &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

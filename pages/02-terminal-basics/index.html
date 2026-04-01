@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terminal Basics — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo"><span class="logo-icon">&#127427;</span> Linux Learning Guide</a>
+  <div class="topbar__search"><span class="search-icon">&#128269;</span><input type="text" placeholder="Search commands, topics..." aria-label="Search"><div class="search-results"></div></div>
+</header>
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link active" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+<main class="main">
+  <div class="breadcrumb"><a href="../../index.html">Home</a> <span class="sep">&rsaquo;</span> Terminal Basics</div>
+
+  <h1>Chapter 2: Terminal Basics</h1>
+  <p class="chapter-intro">The terminal is the gateway to everything in Linux. In this chapter you will learn the foundational commands that every Linux user types every single day. Master these and you will never feel lost in a terminal again.</p>
+
+  <!-- ===== MENTAL MODEL ===== -->
+  <div class="concept-box">
+    <h3>Mental Model: What Happens When You Type a Command</h3>
+    <div class="diagram">
+<pre>
+  +-------------+       +------------------+       +-----------------+       +----------------+
+  |  You type   | ----> |  Shell reads &   | ----> |  Kernel finds   | ----> |  Output sent   |
+  |  a command  |       |  interprets the  |       |  the program &  |       |  back to your  |
+  |  (e.g. ls)  |       |  input string    |       |  executes it    |       |  terminal      |
+  +-------------+       +------------------+       +-----------------+       +----------------+
+        |                       |                         |                         |
+   Keyboard input       Parses command,             Loads binary from           stdout / stderr
+   goes to the          expands variables,          disk into memory,           streams are
+   terminal emulator    resolves aliases,           allocates CPU time,         printed line
+                        finds the binary            runs the process            by line
+</pre>
+    </div>
+    <p><strong>Key insight:</strong> The shell is just a program itself. It sits between you and the kernel, translating your human-readable commands into system calls. When you type <code>ls</code>, the shell searches the directories listed in your <code>$PATH</code> variable, finds <code>/usr/bin/ls</code>, and asks the kernel to run it. The kernel creates a new process, executes the binary, and the output flows back through the shell to your screen.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!--                       1. PWD                                  -->
+  <!-- ============================================================ -->
+  <h2 id="pwd">1. <code>pwd</code> &mdash; Print Working Directory</h2>
+
+  <h3>What It Does</h3>
+  <p><code>pwd</code> prints the absolute path of the directory you are currently inside. Think of it as a "You Are Here" sign on a map. Every time you open a terminal, you start somewhere in the filesystem &mdash; <code>pwd</code> tells you exactly where.</p>
+
+  <h3>Why It Matters</h3>
+  <p>When you navigate deep into nested folders, it is easy to lose track of your location. Running <code>pwd</code> instantly grounds you. Many scripts also use <code>pwd</code> to build file paths dynamically.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>pwd [OPTION]</code></pre>
+
+  <h4>Options</h4>
+  <table>
+    <thead><tr><th>Option</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-L</code></td><td>Print the logical path (follows symlinks; this is the default)</td></tr>
+      <tr><td><code>-P</code></td><td>Print the physical path (resolves all symlinks)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code><span class="prompt">$</span> pwd
+<span class="output">/home/alice</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cd /var/log
+<span class="prompt">$</span> pwd
+<span class="output">/var/log</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cd /tmp
+<span class="prompt">$</span> pwd
+<span class="output">/tmp</span></code></pre>
+
+  <pre><code># If /home/alice/mylink is a symlink to /opt/data
+<span class="prompt">$</span> cd /home/alice/mylink
+<span class="prompt">$</span> pwd -L
+<span class="output">/home/alice/mylink</span>
+<span class="prompt">$</span> pwd -P
+<span class="output">/opt/data</span></code></pre>
+
+  <pre><code># Use pwd in a script to reference the current directory
+<span class="prompt">$</span> echo "I am in: $(pwd)"
+<span class="output">I am in: /home/alice</span></code></pre>
+
+  <pre><code># Store current directory in a variable
+<span class="prompt">$</span> MYDIR=$(pwd)
+<span class="prompt">$</span> echo $MYDIR
+<span class="output">/home/alice</span></code></pre>
+
+  <pre><code># After multiple cd commands, check where you ended up
+<span class="prompt">$</span> cd /etc
+<span class="prompt">$</span> cd ../var
+<span class="prompt">$</span> cd log
+<span class="prompt">$</span> pwd
+<span class="output">/var/log</span></code></pre>
+
+  <pre><code># pwd always shows the full (absolute) path, never relative
+<span class="prompt">$</span> cd ~
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span></code></pre>
+
+  <div class="alert-tip">
+    <strong>Tip:</strong> Most terminal prompts already show your current directory (or an abbreviated version like <code>~</code>). But when in doubt, <code>pwd</code> gives you the unambiguous, full path.
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Assuming <code>pwd</code> shows the directory name only.
+      <pre><code><span class="prompt">$</span> pwd
+<span class="output">/var/log</span>   # Not just "log"</code></pre>
+    </div>
+    <div class="right">
+      <strong>Right:</strong> <code>pwd</code> always returns the full absolute path from the root <code>/</code>.
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                       2. LS                                   -->
+  <!-- ============================================================ -->
+  <h2 id="ls">2. <code>ls</code> &mdash; List Directory Contents</h2>
+
+  <h3>What It Does</h3>
+  <p><code>ls</code> shows you the files and directories inside a given location. Without arguments, it lists the contents of your current directory. It is almost certainly the command you will type the most in your Linux career.</p>
+
+  <h3>Why It Matters</h3>
+  <p>You cannot work with files if you do not know what files exist. <code>ls</code> is your eyes inside the terminal. Combine it with different flags and you can see hidden files, file sizes, permissions, modification dates, and more.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>ls [OPTIONS] [FILE_OR_DIR...]</code></pre>
+
+  <h4>Common Options</h4>
+  <table>
+    <thead><tr><th>Option</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-l</code></td><td>Long format &mdash; shows permissions, owner, size, date</td></tr>
+      <tr><td><code>-a</code></td><td>Show <strong>all</strong> files, including hidden ones (names starting with <code>.</code>)</td></tr>
+      <tr><td><code>-h</code></td><td>Human-readable sizes (KB, MB, GB instead of raw bytes). Use with <code>-l</code></td></tr>
+      <tr><td><code>-R</code></td><td>Recursive &mdash; list contents of all subdirectories too</td></tr>
+      <tr><td><code>-t</code></td><td>Sort by modification time (newest first)</td></tr>
+      <tr><td><code>-S</code></td><td>Sort by file size (largest first)</td></tr>
+      <tr><td><code>-r</code></td><td>Reverse sort order</td></tr>
+      <tr><td><code>-d</code></td><td>List directory entries themselves, not their contents</td></tr>
+      <tr><td><code>-1</code></td><td>One entry per line</td></tr>
+      <tr><td><code>--color</code></td><td>Colorize output (often enabled by default via alias)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Basic listing of current directory
+<span class="prompt">$</span> ls
+<span class="output">Desktop  Documents  Downloads  Music  Pictures  Videos</span></code></pre>
+
+  <pre><code># Long format: permissions, owner, group, size, date, name
+<span class="prompt">$</span> ls -l
+<span class="output">total 24
+drwxr-xr-x 2 alice alice 4096 Mar 15 09:00 Desktop
+drwxr-xr-x 3 alice alice 4096 Mar 20 14:22 Documents
+drwxr-xr-x 2 alice alice 4096 Mar 18 11:30 Downloads
+drwxr-xr-x 2 alice alice 4096 Feb 10 08:00 Music
+drwxr-xr-x 2 alice alice 4096 Mar 01 16:45 Pictures
+drwxr-xr-x 2 alice alice 4096 Jan 22 12:00 Videos</span></code></pre>
+
+  <pre><code># Show hidden files (dotfiles)
+<span class="prompt">$</span> ls -a
+<span class="output">.  ..  .bashrc  .profile  .ssh  Desktop  Documents  Downloads</span></code></pre>
+
+  <pre><code># Combine long format + hidden + human-readable sizes
+<span class="prompt">$</span> ls -lah
+<span class="output">total 48K
+drwxr-xr-x 8 alice alice 4.0K Mar 20 14:22 .
+drwxr-xr-x 3 root  root  4.0K Jan 01 00:00 ..
+-rw-r--r-- 1 alice alice  220 Jan 01 00:00 .bash_logout
+-rw-r--r-- 1 alice alice 3.5K Jan 01 00:00 .bashrc
+-rw-r--r-- 1 alice alice  807 Jan 01 00:00 .profile
+drwx------ 2 alice alice 4.0K Mar 10 09:15 .ssh
+drwxr-xr-x 2 alice alice 4.0K Mar 15 09:00 Desktop
+drwxr-xr-x 3 alice alice 4.0K Mar 20 14:22 Documents
+drwxr-xr-x 2 alice alice 4.0K Mar 18 11:30 Downloads</span></code></pre>
+
+  <pre><code># Sort by modification time (newest first)
+<span class="prompt">$</span> ls -lt
+<span class="output">total 24
+drwxr-xr-x 3 alice alice 4096 Mar 20 14:22 Documents
+drwxr-xr-x 2 alice alice 4096 Mar 18 11:30 Downloads
+drwxr-xr-x 2 alice alice 4096 Mar 15 09:00 Desktop
+drwxr-xr-x 2 alice alice 4096 Mar 01 16:45 Pictures
+drwxr-xr-x 2 alice alice 4096 Feb 10 08:00 Music
+drwxr-xr-x 2 alice alice 4096 Jan 22 12:00 Videos</span></code></pre>
+
+  <pre><code># Sort by file size (largest first), human-readable
+<span class="prompt">$</span> ls -lSh /var/log
+<span class="output">total 12M
+-rw-r----- 1 syslog adm  8.2M Mar 20 14:00 syslog
+-rw-r----- 1 syslog adm  2.1M Mar 20 14:00 kern.log
+-rw-r----- 1 syslog adm  1.5M Mar 20 14:00 auth.log
+-rw-r--r-- 1 root   root  82K Mar 19 06:25 dpkg.log
+-rw-r--r-- 1 root   root  32K Mar 18 10:00 alternatives.log</span></code></pre>
+
+  <pre><code># Recursive listing
+<span class="prompt">$</span> ls -R Documents/
+<span class="output">Documents/:
+notes.txt  projects
+
+Documents/projects:
+app.py  README.md</span></code></pre>
+
+  <pre><code># List a specific directory without cd-ing into it
+<span class="prompt">$</span> ls /etc/ssh
+<span class="output">ssh_config  sshd_config  ssh_host_ecdsa_key.pub  ssh_host_ed25519_key.pub  ssh_host_rsa_key.pub</span></code></pre>
+
+  <pre><code># One file per line (useful for scripting)
+<span class="prompt">$</span> ls -1
+<span class="output">Desktop
+Documents
+Downloads
+Music
+Pictures
+Videos</span></code></pre>
+
+  <pre><code># Reverse sort (oldest first by time)
+<span class="prompt">$</span> ls -ltr /var/log
+<span class="output">total 12M
+-rw-r--r-- 1 root   root  32K Mar 18 10:00 alternatives.log
+-rw-r--r-- 1 root   root  82K Mar 19 06:25 dpkg.log
+-rw-r----- 1 syslog adm  1.5M Mar 20 14:00 auth.log
+-rw-r----- 1 syslog adm  2.1M Mar 20 14:00 kern.log
+-rw-r----- 1 syslog adm  8.2M Mar 20 14:00 syslog</span></code></pre>
+
+  <pre><code># List only directories
+<span class="prompt">$</span> ls -d */
+<span class="output">Desktop/  Documents/  Downloads/  Music/  Pictures/  Videos/</span></code></pre>
+
+  <pre><code># List files matching a pattern (glob)
+<span class="prompt">$</span> ls *.txt
+<span class="output">notes.txt  readme.txt  todo.txt</span></code></pre>
+
+  <div class="concept-box">
+    <h3>Reading <code>ls -l</code> Output</h3>
+    <div class="diagram">
+<pre>
+  -rw-r--r--  1  alice  alice  4096  Mar 20 14:22  notes.txt
+  |________| |  |____| |____| |___| |___________| |________|
+      |      |    |      |      |        |             |
+   perms  links owner  group  size     date         name
+
+  First character: - = file, d = directory, l = symlink
+  Next 9 chars: rwx permissions for owner / group / others
+</pre>
+    </div>
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Forgetting that hidden files start with a dot and are invisible by default.
+      <pre><code><span class="prompt">$</span> ls
+<span class="output">Desktop  Documents</span>   # Where is .bashrc?</code></pre>
+    </div>
+    <div class="right">
+      <strong>Right:</strong> Use <code>ls -a</code> to see hidden (dot) files.
+      <pre><code><span class="prompt">$</span> ls -a
+<span class="output">.  ..  .bashrc  .profile  Desktop  Documents</span></code></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Using <code>-h</code> without <code>-l</code>. The <code>-h</code> flag has no visible effect without long format.
+      <pre><code><span class="prompt">$</span> ls -h
+<span class="output">Desktop  Documents  Downloads</span>   # No sizes shown!</code></pre>
+    </div>
+    <div class="right">
+      <strong>Right:</strong> Combine <code>-lh</code> to see human-readable sizes.
+      <pre><code><span class="prompt">$</span> ls -lh
+<span class="output">-rw-r--r-- 1 alice alice 3.5K Mar 20 notes.txt</span></code></pre>
+    </div>
+  </div>
+
+  <div class="alert-tip">
+    <strong>Tip:</strong> Many distributions alias <code>ls</code> to <code>ls --color=auto</code> so you see colors by default. You can check with <code>alias ls</code>.
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                       3. CD                                   -->
+  <!-- ============================================================ -->
+  <h2 id="cd">3. <code>cd</code> &mdash; Change Directory</h2>
+
+  <h3>What It Does</h3>
+  <p><code>cd</code> changes your current working directory. It is how you move around the filesystem. After running <code>cd</code>, your prompt updates and any relative commands (like <code>ls</code>) now operate from the new location.</p>
+
+  <h3>Why It Matters</h3>
+  <p>Everything in Linux revolves around your current directory. When you run <code>ls</code>, it lists files <em>here</em>. When you create a file, it appears <em>here</em>. <code>cd</code> is your ability to walk through the filesystem.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>cd [DIRECTORY]</code></pre>
+
+  <h4>Special Shortcuts</h4>
+  <table>
+    <thead><tr><th>Shortcut</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>~</code></td><td>Home directory (e.g., <code>/home/alice</code>)</td></tr>
+      <tr><td><code>..</code></td><td>Parent directory (go up one level)</td></tr>
+      <tr><td><code>.</code></td><td>Current directory (rarely useful with cd, but important conceptually)</td></tr>
+      <tr><td><code>-</code></td><td>Previous directory (toggle back and forth)</td></tr>
+      <tr><td><code>/</code></td><td>Root of the entire filesystem</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Go to your home directory (three equivalent ways)
+<span class="prompt">$</span> cd
+<span class="prompt">$</span> cd ~
+<span class="prompt">$</span> cd $HOME
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span></code></pre>
+
+  <pre><code># Go to an absolute path
+<span class="prompt">$</span> cd /var/log
+<span class="prompt">$</span> pwd
+<span class="output">/var/log</span></code></pre>
+
+  <pre><code># Go to a relative path (from current directory)
+<span class="prompt">$</span> cd Documents
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice/Documents</span></code></pre>
+
+  <pre><code># Go up one level
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice/Documents/projects</span>
+<span class="prompt">$</span> cd ..
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice/Documents</span></code></pre>
+
+  <pre><code># Go up two levels
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice/Documents/projects</span>
+<span class="prompt">$</span> cd ../..
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span></code></pre>
+
+  <pre><code># Toggle to previous directory with -
+<span class="prompt">$</span> cd /etc
+<span class="prompt">$</span> cd /tmp
+<span class="prompt">$</span> cd -
+<span class="output">/etc</span>
+<span class="prompt">$</span> cd -
+<span class="output">/tmp</span></code></pre>
+
+  <pre><code># Go to root directory
+<span class="prompt">$</span> cd /
+<span class="prompt">$</span> pwd
+<span class="output">/</span>
+<span class="prompt">$</span> ls
+<span class="output">bin  boot  dev  etc  home  lib  media  mnt  opt  proc  root  sbin  srv  sys  tmp  usr  var</span></code></pre>
+
+  <pre><code># Navigate to another user's home directory
+<span class="prompt">$</span> cd /home/bob
+<span class="prompt">$</span> pwd
+<span class="output">/home/bob</span></code></pre>
+
+  <pre><code># Combine .. with a directory name
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice/Documents</span>
+<span class="prompt">$</span> cd ../Downloads
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice/Downloads</span></code></pre>
+
+  <pre><code># Using . (current directory) - stays in place
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span>
+<span class="prompt">$</span> cd .
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span></code></pre>
+
+  <pre><code># Tab completion: type partial names and press Tab
+<span class="prompt">$</span> cd Doc&lt;TAB&gt;
+<span class="prompt">$</span> cd Documents/    # Shell auto-completes!</code></pre>
+
+  <div class="concept-box">
+    <h3>Absolute vs. Relative Paths</h3>
+    <p><strong>Absolute path</strong> starts from root <code>/</code> and gives the full location: <code>/home/alice/Documents</code></p>
+    <p><strong>Relative path</strong> starts from your current directory: <code>Documents</code> or <code>../Downloads</code></p>
+    <div class="diagram">
+<pre>
+  /                         (root - absolute paths start here)
+  +-- home/
+  |   +-- alice/            (you are here: /home/alice)
+  |   |   +-- Documents/    relative: Documents     absolute: /home/alice/Documents
+  |   |   +-- Downloads/    relative: Downloads     absolute: /home/alice/Downloads
+  |   +-- bob/              relative: ../bob        absolute: /home/bob
+  +-- etc/                  relative: ../../etc     absolute: /etc
+  +-- var/
+      +-- log/              relative: ../../var/log absolute: /var/log
+</pre>
+    </div>
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Typing a path with spaces without quoting it.
+      <pre><code><span class="prompt">$</span> cd My Documents
+<span class="output">bash: cd: My: No such file or directory</span></code></pre>
+    </div>
+    <div class="right">
+      <strong>Right:</strong> Quote the path or escape the space.
+      <pre><code><span class="prompt">$</span> cd "My Documents"
+<span class="prompt">$</span> cd My\ Documents</code></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Confusing <code>cd</code> with no argument (goes home) versus <code>cd /</code> (goes to root).
+    </div>
+    <div class="right">
+      <strong>Right:</strong> <code>cd</code> alone = home. <code>cd /</code> = filesystem root. Very different places!
+    </div>
+  </div>
+
+  <div class="alert-info">
+    <strong>Note:</strong> <code>cd</code> is a shell built-in, not an external program. You will not find a binary for it in <code>/usr/bin/</code>. The shell handles it directly because changing the working directory is a property of the shell process itself.
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                       4. CLEAR                                -->
+  <!-- ============================================================ -->
+  <h2 id="clear">4. <code>clear</code> &mdash; Clear the Terminal Screen</h2>
+
+  <h3>What It Does</h3>
+  <p><code>clear</code> wipes the visible terminal screen, giving you a fresh, empty view. Your command history and any running processes are not affected &mdash; it only clears the display.</p>
+
+  <h3>Why It Matters</h3>
+  <p>After running many commands, your screen fills with output. Clearing it helps you focus and reduces visual clutter. It is a quality-of-life command you will use constantly.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>clear</code></pre>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Clear the screen
+<span class="prompt">$</span> clear</code></pre>
+
+  <pre><code># Keyboard shortcut (faster than typing "clear")
+# Press: Ctrl + L
+# This works in most shells and is identical to running clear</code></pre>
+
+  <pre><code># Clear and run a command on the same line
+<span class="prompt">$</span> clear && ls -la</code></pre>
+
+  <pre><code># Reset the terminal completely (fixes garbled display)
+<span class="prompt">$</span> reset</code></pre>
+
+  <pre><code># Clear screen in a script for cleaner output
+<span class="prompt">$</span> clear; echo "=== System Report ==="; uname -a</code></pre>
+
+  <pre><code># You can scroll up after clear to see previous output
+# (in most terminal emulators, use Shift+PageUp)</code></pre>
+
+  <pre><code># Difference: clear vs reset
+# clear: just clears the visible screen
+# reset: reinitializes the terminal (fixes broken display after cat-ing a binary file)</code></pre>
+
+  <pre><code># Use tput to clear (alternative method)
+<span class="prompt">$</span> tput clear</code></pre>
+
+  <div class="alert-tip">
+    <strong>Tip:</strong> <kbd>Ctrl+L</kbd> is the fastest way to clear your screen. Your fingers never leave the keyboard. Make it a habit!
+  </div>
+
+  <div class="alert-info">
+    <strong>Note:</strong> If your terminal ever looks garbled (strange characters everywhere, usually from accidentally running <code>cat</code> on a binary file), type <code>reset</code> and press Enter. Even if you cannot see what you are typing, it will fix the display.
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                       5. HISTORY                              -->
+  <!-- ============================================================ -->
+  <h2 id="history">5. <code>history</code> &mdash; Command History</h2>
+
+  <h3>What It Does</h3>
+  <p><code>history</code> displays a numbered list of commands you have previously typed. The shell remembers your past commands, and you can recall, search, and re-execute them. This saves enormous amounts of retyping.</p>
+
+  <h3>Why It Matters</h3>
+  <p>Experienced Linux users rarely retype long commands. They use history to recall them. The history mechanism also serves as a log of your actions, which is invaluable for debugging ("What did I do 10 minutes ago that broke things?").</p>
+
+  <h3>Syntax</h3>
+  <pre><code>history [N]         # Show last N commands
+history -c          # Clear history
+history -d N        # Delete entry number N
+history -w          # Write history to file</code></pre>
+
+  <h4>History Shortcuts</h4>
+  <table>
+    <thead><tr><th>Shortcut</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>!!</code></td><td>Re-run the last command</td></tr>
+      <tr><td><code>!N</code></td><td>Re-run command number N from history</td></tr>
+      <tr><td><code>!string</code></td><td>Re-run the most recent command starting with <em>string</em></td></tr>
+      <tr><td><code>!$</code></td><td>The last argument of the previous command</td></tr>
+      <tr><td><kbd>Ctrl+R</kbd></td><td>Reverse-search through history (interactive)</td></tr>
+      <tr><td><kbd>Up Arrow</kbd></td><td>Scroll through previous commands one by one</td></tr>
+      <tr><td><code>HISTSIZE</code></td><td>Environment variable: number of commands to remember in memory</td></tr>
+      <tr><td><code>HISTFILESIZE</code></td><td>Environment variable: number of commands to store in the history file</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Show full command history
+<span class="prompt">$</span> history
+<span class="output">    1  pwd
+    2  ls -la
+    3  cd /var/log
+    4  cat syslog
+    5  cd ~
+    6  mkdir projects
+    7  cd projects
+    8  touch app.py</span></code></pre>
+
+  <pre><code># Show only the last 5 commands
+<span class="prompt">$</span> history 5
+<span class="output">    4  cat syslog
+    5  cd ~
+    6  mkdir projects
+    7  cd projects
+    8  touch app.py</span></code></pre>
+
+  <pre><code># Re-run the last command with !!
+<span class="prompt">$</span> echo "hello"
+<span class="output">hello</span>
+<span class="prompt">$</span> !!
+<span class="output">echo "hello"
+hello</span></code></pre>
+
+  <pre><code># Classic use: forgot sudo? Use sudo !!
+<span class="prompt">$</span> apt update
+<span class="output">E: Could not open lock file - open (13: Permission denied)</span>
+<span class="prompt">$</span> sudo !!
+<span class="output">sudo apt update
+[sudo] password for alice:
+Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+...</span></code></pre>
+
+  <pre><code># Re-run command number 6
+<span class="prompt">$</span> !6
+<span class="output">mkdir projects
+mkdir: cannot create directory 'projects': File exists</span></code></pre>
+
+  <pre><code># Re-run the most recent command starting with "cd"
+<span class="prompt">$</span> !cd
+<span class="output">cd projects</span></code></pre>
+
+  <pre><code># Use the last argument of the previous command
+<span class="prompt">$</span> mkdir /home/alice/newproject
+<span class="prompt">$</span> cd !$
+<span class="output">cd /home/alice/newproject</span></code></pre>
+
+  <pre><code># Interactive reverse search with Ctrl+R
+# Press Ctrl+R, then type part of a command:
+<span class="output">(reverse-i-search)`apt': sudo apt update</span>
+# Press Enter to run it, or Ctrl+R again to find an older match
+# Press Ctrl+C or Ctrl+G to cancel the search</code></pre>
+
+  <pre><code># Check your history size settings
+<span class="prompt">$</span> echo $HISTSIZE
+<span class="output">1000</span>
+<span class="prompt">$</span> echo $HISTFILESIZE
+<span class="output">2000</span></code></pre>
+
+  <pre><code># Increase history size (add to ~/.bashrc for persistence)
+<span class="prompt">$</span> export HISTSIZE=5000
+<span class="prompt">$</span> export HISTFILESIZE=10000</code></pre>
+
+  <pre><code># Clear all history (be careful!)
+<span class="prompt">$</span> history -c</code></pre>
+
+  <pre><code># Delete a specific entry (e.g., if you typed a password)
+<span class="prompt">$</span> history -d 42</code></pre>
+
+  <pre><code># Prevent a command from being saved: start with a space
+<span class="prompt">$</span>  secret-command    # Note the leading space
+# (Requires HISTCONTROL=ignorespace or ignoreboth)</code></pre>
+
+  <div class="alert-warning">
+    <strong>Warning:</strong> Your history file (<code>~/.bash_history</code>) may contain sensitive information such as passwords accidentally typed on the command line. Avoid typing passwords directly in commands. Use <code>history -d</code> to remove sensitive entries.
+  </div>
+
+  <div class="alert-tip">
+    <strong>Tip:</strong> <kbd>Ctrl+R</kbd> is by far the most efficient way to find a previous command. Start using it today and you will wonder how you ever lived without it.
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                       6. MAN                                  -->
+  <!-- ============================================================ -->
+  <h2 id="man">6. <code>man</code> &mdash; Manual Pages</h2>
+
+  <h3>What It Does</h3>
+  <p><code>man</code> displays the manual page (documentation) for a command. Virtually every command installed on a Linux system comes with a man page explaining its options, syntax, and usage. Think of <code>man</code> as the built-in reference library.</p>
+
+  <h3>Why It Matters</h3>
+  <p>You do not need to memorize every flag of every command. When you forget how something works, <code>man</code> is right there on your system &mdash; no internet required. Learning to read man pages is a superpower.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>man [SECTION] COMMAND</code></pre>
+
+  <h4>Man Page Sections</h4>
+  <table>
+    <thead><tr><th>Section</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>User commands (most common)</td></tr>
+      <tr><td>2</td><td>System calls (kernel functions)</td></tr>
+      <tr><td>3</td><td>Library functions (C library)</td></tr>
+      <tr><td>4</td><td>Special files (<code>/dev</code>)</td></tr>
+      <tr><td>5</td><td>File formats (e.g., <code>/etc/passwd</code>)</td></tr>
+      <tr><td>6</td><td>Games</td></tr>
+      <tr><td>7</td><td>Miscellaneous (conventions, protocols)</td></tr>
+      <tr><td>8</td><td>System administration commands</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Navigation Inside <code>man</code></h4>
+  <table>
+    <thead><tr><th>Key</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Space</kbd> / <kbd>f</kbd></td><td>Scroll forward one page</td></tr>
+      <tr><td><kbd>b</kbd></td><td>Scroll backward one page</td></tr>
+      <tr><td><kbd>j</kbd> / <kbd>Down</kbd></td><td>Scroll down one line</td></tr>
+      <tr><td><kbd>k</kbd> / <kbd>Up</kbd></td><td>Scroll up one line</td></tr>
+      <tr><td><kbd>/pattern</kbd></td><td>Search forward for "pattern"</td></tr>
+      <tr><td><kbd>?pattern</kbd></td><td>Search backward for "pattern"</td></tr>
+      <tr><td><kbd>n</kbd></td><td>Next search result</td></tr>
+      <tr><td><kbd>N</kbd></td><td>Previous search result</td></tr>
+      <tr><td><kbd>q</kbd></td><td>Quit the man page</td></tr>
+      <tr><td><kbd>g</kbd></td><td>Go to the top</td></tr>
+      <tr><td><kbd>G</kbd></td><td>Go to the bottom</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Read the manual for the ls command
+<span class="prompt">$</span> man ls
+<span class="output">LS(1)                     User Commands                     LS(1)
+
+NAME
+       ls - list directory contents
+
+SYNOPSIS
+       ls [OPTION]... [FILE]...
+
+DESCRIPTION
+       List information about the FILEs (the current directory by default).
+       ...</span></code></pre>
+
+  <pre><code># Read the manual for a specific section
+# (e.g., passwd the command vs passwd the file format)
+<span class="prompt">$</span> man 1 passwd      # The passwd command
+<span class="prompt">$</span> man 5 passwd      # The /etc/passwd file format</code></pre>
+
+  <pre><code># Search for man pages by keyword
+<span class="prompt">$</span> man -k "copy files"
+<span class="output">cp (1)               - copy files and directories
+install (1)          - copy files and set attributes
+scp (1)              - OpenSSH secure file copy</span></code></pre>
+
+  <pre><code># Alternative: apropos does the same as man -k
+<span class="prompt">$</span> apropos "list directory"
+<span class="output">dir (1)              - list directory contents
+ls (1)               - list directory contents
+vdir (1)             - list directory contents</span></code></pre>
+
+  <pre><code># Inside man, search for a specific option:
+# 1. Open the man page: man ls
+# 2. Type /-h and press Enter
+# 3. Press n to jump to the next match
+# This finds the -h flag description quickly</code></pre>
+
+  <pre><code># Show a one-line description of a command
+<span class="prompt">$</span> whatis ls
+<span class="output">ls (1)               - list directory contents</span>
+<span class="prompt">$</span> whatis cat
+<span class="output">cat (1)              - concatenate files and print on the standard output</span></code></pre>
+
+  <pre><code># Read the man page for man itself
+<span class="prompt">$</span> man man</code></pre>
+
+  <pre><code># Quick help: many commands support --help for a short summary
+<span class="prompt">$</span> ls --help
+<span class="output">Usage: ls [OPTION]... [FILE]...
+List information about the FILEs ...
+  -a, --all                  do not ignore entries starting with .
+  -l                         use a long listing format
+  ...</span></code></pre>
+
+  <pre><code># Some commands use info pages (GNU-style extended docs)
+<span class="prompt">$</span> info coreutils</code></pre>
+
+  <div class="alert-tip">
+    <strong>Tip:</strong> When a man page is too long, jump straight to the section you need. Type <code>/EXAMPLES</code> inside the man viewer to go to the examples section (if one exists). Many man pages have an EXAMPLES section near the bottom.
+  </div>
+
+  <div class="alert-info">
+    <strong>Note:</strong> The <code>--help</code> flag provides a quick summary. Use <code>man</code> for the full documentation. When you need to search for a command but do not know its name, use <code>man -k keyword</code> or <code>apropos keyword</code>.
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                    7. WHICH & WHEREIS                         -->
+  <!-- ============================================================ -->
+  <h2 id="which-whereis">7. <code>which</code> and <code>whereis</code> &mdash; Locate Commands</h2>
+
+  <h3>What They Do</h3>
+  <p><code>which</code> tells you the exact file path of a command &mdash; the binary that runs when you type the command name. <code>whereis</code> goes further, also showing the location of man pages and source code if available.</p>
+
+  <h3>Why They Matter</h3>
+  <p>When you have multiple versions of a program installed (e.g., Python 2 and Python 3), <code>which</code> tells you which one runs by default. When something is not working, <code>which</code> helps you confirm the right binary is being used.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>which COMMAND
+which -a COMMAND      # Show ALL matching binaries in PATH
+
+whereis COMMAND
+whereis -b COMMAND    # Show only binary locations
+whereis -m COMMAND    # Show only man page locations
+whereis -s COMMAND    # Show only source locations</code></pre>
+
+  <h4>Options</h4>
+  <table>
+    <thead><tr><th>Command</th><th>Option</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>which</code></td><td><code>-a</code></td><td>Show all matches in PATH, not just the first</td></tr>
+      <tr><td><code>whereis</code></td><td><code>-b</code></td><td>Only search for binaries</td></tr>
+      <tr><td><code>whereis</code></td><td><code>-m</code></td><td>Only search for manual pages</td></tr>
+      <tr><td><code>whereis</code></td><td><code>-s</code></td><td>Only search for source code</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Where is the ls binary?
+<span class="prompt">$</span> which ls
+<span class="output">/usr/bin/ls</span></code></pre>
+
+  <pre><code># Where is python?
+<span class="prompt">$</span> which python3
+<span class="output">/usr/bin/python3</span></code></pre>
+
+  <pre><code># Show ALL locations for python (if multiple installed)
+<span class="prompt">$</span> which -a python3
+<span class="output">/usr/bin/python3
+/usr/local/bin/python3</span></code></pre>
+
+  <pre><code># Check if a command exists (useful in scripts)
+<span class="prompt">$</span> which git
+<span class="output">/usr/bin/git</span>
+<span class="prompt">$</span> which nonexistent
+<span class="output">                              # No output = not found</span>
+<span class="prompt">$</span> echo $?
+<span class="output">1                              # Exit code 1 = failure</span></code></pre>
+
+  <pre><code># whereis: find binary, man page, and source
+<span class="prompt">$</span> whereis ls
+<span class="output">ls: /usr/bin/ls /usr/share/man/man1/ls.1.gz</span></code></pre>
+
+  <pre><code># whereis: only binaries
+<span class="prompt">$</span> whereis -b bash
+<span class="output">bash: /usr/bin/bash /bin/bash</span></code></pre>
+
+  <pre><code># whereis: only man pages
+<span class="prompt">$</span> whereis -m grep
+<span class="output">grep: /usr/share/man/man1/grep.1.gz</span></code></pre>
+
+  <pre><code># which does NOT find shell built-ins; type does
+<span class="prompt">$</span> which cd
+<span class="output">                              # No output - cd is a built-in</span>
+<span class="prompt">$</span> type cd
+<span class="output">cd is a shell builtin</span></code></pre>
+
+  <pre><code># type can also show aliases and functions
+<span class="prompt">$</span> type ls
+<span class="output">ls is aliased to 'ls --color=auto'</span>
+<span class="prompt">$</span> type -a ls
+<span class="output">ls is aliased to 'ls --color=auto'
+ls is /usr/bin/ls
+ls is /bin/ls</span></code></pre>
+
+  <pre><code># Useful debugging: is the right version running?
+<span class="prompt">$</span> which node
+<span class="output">/usr/local/bin/node</span>
+<span class="prompt">$</span> /usr/local/bin/node --version
+<span class="output">v20.11.0</span></code></pre>
+
+  <div class="alert-tip">
+    <strong>Tip:</strong> Use <code>type</code> as a more comprehensive alternative to <code>which</code>. It finds built-ins, aliases, functions, and external binaries. <code>type -a command</code> shows everything.
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Using <code>which</code> to find shell built-ins like <code>cd</code>, <code>echo</code>, or <code>history</code>.
+    </div>
+    <div class="right">
+      <strong>Right:</strong> Use <code>type command</code> to find built-ins. <code>which</code> only searches <code>$PATH</code> for external binaries.
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                       8. ECHO                                 -->
+  <!-- ============================================================ -->
+  <h2 id="echo">8. <code>echo</code> &mdash; Print Text to the Terminal</h2>
+
+  <h3>What It Does</h3>
+  <p><code>echo</code> prints text (or the value of variables) to the standard output. It is the simplest way to display a message, show the value of a variable, or write text to a file from the command line.</p>
+
+  <h3>Why It Matters</h3>
+  <p><code>echo</code> is foundational for shell scripting and daily debugging. You will use it to inspect variable values, write quick messages, generate file contents, and build output strings. It appears in nearly every shell script.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>echo [OPTIONS] [STRING...]</code></pre>
+
+  <h4>Options</h4>
+  <table>
+    <thead><tr><th>Option</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-n</code></td><td>Do not add a trailing newline</td></tr>
+      <tr><td><code>-e</code></td><td>Enable interpretation of escape characters (<code>\n</code>, <code>\t</code>, etc.)</td></tr>
+      <tr><td><code>-E</code></td><td>Disable escape interpretation (default in Bash)</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Common Escape Characters (with <code>-e</code>)</h4>
+  <table>
+    <thead><tr><th>Escape</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>\n</code></td><td>Newline</td></tr>
+      <tr><td><code>\t</code></td><td>Tab</td></tr>
+      <tr><td><code>\\</code></td><td>Literal backslash</td></tr>
+      <tr><td><code>\a</code></td><td>Alert (bell)</td></tr>
+      <tr><td><code>\033[...]</code></td><td>ANSI color codes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Print a simple message
+<span class="prompt">$</span> echo "Hello, World!"
+<span class="output">Hello, World!</span></code></pre>
+
+  <pre><code># Print the value of a variable
+<span class="prompt">$</span> echo $HOME
+<span class="output">/home/alice</span>
+<span class="prompt">$</span> echo $USER
+<span class="output">alice</span>
+<span class="prompt">$</span> echo $PATH
+<span class="output">/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</span></code></pre>
+
+  <pre><code># Print without a trailing newline (-n)
+<span class="prompt">$</span> echo -n "Loading..."
+<span class="output">Loading...$    # No newline, prompt appears on same line</span></code></pre>
+
+  <pre><code># Use escape characters with -e
+<span class="prompt">$</span> echo -e "Line 1\nLine 2\nLine 3"
+<span class="output">Line 1
+Line 2
+Line 3</span></code></pre>
+
+  <pre><code># Tabs for aligned output
+<span class="prompt">$</span> echo -e "Name\tAge\tCity"
+<span class="output">Name    Age     City</span>
+<span class="prompt">$</span> echo -e "Alice\t30\tNew York"
+<span class="output">Alice   30      New York</span></code></pre>
+
+  <pre><code># Write text to a file (overwrite)
+<span class="prompt">$</span> echo "Hello" > greeting.txt
+<span class="prompt">$</span> cat greeting.txt
+<span class="output">Hello</span></code></pre>
+
+  <pre><code># Append text to a file
+<span class="prompt">$</span> echo "World" >> greeting.txt
+<span class="prompt">$</span> cat greeting.txt
+<span class="output">Hello
+World</span></code></pre>
+
+  <pre><code># Single quotes: everything is literal (no variable expansion)
+<span class="prompt">$</span> echo 'My home is $HOME'
+<span class="output">My home is $HOME</span>
+
+# Double quotes: variables ARE expanded
+<span class="prompt">$</span> echo "My home is $HOME"
+<span class="output">My home is /home/alice</span></code></pre>
+
+  <pre><code># Show all environment variables (combine echo with env)
+<span class="prompt">$</span> echo $SHELL
+<span class="output">/bin/bash</span>
+<span class="prompt">$</span> echo $LANG
+<span class="output">en_US.UTF-8</span></code></pre>
+
+  <pre><code># Command substitution with echo
+<span class="prompt">$</span> echo "Today is $(date +%A)"
+<span class="output">Today is Tuesday</span>
+<span class="prompt">$</span> echo "There are $(ls | wc -l) items here"
+<span class="output">There are 6 items here</span></code></pre>
+
+  <pre><code># Use echo to create a quick multi-line file
+<span class="prompt">$</span> echo -e "#!/bin/bash\necho 'Hello from script'" > hello.sh
+<span class="prompt">$</span> cat hello.sh
+<span class="output">#!/bin/bash
+echo 'Hello from script'</span></code></pre>
+
+  <pre><code># Print colored text using ANSI codes
+<span class="prompt">$</span> echo -e "\033[31mRed text\033[0m and normal text"
+<span class="output">Red text and normal text</span>
+<span class="prompt">$</span> echo -e "\033[32mGreen\033[0m \033[34mBlue\033[0m \033[33mYellow\033[0m"
+<span class="output">Green Blue Yellow</span></code></pre>
+
+  <pre><code># Echo with wildcard expansion (the shell expands *, not echo)
+<span class="prompt">$</span> echo *.txt
+<span class="output">greeting.txt notes.txt todo.txt</span></code></pre>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Forgetting the difference between single and double quotes.
+      <pre><code><span class="prompt">$</span> echo 'User: $USER'
+<span class="output">User: $USER</span>    # Literal, not expanded!</code></pre>
+    </div>
+    <div class="right">
+      <strong>Right:</strong> Use double quotes when you want variable expansion.
+      <pre><code><span class="prompt">$</span> echo "User: $USER"
+<span class="output">User: alice</span></code></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Using <code>&gt;</code> when you meant <code>&gt;&gt;</code> (overwrites the file!).
+      <pre><code><span class="prompt">$</span> echo "new line" > important.txt    # ERASES old content!</code></pre>
+    </div>
+    <div class="right">
+      <strong>Right:</strong> Use <code>&gt;&gt;</code> to append safely.
+      <pre><code><span class="prompt">$</span> echo "new line" >> important.txt   # Adds to end of file</code></pre>
+    </div>
+  </div>
+
+  <div class="alert-danger">
+    <strong>Danger:</strong> <code>echo "text" > file</code> overwrites the file without warning. There is no undo. Double-check before using <code>&gt;</code> with important files.
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                       9. UNAME                                -->
+  <!-- ============================================================ -->
+  <h2 id="uname">9. <code>uname</code> &mdash; System Information</h2>
+
+  <h3>What It Does</h3>
+  <p><code>uname</code> prints information about your system: the kernel name, version, architecture, hostname, and more. It answers the question "What system am I running on?"</p>
+
+  <h3>Why It Matters</h3>
+  <p>When troubleshooting, installing software, or writing scripts that need to work across different systems, you need to know your kernel version, architecture (32-bit vs 64-bit), and OS name. <code>uname</code> gives you all of that.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>uname [OPTIONS]</code></pre>
+
+  <h4>Options</h4>
+  <table>
+    <thead><tr><th>Option</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-a</code></td><td>Print <strong>all</strong> information</td></tr>
+      <tr><td><code>-s</code></td><td>Kernel name (e.g., <code>Linux</code>)</td></tr>
+      <tr><td><code>-n</code></td><td>Network hostname</td></tr>
+      <tr><td><code>-r</code></td><td>Kernel release version</td></tr>
+      <tr><td><code>-v</code></td><td>Kernel version (build date)</td></tr>
+      <tr><td><code>-m</code></td><td>Machine hardware architecture (e.g., <code>x86_64</code>)</td></tr>
+      <tr><td><code>-p</code></td><td>Processor type</td></tr>
+      <tr><td><code>-o</code></td><td>Operating system name</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Print all system information at once
+<span class="prompt">$</span> uname -a
+<span class="output">Linux myserver 5.15.0-91-generic #101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux</span></code></pre>
+
+  <pre><code># Kernel name only
+<span class="prompt">$</span> uname -s
+<span class="output">Linux</span></code></pre>
+
+  <pre><code># Kernel release version
+<span class="prompt">$</span> uname -r
+<span class="output">5.15.0-91-generic</span></code></pre>
+
+  <pre><code># Machine architecture (is it 64-bit?)
+<span class="prompt">$</span> uname -m
+<span class="output">x86_64</span></code></pre>
+
+  <pre><code># Operating system
+<span class="prompt">$</span> uname -o
+<span class="output">GNU/Linux</span></code></pre>
+
+  <pre><code># Hostname
+<span class="prompt">$</span> uname -n
+<span class="output">myserver</span></code></pre>
+
+  <pre><code># Combine specific flags
+<span class="prompt">$</span> uname -sr
+<span class="output">Linux 5.15.0-91-generic</span></code></pre>
+
+  <pre><code># Use in a script to detect architecture
+<span class="prompt">$</span> if [ "$(uname -m)" = "x86_64" ]; then echo "64-bit system"; fi
+<span class="output">64-bit system</span></code></pre>
+
+  <pre><code># Check if running on Linux vs macOS
+<span class="prompt">$</span> uname -s
+<span class="output">Linux</span>    # On macOS this would say "Darwin"</code></pre>
+
+  <pre><code># Get distribution details (not uname, but related)
+<span class="prompt">$</span> cat /etc/os-release
+<span class="output">NAME="Ubuntu"
+VERSION="22.04.3 LTS (Jammy Jellyfish)"
+ID=ubuntu
+...</span></code></pre>
+
+  <div class="concept-box">
+    <h3>Reading <code>uname -a</code> Output</h3>
+    <div class="diagram">
+<pre>
+  Linux   myserver   5.15.0-91-generic   #101-Ubuntu SMP...   x86_64   GNU/Linux
+  |____| |________| |__________________|  |_________________| |______|  |________|
+    |        |              |                    |               |           |
+  kernel  hostname    kernel release       kernel version    machine       OS
+  name               (important for       (build info)     architecture
+                      driver compat)
+</pre>
+    </div>
+  </div>
+
+  <div class="alert-tip">
+    <strong>Tip:</strong> The kernel release (<code>uname -r</code>) is especially important when installing kernel modules or drivers. Always check it before downloading driver packages.
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                      10. HOSTNAME                             -->
+  <!-- ============================================================ -->
+  <h2 id="hostname">10. <code>hostname</code> &mdash; Show or Set the System Hostname</h2>
+
+  <h3>What It Does</h3>
+  <p><code>hostname</code> displays the name of your computer on the network. Every Linux machine has a hostname &mdash; it is how the system identifies itself. You can also use it to show IP addresses and domain information.</p>
+
+  <h3>Why It Matters</h3>
+  <p>When you SSH into multiple servers, the hostname in your prompt is often the only way to tell which machine you are on. In networked environments, the hostname is critical for DNS resolution, logging, and service discovery.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>hostname [OPTIONS]</code></pre>
+
+  <h4>Options</h4>
+  <table>
+    <thead><tr><th>Option</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-f</code> / <code>--fqdn</code></td><td>Show the fully qualified domain name (FQDN)</td></tr>
+      <tr><td><code>-I</code></td><td>Show all IP addresses of the host</td></tr>
+      <tr><td><code>-i</code></td><td>Show the IP address associated with the hostname</td></tr>
+      <tr><td><code>-s</code></td><td>Show the short hostname (before the first dot)</td></tr>
+      <tr><td><code>-d</code></td><td>Show the DNS domain name</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Practical Examples</h3>
+
+  <pre><code># Show the current hostname
+<span class="prompt">$</span> hostname
+<span class="output">myserver</span></code></pre>
+
+  <pre><code># Show the fully qualified domain name
+<span class="prompt">$</span> hostname -f
+<span class="output">myserver.example.com</span></code></pre>
+
+  <pre><code># Show all IP addresses
+<span class="prompt">$</span> hostname -I
+<span class="output">192.168.1.100 10.0.0.5</span></code></pre>
+
+  <pre><code># Show the short hostname
+<span class="prompt">$</span> hostname -s
+<span class="output">myserver</span></code></pre>
+
+  <pre><code># Show the DNS domain
+<span class="prompt">$</span> hostname -d
+<span class="output">example.com</span></code></pre>
+
+  <pre><code># The hostname is also stored in an environment variable
+<span class="prompt">$</span> echo $HOSTNAME
+<span class="output">myserver</span></code></pre>
+
+  <pre><code># Temporarily change hostname (requires root, resets on reboot)
+<span class="prompt">$</span> sudo hostname newname
+<span class="prompt">$</span> hostname
+<span class="output">newname</span></code></pre>
+
+  <pre><code># Permanently change hostname on systemd-based systems
+<span class="prompt">$</span> sudo hostnamectl set-hostname myserver
+<span class="prompt">$</span> hostnamectl
+<span class="output">   Static hostname: myserver
+         Icon name: computer-vm
+           Chassis: vm
+        Machine ID: abc123...
+           Boot ID: def456...
+    Virtualization: kvm
+  Operating System: Ubuntu 22.04.3 LTS
+            Kernel: Linux 5.15.0-91-generic
+      Architecture: x86-64</span></code></pre>
+
+  <pre><code># Check hostname in the hosts file
+<span class="prompt">$</span> cat /etc/hostname
+<span class="output">myserver</span></code></pre>
+
+  <pre><code># hostnamectl shows detailed system identity (systemd)
+<span class="prompt">$</span> hostnamectl status
+<span class="output">   Static hostname: myserver
+   Pretty hostname: My Development Server
+         ...</span></code></pre>
+
+  <div class="alert-warning">
+    <strong>Warning:</strong> Changing the hostname on a running server can break services that depend on the hostname (databases, web servers, monitoring agents). Always plan hostname changes carefully and update <code>/etc/hosts</code> accordingly.
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong">
+      <strong>Wrong:</strong> Using <code>sudo hostname newname</code> and thinking it persists across reboots.
+    </div>
+    <div class="right">
+      <strong>Right:</strong> Use <code>sudo hostnamectl set-hostname newname</code> for a permanent change on systemd systems. Also update <code>/etc/hosts</code>.
+    </div>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                     KEYBOARD SHORTCUTS                        -->
+  <!-- ============================================================ -->
+  <h2 id="shortcuts">Essential Keyboard Shortcuts</h2>
+  <p>These shortcuts work in Bash and most other shells. They will dramatically speed up your terminal workflow.</p>
+
+  <table>
+    <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Ctrl+C</kbd></td><td>Cancel / kill the current running command</td></tr>
+      <tr><td><kbd>Ctrl+D</kbd></td><td>Send EOF (end-of-file); exits the shell if the line is empty</td></tr>
+      <tr><td><kbd>Ctrl+L</kbd></td><td>Clear the screen (same as <code>clear</code>)</td></tr>
+      <tr><td><kbd>Ctrl+R</kbd></td><td>Reverse search through history</td></tr>
+      <tr><td><kbd>Ctrl+A</kbd></td><td>Move cursor to the beginning of the line</td></tr>
+      <tr><td><kbd>Ctrl+E</kbd></td><td>Move cursor to the end of the line</td></tr>
+      <tr><td><kbd>Ctrl+U</kbd></td><td>Delete everything before the cursor</td></tr>
+      <tr><td><kbd>Ctrl+K</kbd></td><td>Delete everything after the cursor</td></tr>
+      <tr><td><kbd>Ctrl+W</kbd></td><td>Delete the word before the cursor</td></tr>
+      <tr><td><kbd>Tab</kbd></td><td>Auto-complete file names, commands, and paths</td></tr>
+      <tr><td><kbd>Tab Tab</kbd></td><td>Show all possible completions</td></tr>
+      <tr><td><kbd>Up/Down</kbd></td><td>Scroll through command history</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert-tip">
+    <strong>Tip:</strong> <kbd>Tab</kbd> completion is your best friend. Type the first few characters and press <kbd>Tab</kbd>. If there is a unique match, the shell completes it. If there are multiple matches, press <kbd>Tab</kbd> again to see them all. This prevents typos and saves time.
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                     EXERCISES                                 -->
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+
+  <div class="exercise">
+    <h3>Exercise 1: Navigation and Exploration</h3>
+    <p>Complete these tasks in order. Check your answers with the expected output.</p>
+    <ol>
+      <li>Open a terminal and print your current directory.</li>
+      <li>List all files in your home directory, including hidden ones, in long format with human-readable sizes.</li>
+      <li>Navigate to <code>/var/log</code> and list the files sorted by size (largest first).</li>
+      <li>Go back to your home directory using only one character.</li>
+      <li>Navigate to <code>/etc</code>, then toggle back to home using <code>cd -</code>.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> pwd
+<span class="output">/home/alice</span>
+
+<span class="prompt">$</span> ls -lah ~
+<span class="output">total 48K
+drwxr-xr-x 8 alice alice 4.0K Mar 20 14:22 .
+drwxr-xr-x 3 root  root  4.0K Jan 01 00:00 ..
+-rw-r--r-- 1 alice alice 3.5K Jan 01 00:00 .bashrc
+...</span>
+
+<span class="prompt">$</span> cd /var/log
+<span class="prompt">$</span> ls -lSh
+<span class="output">total 12M
+-rw-r----- 1 syslog adm  8.2M syslog
+...</span>
+
+<span class="prompt">$</span> cd ~
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span>
+
+<span class="prompt">$</span> cd /etc
+<span class="prompt">$</span> cd -
+<span class="output">/home/alice</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: History and Recall</h3>
+    <p>Practice using command history efficiently.</p>
+    <ol>
+      <li>Run <code>echo "exercise 2 started"</code>.</li>
+      <li>Run <code>ls -la /etc/ssh</code>.</li>
+      <li>Use <code>!!</code> to re-run the last command.</li>
+      <li>Use <code>!echo</code> to re-run the echo command.</li>
+      <li>View your last 10 history entries.</li>
+      <li>Use <kbd>Ctrl+R</kbd> and search for "ssh" to find the <code>ls</code> command you ran.</li>
+      <li>Check your current <code>HISTSIZE</code> value.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> echo "exercise 2 started"
+<span class="output">exercise 2 started</span>
+
+<span class="prompt">$</span> ls -la /etc/ssh
+<span class="output">total 32
+drwxr-xr-x 2 root root 4096 ...
+...</span>
+
+<span class="prompt">$</span> !!
+<span class="output">ls -la /etc/ssh
+...</span>
+
+<span class="prompt">$</span> !echo
+<span class="output">echo "exercise 2 started"
+exercise 2 started</span>
+
+<span class="prompt">$</span> history 10
+<span class="output">  ... (your last 10 commands)</span>
+
+# Press Ctrl+R, type "ssh", press Enter
+
+<span class="prompt">$</span> echo $HISTSIZE
+<span class="output">1000</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: System Exploration</h3>
+    <p>Use the commands from this chapter to answer these questions about your system.</p>
+    <ol>
+      <li>What is your kernel version? (Use <code>uname</code>)</li>
+      <li>What architecture is your machine? (32-bit or 64-bit?)</li>
+      <li>What is your hostname?</li>
+      <li>Where is the <code>bash</code> binary located? (Use <code>which</code>)</li>
+      <li>What is the full path of the <code>grep</code> command and its man page? (Use <code>whereis</code>)</li>
+      <li>Display your username, home directory, and shell on separate lines using a single <code>echo -e</code> command.</li>
+      <li>Look up the man page for <code>ls</code> and find the description of the <code>-R</code> flag using the search feature.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> uname -r
+<span class="output">5.15.0-91-generic</span>
+
+<span class="prompt">$</span> uname -m
+<span class="output">x86_64</span>    # This means 64-bit
+
+<span class="prompt">$</span> hostname
+<span class="output">myserver</span>
+
+<span class="prompt">$</span> which bash
+<span class="output">/usr/bin/bash</span>
+
+<span class="prompt">$</span> whereis grep
+<span class="output">grep: /usr/bin/grep /usr/share/man/man1/grep.1.gz</span>
+
+<span class="prompt">$</span> echo -e "User: $USER\nHome: $HOME\nShell: $SHELL"
+<span class="output">User: alice
+Home: /home/alice
+Shell: /bin/bash</span>
+
+# For the man page search:
+# Run: man ls
+# Type: /-R   (then press Enter)
+# Press n to find next occurrence until you reach the right one
+# Press q to quit</code></pre>
+    </details>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                       QUIZZES                                 -->
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Quizzes</h2>
+
+  <div class="quiz">
+    <h3>Quiz 1: Command Knowledge Check</h3>
+    <ol>
+      <li>
+        <p><strong>What does <code>cd -</code> do?</strong></p>
+        <ol type="a">
+          <li>Goes to the root directory</li>
+          <li>Goes to the home directory</li>
+          <li>Goes to the previous directory you were in</li>
+          <li>Goes up one directory level</li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>c)</strong> <code>cd -</code> toggles to the previous directory. <code>cd /</code> goes to root, <code>cd</code> or <code>cd ~</code> goes home, and <code>cd ..</code> goes up one level.</p></details>
+      </li>
+      <li>
+        <p><strong>Which command shows hidden files?</strong></p>
+        <ol type="a">
+          <li><code>ls -l</code></li>
+          <li><code>ls -h</code></li>
+          <li><code>ls -a</code></li>
+          <li><code>ls -R</code></li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>c)</strong> <code>ls -a</code> shows all files including hidden ones (those starting with a dot). <code>-l</code> is long format, <code>-h</code> is human-readable sizes, <code>-R</code> is recursive.</p></details>
+      </li>
+      <li>
+        <p><strong>What happens when you type <code>echo 'The value is $HOME'</code>?</strong></p>
+        <ol type="a">
+          <li>It prints <code>The value is /home/alice</code></li>
+          <li>It prints <code>The value is $HOME</code></li>
+          <li>It gives an error</li>
+          <li>It prints nothing</li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>b)</strong> Single quotes prevent variable expansion. The literal string <code>$HOME</code> is printed. To expand the variable, use double quotes: <code>echo "The value is $HOME"</code>.</p></details>
+      </li>
+      <li>
+        <p><strong>You run <code>apt update</code> and get a permission error. What is the fastest fix?</strong></p>
+        <ol type="a">
+          <li><code>sudo apt update</code> (retype the whole thing)</li>
+          <li><code>sudo !!</code></li>
+          <li><code>su root</code></li>
+          <li><code>history | grep apt</code></li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>b)</strong> <code>sudo !!</code> re-runs the previous command with <code>sudo</code> prepended. It is the fastest way to fix a forgotten <code>sudo</code>.</p></details>
+      </li>
+      <li>
+        <p><strong>What does <code>uname -m</code> output on a 64-bit Intel/AMD system?</strong></p>
+        <ol type="a">
+          <li><code>Linux</code></li>
+          <li><code>x86_64</code></li>
+          <li><code>amd64</code></li>
+          <li><code>64bit</code></li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>b)</strong> <code>uname -m</code> shows the machine hardware name. On 64-bit x86 systems, this is <code>x86_64</code>. On ARM it might be <code>aarch64</code>.</p></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="quiz">
+    <h3>Quiz 2: Scenario-Based Questions</h3>
+    <ol>
+      <li>
+        <p><strong>You are in <code>/home/alice/Documents/projects/webapp</code> and need to get to <code>/home/alice/Downloads</code>. Which of these works?</strong></p>
+        <ol type="a">
+          <li><code>cd ../../../Downloads</code></li>
+          <li><code>cd ~/Downloads</code></li>
+          <li><code>cd /home/alice/Downloads</code></li>
+          <li>All of the above</li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>d)</strong> All three work. Option (a) uses relative paths going up three levels then into Downloads. Option (b) uses the <code>~</code> shortcut for home. Option (c) uses an absolute path. In practice, (b) is the quickest to type.</p></details>
+      </li>
+      <li>
+        <p><strong>You accidentally ran <code>cat /bin/ls</code> and your terminal shows garbled characters. How do you fix it?</strong></p>
+        <ol type="a">
+          <li>Close the terminal and open a new one</li>
+          <li>Type <code>reset</code> and press Enter (even if you cannot see what you type)</li>
+          <li>Press <kbd>Ctrl+L</kbd></li>
+          <li>Both (a) and (b) work, but (b) is faster</li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>d)</strong> Both work, but <code>reset</code> reinitializes the terminal without losing your session. <kbd>Ctrl+L</kbd> only clears the screen and will not fix garbled encoding.</p></details>
+      </li>
+      <li>
+        <p><strong>You need to find out if <code>git</code> is installed and where it lives. What is the best command?</strong></p>
+        <ol type="a">
+          <li><code>find / -name git</code></li>
+          <li><code>which git</code></li>
+          <li><code>ls /usr/bin/git</code></li>
+          <li><code>man git</code></li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>b)</strong> <code>which git</code> quickly tells you if git is in your PATH and shows its location. <code>find</code> is slow and overkill. <code>ls</code> assumes you know the path. <code>man</code> shows documentation but does not confirm the binary location.</p></details>
+      </li>
+      <li>
+        <p><strong>What does the number <code>1</code> in <code>man 1 passwd</code> refer to?</strong></p>
+        <ol type="a">
+          <li>Show page 1 of the manual</li>
+          <li>The first version of the command</li>
+          <li>Section 1 (user commands) of the manual</li>
+          <li>Show only 1 line of output</li>
+        </ol>
+        <details><summary>Answer</summary><p><strong>c)</strong> Man pages are organized into sections. Section 1 covers user commands. Section 5 covers file formats. So <code>man 1 passwd</code> shows the passwd command, while <code>man 5 passwd</code> shows the /etc/passwd file format.</p></details>
+      </li>
+    </ol>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!--                     CHAPTER SUMMARY                           -->
+  <!-- ============================================================ -->
+  <h2 id="summary">Chapter Summary</h2>
+
+  <table>
+    <thead><tr><th>Command</th><th>Purpose</th><th>Most Common Usage</th></tr></thead>
+    <tbody>
+      <tr><td><code>pwd</code></td><td>Print working directory</td><td><code>pwd</code></td></tr>
+      <tr><td><code>ls</code></td><td>List directory contents</td><td><code>ls -lah</code></td></tr>
+      <tr><td><code>cd</code></td><td>Change directory</td><td><code>cd ~</code>, <code>cd ..</code>, <code>cd -</code></td></tr>
+      <tr><td><code>clear</code></td><td>Clear screen</td><td><kbd>Ctrl+L</kbd></td></tr>
+      <tr><td><code>history</code></td><td>Show command history</td><td><code>history</code>, <kbd>Ctrl+R</kbd>, <code>!!</code></td></tr>
+      <tr><td><code>man</code></td><td>Read manual pages</td><td><code>man ls</code>, <code>man -k keyword</code></td></tr>
+      <tr><td><code>which</code></td><td>Locate a command binary</td><td><code>which python3</code></td></tr>
+      <tr><td><code>whereis</code></td><td>Find binary, source, man page</td><td><code>whereis bash</code></td></tr>
+      <tr><td><code>echo</code></td><td>Print text / variables</td><td><code>echo "$HOME"</code></td></tr>
+      <tr><td><code>uname</code></td><td>System information</td><td><code>uname -a</code></td></tr>
+      <tr><td><code>hostname</code></td><td>Show system hostname</td><td><code>hostname</code>, <code>hostname -I</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert-tip">
+    <strong>What to practice next:</strong> Open a terminal and try every command on this page. There is no substitute for typing the commands yourself. In the next chapter, you will learn how to create, copy, move, and delete files and directories &mdash; the core of file management.
+  </div>
+
+  <div class="page-nav">
+    <a href="../01-fundamentals/index.html">&larr; Previous: Linux Fundamentals</a>
+    <a href="../03-files-directories/index.html">Next: Files &amp; Directories &rarr;</a>
+  </div>
+  <div class="footer">Linux Learning Guide</div>
+</main>
+</div>
+<script src="../../js/main.js"></script>
+</body>
+</html>

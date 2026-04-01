@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Common Linux Interview &amp; Workplace Commands — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../pages/06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../pages/09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../pages/10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../pages/13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../pages/15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="command-index.html">Command Index</a>
+    <a class="sidebar__link" href="glossary.html">Glossary</a>
+    <a class="sidebar__link" href="top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="exercises.html">Exercises</a>
+    <a class="sidebar__link" href="daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link active" href="interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <h1>Common Linux Interview &amp; Workplace Commands</h1>
+
+  <p>This page covers the Linux commands and knowledge that come up most frequently in job interviews and daily workplace tasks. Whether you are preparing for a DevOps, sysadmin, or developer interview, or you just started a job that involves Linux servers, this is what you need to know.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">How to use this page</div>
+    <p>Each section covers a topic area. For interview questions, read the question, try to answer it yourself, then check the provided answer. For workplace commands, practice them on a test system. The commands here are practical, not theoretical &mdash; these are what people actually type every day.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>System Administration</h2>
+  <!-- ================================================================ -->
+
+  <h3>Check System Resources (CPU, Memory, Disk)</h3>
+
+  <p>One of the most common tasks: figuring out why a system is slow or a service is down.</p>
+
+  <div class="code-block"><pre><span class="prompt"># Quick system overview: uptime, users, load average</span>
+<span class="prompt">$</span> uptime
+<span class="output"> 14:30:00 up 90 days, 12:15,  3 users,  load average: 2.15, 1.80, 1.45</span>
+
+<span class="prompt"># CPU information</span>
+<span class="prompt">$</span> nproc
+<span class="output">4</span>
+<span class="prompt">$</span> lscpu | grep "Model name"
+<span class="output">Model name:   Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz</span>
+
+<span class="prompt"># Memory usage</span>
+<span class="prompt">$</span> free -h
+<span class="output">              total        used        free      shared  buff/cache   available</span>
+<span class="output">Mem:           15Gi       12Gi       512Mi       256Mi       3.1Gi       2.8Gi</span>
+<span class="output">Swap:         2.0Gi       1.2Gi       820Mi</span>
+
+<span class="prompt"># Disk usage</span>
+<span class="prompt">$</span> df -h
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="output">/dev/sda1       500G  420G   55G  89% /</span>
+
+<span class="prompt"># All three in one glance with vmstat</span>
+<span class="prompt">$</span> vmstat 1 5
+<span class="output">procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----</span>
+<span class="output"> r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st</span>
+<span class="output"> 1  0 1228800 524288 131072 3276800  0    0    12    45  150  250 15  3 80  2  0</span></pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Interview tip: Load average</div>
+    <p>Load average shows the number of processes waiting for CPU time. A load average of 2.0 on a 4-core machine means 50% utilization (healthy). A load average of 8.0 on a 4-core machine means the system is overloaded. The three numbers show 1-minute, 5-minute, and 15-minute averages.</p>
+  </div>
+
+  <h3>Find Which Process is Using the Most CPU/Memory</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Top 5 processes by CPU usage</span>
+<span class="prompt">$</span> ps aux --sort=-%cpu | head -6
+<span class="output">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND</span>
+<span class="output">mysql    12345 45.2 12.5 2048000 192000 ?      Ssl  Mar01  120:15 /usr/sbin/mysqld</span>
+<span class="output">www-data 23456  8.3  4.2  512000  64000 ?      S    09:00   2:45 /usr/sbin/apache2</span>
+<span class="output">user     34567  3.1  2.1  384000  32000 pts/0  Sl   10:00   0:45 node app.js</span>
+<span class="output">root      1234  1.5  0.3  128000   4800 ?      Ss   Mar01  45:00 /usr/lib/snapd/snapd</span>
+<span class="output">root      5678  0.8  0.1   64000   1600 ?      Ss   Mar01  24:00 /usr/sbin/cron</span>
+
+<span class="prompt"># Top 5 processes by memory usage</span>
+<span class="prompt">$</span> ps aux --sort=-%mem | head -6
+<span class="output">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND</span>
+<span class="output">mysql    12345 45.2 12.5 2048000 192000 ?      Ssl  Mar01  120:15 /usr/sbin/mysqld</span>
+<span class="output">...</span>
+
+<span class="prompt"># Real-time monitoring</span>
+<span class="prompt">$</span> top -o %CPU          # Sort by CPU in top
+<span class="prompt">$</span> top -o %MEM          # Sort by memory in top
+
+<span class="prompt"># One specific process</span>
+<span class="prompt">$</span> pidof mysqld
+<span class="output">12345</span>
+<span class="prompt">$</span> ps -p 12345 -o pid,ppid,%cpu,%mem,cmd
+<span class="output">    PID    PPID %CPU %MEM CMD</span>
+<span class="output">  12345     1  45.2 12.5 /usr/sbin/mysqld</span></pre></div>
+
+  <h3>Check Open Ports</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Show all listening ports with process names</span>
+<span class="prompt">$</span> sudo ss -tulnp
+<span class="output">Netid  State   Recv-Q  Send-Q  Local Address:Port  Peer Address:Port  Process</span>
+<span class="output">tcp    LISTEN  0       128     0.0.0.0:22           0.0.0.0:*          users:(("sshd",pid=1100))</span>
+<span class="output">tcp    LISTEN  0       511     0.0.0.0:80           0.0.0.0:*          users:(("nginx",pid=2200))</span>
+<span class="output">tcp    LISTEN  0       511     0.0.0.0:443          0.0.0.0:*          users:(("nginx",pid=2200))</span>
+<span class="output">tcp    LISTEN  0       151     127.0.0.1:3306       0.0.0.0:*          users:(("mysqld",pid=12345))</span>
+
+<span class="prompt"># Find which process is using a specific port</span>
+<span class="prompt">$</span> sudo ss -tulnp | grep :80
+<span class="output">tcp    LISTEN  0  511  0.0.0.0:80  0.0.0.0:*  users:(("nginx",pid=2200,fd=6))</span>
+
+<span class="prompt"># Alternative with lsof</span>
+<span class="prompt">$</span> sudo lsof -i :80
+<span class="output">COMMAND  PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME</span>
+<span class="output">nginx   2200     root    6u  IPv4  12345      0t0  TCP *:http (LISTEN)</span>
+
+<span class="prompt"># Check if a specific port is open from outside</span>
+<span class="prompt">$</span> nc -zv server.example.com 443
+<span class="output">Connection to server.example.com 443 port [tcp/https] succeeded!</span></pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">ss flags explained</div>
+    <p><code>-t</code> = TCP, <code>-u</code> = UDP, <code>-l</code> = listening only, <code>-n</code> = show port numbers (not service names), <code>-p</code> = show process using the port. The old command was <code>netstat -tulnp</code>, but <code>ss</code> is the modern replacement.</p>
+  </div>
+
+  <h3>View and Manage Services/Daemons</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Check status of a service</span>
+<span class="prompt">$</span> systemctl status nginx
+<span class="output">● nginx.service - A high performance web server and a reverse proxy server</span>
+<span class="output">     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)</span>
+<span class="output">     Active: active (running) since Mon 2026-01-01 06:00:00 UTC; 89 days ago</span>
+<span class="output">   Main PID: 2200 (nginx)</span>
+<span class="output">      Tasks: 5 (limit: 9451)</span>
+<span class="output">     Memory: 12.5M</span>
+
+<span class="prompt"># Start, stop, restart a service</span>
+<span class="prompt">$</span> sudo systemctl start nginx
+<span class="prompt">$</span> sudo systemctl stop nginx
+<span class="prompt">$</span> sudo systemctl restart nginx
+<span class="prompt">$</span> sudo systemctl reload nginx      # Reload config without downtime
+
+<span class="prompt"># Enable/disable a service at boot</span>
+<span class="prompt">$</span> sudo systemctl enable nginx       # Start automatically on boot
+<span class="prompt">$</span> sudo systemctl disable nginx      # Do not start on boot
+
+<span class="prompt"># List all running services</span>
+<span class="prompt">$</span> systemctl list-units --type=service --state=running
+<span class="output">UNIT                     LOAD   ACTIVE SUB     DESCRIPTION</span>
+<span class="output">cron.service             loaded active running Regular background program processing daemon</span>
+<span class="output">mysql.service            loaded active running MySQL Community Server</span>
+<span class="output">nginx.service            loaded active running A high performance web server</span>
+<span class="output">ssh.service              loaded active running OpenBSD Secure Shell server</span>
+
+<span class="prompt"># List failed services</span>
+<span class="prompt">$</span> systemctl list-units --type=service --state=failed</pre></div>
+
+  <h3>Check System Logs</h3>
+
+  <div class="code-block"><pre><span class="prompt"># View recent system logs</span>
+<span class="prompt">$</span> sudo journalctl -n 50             # Last 50 entries
+<span class="prompt">$</span> sudo journalctl --since "1 hour ago"
+
+<span class="prompt"># View logs for a specific service</span>
+<span class="prompt">$</span> sudo journalctl -u nginx -n 20
+<span class="output">Mar 31 09:05:00 server systemd[1]: Starting A high performance web server...</span>
+<span class="output">Mar 31 09:05:00 server systemd[1]: Started A high performance web server.</span>
+
+<span class="prompt"># Follow logs in real time (like tail -f)</span>
+<span class="prompt">$</span> sudo journalctl -u nginx -f
+
+<span class="prompt"># View only errors and above</span>
+<span class="prompt">$</span> sudo journalctl -p err -n 20
+
+<span class="prompt"># Traditional log files</span>
+<span class="prompt">$</span> sudo tail -f /var/log/syslog         # System log
+<span class="prompt">$</span> sudo tail -f /var/log/auth.log        # Authentication log
+<span class="prompt">$</span> sudo tail -f /var/log/nginx/error.log # Nginx error log
+
+<span class="prompt"># Search logs for a pattern</span>
+<span class="prompt">$</span> sudo journalctl | grep "Failed password"
+<span class="output">Mar 31 03:15:00 server sshd[4567]: Failed password for invalid user admin from 203.0.113.50</span></pre></div>
+
+  <!-- ================================================================ -->
+  <h2>File Management</h2>
+  <!-- ================================================================ -->
+
+  <h3>Find Files by Various Criteria</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Find by name</span>
+<span class="prompt">$</span> find /etc -name "*.conf" -type f
+<span class="output">/etc/nginx/nginx.conf</span>
+<span class="output">/etc/ssh/sshd_config</span>
+<span class="output">/etc/mysql/mysql.conf.d/mysqld.cnf</span>
+
+<span class="prompt"># Find by size (files larger than 100 MB)</span>
+<span class="prompt">$</span> find / -type f -size +100M 2>/dev/null
+<span class="output">/var/lib/mysql/ibdata1</span>
+<span class="output">/var/log/syslog.1</span>
+
+<span class="prompt"># Find by modification time (modified in last 7 days)</span>
+<span class="prompt">$</span> find /var/log -type f -mtime -7
+
+<span class="prompt"># Find by permissions (world-writable files, security concern)</span>
+<span class="prompt">$</span> find / -type f -perm -o+w 2>/dev/null
+
+<span class="prompt"># Find by owner</span>
+<span class="prompt">$</span> find /home -user john -type f
+
+<span class="prompt"># Find and execute a command on results</span>
+<span class="prompt">$</span> find /tmp -name "*.tmp" -mtime +30 -exec rm {} \;
+<span class="prompt"># Deletes .tmp files in /tmp older than 30 days</span>
+
+<span class="prompt"># Find empty files and directories</span>
+<span class="prompt">$</span> find /var/log -empty -type f</pre></div>
+
+  <h3>Disk Usage Analysis</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Filesystem-level overview</span>
+<span class="prompt">$</span> df -h
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="output">/dev/sda1       500G  420G   55G  89% /</span>
+
+<span class="prompt"># Where is the space being used?</span>
+<span class="prompt">$</span> sudo du -h --max-depth=1 / 2>/dev/null | sort -rh | head -15
+<span class="output">420G    /</span>
+<span class="output">180G    /var</span>
+<span class="output">120G    /home</span>
+<span class="output">85G     /opt</span>
+<span class="output">25G     /usr</span>
+
+<span class="prompt"># Drill down into /var</span>
+<span class="prompt">$</span> sudo du -h --max-depth=1 /var | sort -rh | head -10
+<span class="output">180G    /var</span>
+<span class="output">150G    /var/lib</span>
+<span class="output">20G     /var/log</span>
+<span class="output">8G      /var/cache</span>
+
+<span class="prompt"># Find the single largest files on the system</span>
+<span class="prompt">$</span> sudo find / -type f -exec du -h {} + 2>/dev/null | sort -rh | head -10
+
+<span class="prompt"># Check inode usage (can run out even with free disk space)</span>
+<span class="prompt">$</span> df -i
+<span class="output">Filesystem       Inodes  IUsed    IFree IUse% Mounted on</span>
+<span class="output">/dev/sda1      32768000 245000 32523000    1% /</span></pre></div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Inodes matter too</div>
+    <p>A filesystem can run out of inodes (file entries) even if there is free disk space. This happens when there are millions of tiny files. Check with <code>df -i</code>. Common culprit: mail queue directories or session files.</p>
+  </div>
+
+  <h3>Permission Troubleshooting</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Check file permissions and ownership</span>
+<span class="prompt">$</span> ls -la /var/www/html/
+<span class="output">total 12</span>
+<span class="output">drwxr-xr-x 2 root     root     4096 Mar 31 09:00 .</span>
+<span class="output">drwxr-xr-x 3 root     root     4096 Mar 01 06:00 ..</span>
+<span class="output">-rw-r--r-- 1 root     root      612 Mar 31 09:00 index.html</span>
+<span class="output">-rw-r----- 1 root     root      450 Mar 31 09:00 config.php</span>
+
+<span class="prompt"># Problem: web server (www-data) cannot read config.php</span>
+<span class="prompt"># Solution: change ownership</span>
+<span class="prompt">$</span> sudo chown www-data:www-data /var/www/html/config.php
+<span class="prompt">$</span> sudo chmod 640 /var/www/html/config.php
+
+<span class="prompt"># Check effective permissions for a user</span>
+<span class="prompt">$</span> sudo -u www-data test -r /var/www/html/config.php && echo "Readable" || echo "Not readable"
+<span class="output">Readable</span>
+
+<span class="prompt"># Find files with SUID bit set (security audit)</span>
+<span class="prompt">$</span> find / -perm -4000 -type f 2>/dev/null
+<span class="output">/usr/bin/sudo</span>
+<span class="output">/usr/bin/passwd</span>
+<span class="output">/usr/bin/su</span></pre></div>
+
+  <!-- ================================================================ -->
+  <h2>Networking</h2>
+  <!-- ================================================================ -->
+
+  <h3>Test Connectivity</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Basic connectivity test</span>
+<span class="prompt">$</span> ping -c 4 google.com
+<span class="output">PING google.com (142.250.80.46) 56(84) bytes of data.</span>
+<span class="output">64 bytes from lax17s55-in-f14.1e100.net: icmp_seq=1 ttl=117 time=10.2 ms</span>
+<span class="output">--- google.com ping statistics ---</span>
+<span class="output">4 packets transmitted, 4 received, 0% packet loss, time 3005ms</span>
+
+<span class="prompt"># Test if you can reach a specific port</span>
+<span class="prompt">$</span> nc -zv database.internal 3306
+<span class="output">Connection to database.internal 3306 port [tcp/mysql] succeeded!</span>
+
+<span class="prompt">$</span> nc -zv database.internal 3306 -w 5    # 5 second timeout
+<span class="output">nc: connect to database.internal port 3306 (tcp) timed out: Operation now in progress</span>
+
+<span class="prompt"># Trace the route to a host</span>
+<span class="prompt">$</span> traceroute google.com
+<span class="output"> 1  gateway (192.168.1.1)  0.5 ms  0.4 ms  0.3 ms</span>
+<span class="output"> 2  isp-router (10.0.0.1)  5.2 ms  5.1 ms  5.0 ms</span>
+<span class="output"> 3  * * *</span>
+<span class="output"> 4  google-edge (142.250.80.46)  10.1 ms  10.0 ms  9.9 ms</span>
+
+<span class="prompt"># Check your IP address and network interfaces</span>
+<span class="prompt">$</span> ip addr show
+<span class="output">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536</span>
+<span class="output">    inet 127.0.0.1/8 scope host lo</span>
+<span class="output">2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500</span>
+<span class="output">    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic eth0</span>
+
+<span class="prompt"># Check routing table</span>
+<span class="prompt">$</span> ip route show
+<span class="output">default via 192.168.1.1 dev eth0 proto dhcp</span>
+<span class="output">192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.100</span></pre></div>
+
+  <h3>DNS Troubleshooting</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Resolve a hostname</span>
+<span class="prompt">$</span> nslookup google.com
+<span class="output">Server:         8.8.8.8</span>
+<span class="output">Address:        8.8.8.8#53</span>
+<span class="output">Non-authoritative answer:</span>
+<span class="output">Name:   google.com</span>
+<span class="output">Address: 142.250.80.46</span>
+
+<span class="prompt"># More detailed DNS lookup</span>
+<span class="prompt">$</span> dig google.com
+<span class="output">;; ANSWER SECTION:</span>
+<span class="output">google.com.     300     IN      A       142.250.80.46</span>
+<span class="output">;; Query time: 10 msec</span>
+<span class="output">;; SERVER: 8.8.8.8#53(8.8.8.8)</span>
+
+<span class="prompt"># Check MX records (email servers)</span>
+<span class="prompt">$</span> dig example.com MX +short
+<span class="output">10 mail.example.com.</span>
+
+<span class="prompt"># Reverse DNS lookup</span>
+<span class="prompt">$</span> dig -x 8.8.8.8 +short
+<span class="output">dns.google.</span>
+
+<span class="prompt"># Check which DNS servers you are using</span>
+<span class="prompt">$</span> cat /etc/resolv.conf
+<span class="output">nameserver 8.8.8.8</span>
+<span class="output">nameserver 8.8.4.4</span>
+
+<span class="prompt"># Test DNS resolution with a specific server</span>
+<span class="prompt">$</span> dig @1.1.1.1 example.com</pre></div>
+
+  <h3>Check Open Connections</h3>
+
+  <div class="code-block"><pre><span class="prompt"># All active network connections</span>
+<span class="prompt">$</span> ss -tn
+<span class="output">State  Recv-Q Send-Q  Local Address:Port   Peer Address:Port</span>
+<span class="output">ESTAB  0      0       192.168.1.100:22     203.0.113.50:54321</span>
+<span class="output">ESTAB  0      0       192.168.1.100:443    198.51.100.25:12345</span>
+
+<span class="prompt"># Count connections by state</span>
+<span class="prompt">$</span> ss -tn | awk '{print $1}' | sort | uniq -c | sort -rn
+<span class="output">     45 ESTAB</span>
+<span class="output">     12 TIME-WAIT</span>
+<span class="output">      3 CLOSE-WAIT</span>
+<span class="output">      1 State</span>
+
+<span class="prompt"># Connections to a specific port (e.g., web server on 443)</span>
+<span class="prompt">$</span> ss -tn dport = :443 | wc -l
+<span class="output">23</span>
+
+<span class="prompt"># Check who is connected via SSH</span>
+<span class="prompt">$</span> who
+<span class="output">admin    pts/0        2026-03-31 08:00 (203.0.113.50)</span>
+<span class="output">deploy   pts/1        2026-03-31 09:30 (198.51.100.25)</span>
+
+<span class="prompt">$</span> w
+<span class="output"> 14:30:00 up 90 days, 12:15,  2 users,  load average: 0.50, 0.45, 0.40</span>
+<span class="output">USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT</span>
+<span class="output">admin    pts/0    203.0.113.50     08:00    1:00m  0.10s  0.02s vim config.yaml</span>
+<span class="output">deploy   pts/1    198.51.100.25    09:30    3.00s  0.05s  0.01s bash</span></pre></div>
+
+  <!-- ================================================================ -->
+  <h2>Scripting &amp; Automation</h2>
+  <!-- ================================================================ -->
+
+  <h3>Common One-Liners</h3>
+
+  <p>These one-liners come up in interviews and are genuinely useful in daily work.</p>
+
+  <div class="code-block"><pre><span class="prompt"># Count lines in a file</span>
+<span class="prompt">$</span> wc -l /var/log/syslog
+<span class="output">125430 /var/log/syslog</span>
+
+<span class="prompt"># Find and replace text in a file</span>
+<span class="prompt">$</span> sed -i 's/old_string/new_string/g' config.txt
+
+<span class="prompt"># Extract a specific column from output</span>
+<span class="prompt">$</span> awk '{print $1}' /var/log/access.log | sort | uniq -c | sort -rn | head -10
+<span class="prompt"># Shows top 10 IP addresses in an access log</span>
+
+<span class="prompt"># Find duplicate files by checksum</span>
+<span class="prompt">$</span> find . -type f -exec md5sum {} + | sort | uniq -w32 -dD
+
+<span class="prompt"># Watch a command run repeatedly (every 2 seconds)</span>
+<span class="prompt">$</span> watch -n 2 'df -h /'
+
+<span class="prompt"># Run a command on multiple files</span>
+<span class="prompt">$</span> for f in *.log; do echo "Processing $f"; gzip "$f"; done
+
+<span class="prompt"># Get the nth line of a file</span>
+<span class="prompt">$</span> sed -n '42p' largefile.txt       # Get line 42
+
+<span class="prompt"># Remove blank lines from a file</span>
+<span class="prompt">$</span> sed -i '/^$/d' file.txt
+
+<span class="prompt"># Sort a CSV by the 3rd column</span>
+<span class="prompt">$</span> sort -t',' -k3 -n data.csv
+
+<span class="prompt"># Sum a column of numbers</span>
+<span class="prompt">$</span> awk '{sum += $1} END {print sum}' numbers.txt</pre></div>
+
+  <h3>Cron Job Basics</h3>
+
+  <div class="code-block"><pre><span class="prompt"># View your cron jobs</span>
+<span class="prompt">$</span> crontab -l
+
+<span class="prompt"># Edit your cron jobs</span>
+<span class="prompt">$</span> crontab -e
+
+<span class="prompt"># Cron syntax:</span>
+<span class="prompt"># ┌───── minute (0-59)</span>
+<span class="prompt"># │ ┌───── hour (0-23)</span>
+<span class="prompt"># │ │ ┌───── day of month (1-31)</span>
+<span class="prompt"># │ │ │ ┌───── month (1-12)</span>
+<span class="prompt"># │ │ │ │ ┌───── day of week (0-7, 0 and 7 = Sunday)</span>
+<span class="prompt"># │ │ │ │ │</span>
+<span class="prompt"># * * * * * command</span>
+
+<span class="prompt"># Examples:</span>
+<span class="output">0 2 * * *   /usr/local/bin/backup.sh       # Every day at 2:00 AM</span>
+<span class="output">*/15 * * * * /usr/local/bin/health-check.sh # Every 15 minutes</span>
+<span class="output">0 9 * * 1   /usr/local/bin/weekly-report.sh # Every Monday at 9:00 AM</span>
+<span class="output">0 0 1 * *   /usr/local/bin/monthly-cleanup  # First of each month at midnight</span>
+<span class="output">30 6 * * 1-5 /usr/local/bin/morning.sh      # Weekdays at 6:30 AM</span>
+
+<span class="prompt"># View system-wide cron jobs</span>
+<span class="prompt">$</span> ls /etc/cron.d/
+<span class="prompt">$</span> ls /etc/cron.daily/
+<span class="prompt">$</span> ls /etc/cron.weekly/</pre></div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Common cron pitfalls</div>
+    <p>Always use full paths in cron jobs (e.g., <code>/usr/bin/python3</code> not just <code>python3</code>). Cron runs with a minimal environment. Redirect output to a log file for debugging: <code>command >> /var/log/myjob.log 2>&amp;1</code>.</p>
+  </div>
+
+  <h3>Log Rotation Awareness</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Check logrotate configuration</span>
+<span class="prompt">$</span> cat /etc/logrotate.d/nginx
+<span class="output">/var/log/nginx/*.log {</span>
+<span class="output">    daily</span>
+<span class="output">    missingok</span>
+<span class="output">    rotate 14</span>
+<span class="output">    compress</span>
+<span class="output">    delaycompress</span>
+<span class="output">    notifempty</span>
+<span class="output">    create 0640 www-data adm</span>
+<span class="output">    sharedscripts</span>
+<span class="output">    postrotate</span>
+<span class="output">        [ -f /var/run/nginx.pid ] && kill -USR1 $(cat /var/run/nginx.pid)</span>
+<span class="output">    endscript</span>
+<span class="output">}</span>
+
+<span class="prompt"># Force a log rotation (for testing)</span>
+<span class="prompt">$</span> sudo logrotate -f /etc/logrotate.d/nginx
+
+<span class="prompt"># Check logrotate status</span>
+<span class="prompt">$</span> cat /var/lib/logrotate/status</pre></div>
+
+  <!-- ================================================================ -->
+  <h2>Common Interview Questions</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-info">
+    <div class="alert__title">How to answer interview questions</div>
+    <p>For each question, explain your approach first, then give the specific command. Interviewers want to see that you understand the problem, not just that you memorized a command.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Q1: "How would you find all files larger than 100 MB?"</h3>
+    <p><strong>Why they ask:</strong> Tests knowledge of <code>find</code>, file sizes, and practical disk management.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Find all files larger than 100 MB on the entire system</span>
+<span class="prompt">$</span> sudo find / -type f -size +100M 2>/dev/null
+
+<span class="prompt"># With human-readable sizes, sorted largest first</span>
+<span class="prompt">$</span> sudo find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null | sort -k5 -hr
+
+<span class="prompt"># In a specific directory</span>
+<span class="prompt">$</span> find /var -type f -size +100M -exec du -h {} \; | sort -rh</pre></div>
+      <p><strong>Explanation:</strong> <code>find</code> with <code>-type f</code> matches only files. <code>-size +100M</code> means larger than 100 megabytes. <code>2>/dev/null</code> suppresses permission denied errors. The <code>-exec</code> flag runs <code>ls -lh</code> on each result to show human-readable sizes.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q2: "How would you check which port a service is running on?"</h3>
+    <p><strong>Why they ask:</strong> Tests knowledge of network tools, service management, and troubleshooting.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Method 1: ss (modern, preferred)</span>
+<span class="prompt">$</span> sudo ss -tulnp | grep nginx
+<span class="output">tcp  LISTEN 0 511 0.0.0.0:80  0.0.0.0:* users:(("nginx",pid=2200,fd=6))</span>
+<span class="output">tcp  LISTEN 0 511 0.0.0.0:443 0.0.0.0:* users:(("nginx",pid=2200,fd=7))</span>
+
+<span class="prompt"># Method 2: lsof</span>
+<span class="prompt">$</span> sudo lsof -i -P -n | grep nginx
+<span class="output">nginx  2200 root  6u IPv4 12345 0t0 TCP *:80 (LISTEN)</span>
+<span class="output">nginx  2200 root  7u IPv4 12346 0t0 TCP *:443 (LISTEN)</span>
+
+<span class="prompt"># Method 3: Check the service configuration</span>
+<span class="prompt">$</span> grep -r "listen" /etc/nginx/
+<span class="output">/etc/nginx/sites-enabled/default:    listen 80;</span>
+<span class="output">/etc/nginx/sites-enabled/default:    listen 443 ssl;</span></pre></div>
+      <p><strong>Explanation:</strong> <code>ss -tulnp</code> shows all listening TCP/UDP ports with process names. <code>lsof -i</code> lists open network files. You can also check the service configuration files directly.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q3: "How would you find which process is consuming the most memory?"</h3>
+    <p><strong>Why they ask:</strong> Tests process management and troubleshooting slow systems.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Method 1: ps sorted by memory</span>
+<span class="prompt">$</span> ps aux --sort=-%mem | head -10
+<span class="output">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND</span>
+<span class="output">mysql    12345 15.2 25.5 4096000 392000 ?      Ssl  Mar01  480:00 /usr/sbin/mysqld</span>
+<span class="output">...</span>
+
+<span class="prompt"># Method 2: top (interactive, press M to sort by memory)</span>
+<span class="prompt">$</span> top -o %MEM
+
+<span class="prompt"># Method 3: One-liner showing top 5 memory consumers</span>
+<span class="prompt">$</span> ps -eo pid,user,%mem,%cpu,cmd --sort=-%mem | head -6</pre></div>
+      <p><strong>Explanation:</strong> <code>ps aux --sort=-%mem</code> lists all processes sorted by memory usage (highest first). The <code>%MEM</code> column shows the percentage of total RAM used. <code>RSS</code> (Resident Set Size) shows the actual memory in kilobytes.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q4: "Explain the difference between hard and soft links."</h3>
+    <p><strong>Why they ask:</strong> Tests understanding of the Linux filesystem, inodes, and how files are stored.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Create a test file</span>
+<span class="prompt">$</span> echo "Hello" > original.txt
+
+<span class="prompt"># Create a hard link</span>
+<span class="prompt">$</span> ln original.txt hard_link.txt
+
+<span class="prompt"># Create a soft (symbolic) link</span>
+<span class="prompt">$</span> ln -s original.txt soft_link.txt
+
+<span class="prompt"># Check inodes</span>
+<span class="prompt">$</span> ls -li original.txt hard_link.txt soft_link.txt
+<span class="output">131074 -rw-r--r-- 2 user user 6 Mar 31 10:00 original.txt</span>
+<span class="output">131074 -rw-r--r-- 2 user user 6 Mar 31 10:00 hard_link.txt</span>
+<span class="output">131075 lrwxrwxrwx 1 user user 12 Mar 31 10:00 soft_link.txt -> original.txt</span></pre></div>
+
+      <p><strong>Key differences:</strong></p>
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Feature</th>
+            <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Hard Link</th>
+            <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Soft (Symbolic) Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Inode</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Same inode as original</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Different inode</td>
+          </tr>
+          <tr>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">If original deleted</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Data still accessible</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Link is broken (dangling)</td>
+          </tr>
+          <tr>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Cross filesystem</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">No</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Yes</td>
+          </tr>
+          <tr>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Link to directories</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">No (usually)</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Yes</td>
+          </tr>
+          <tr>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">File size</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Same as original</td>
+            <td style="padding:8px; border-bottom:1px solid var(--border);">Size of the path string</td>
+          </tr>
+        </tbody>
+      </table>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q5: "What does chmod 755 mean?"</h3>
+    <p><strong>Why they ask:</strong> Tests understanding of the Linux permission system.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># chmod 755 means:</span>
+<span class="prompt"># 7 = owner:  rwx (read + write + execute) = 4+2+1</span>
+<span class="prompt"># 5 = group:  r-x (read + execute)         = 4+0+1</span>
+<span class="prompt"># 5 = others: r-x (read + execute)         = 4+0+1</span>
+
+<span class="prompt">$</span> chmod 755 script.sh
+<span class="prompt">$</span> ls -l script.sh
+<span class="output">-rwxr-xr-x 1 user user 1234 Mar 31 10:00 script.sh</span></pre></div>
+
+      <p><strong>Permission values:</strong></p>
+      <ul>
+        <li><code>4</code> = read (r)</li>
+        <li><code>2</code> = write (w)</li>
+        <li><code>1</code> = execute (x)</li>
+        <li><code>0</code> = no permission (-)</li>
+      </ul>
+      <p><strong>Common combinations:</strong></p>
+      <ul>
+        <li><code>755</code> = directories, executables (owner full, others read/execute)</li>
+        <li><code>644</code> = regular files (owner read/write, others read only)</li>
+        <li><code>600</code> = private files like SSH keys (owner read/write only)</li>
+        <li><code>700</code> = private directories (owner only)</li>
+        <li><code>777</code> = everyone can do everything (almost never appropriate)</li>
+      </ul>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q6: "How would you search for a string across all files in a directory?"</h3>
+    <p><strong>Why they ask:</strong> Tests grep knowledge, which is essential for log analysis and code searching.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Recursive grep with line numbers</span>
+<span class="prompt">$</span> grep -rn "database_password" /etc/
+<span class="output">/etc/myapp/config.yaml:15:  database_password: s3cret</span>
+
+<span class="prompt"># Case-insensitive search</span>
+<span class="prompt">$</span> grep -rni "error" /var/log/
+
+<span class="prompt"># Only show filenames (not content)</span>
+<span class="prompt">$</span> grep -rl "TODO" src/
+<span class="output">src/routes/auth.js</span>
+<span class="output">src/utils/helpers.js</span>
+
+<span class="prompt"># Search for a pattern (regex)</span>
+<span class="prompt">$</span> grep -rn "password.*=.*['\"]" /etc/ 2>/dev/null
+
+<span class="prompt"># Exclude certain directories (e.g., node_modules, .git)</span>
+<span class="prompt">$</span> grep -rn "function" --exclude-dir={node_modules,.git} src/
+
+<span class="prompt"># Search only specific file types</span>
+<span class="prompt">$</span> grep -rn "import" --include="*.py" src/</pre></div>
+      <p><strong>Explanation:</strong> <code>grep -rn</code> is the most commonly used form: <code>-r</code> for recursive, <code>-n</code> for line numbers. Add <code>-i</code> for case-insensitive, <code>-l</code> for filenames only, <code>--include</code>/<code>--exclude</code> for filtering file types.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q7: "How would you find which user has the most running processes?"</h3>
+    <p><strong>Why they ask:</strong> Tests process management and text processing pipeline skills.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> ps -eo user --no-headers | sort | uniq -c | sort -rn | head -10
+<span class="output">     85 root</span>
+<span class="output">     23 www-data</span>
+<span class="output">     12 mysql</span>
+<span class="output">      8 user</span>
+<span class="output">      3 syslog</span></pre></div>
+      <p><strong>Pipeline explained:</strong></p>
+      <ol>
+        <li><code>ps -eo user --no-headers</code> &mdash; list only the user column for every process</li>
+        <li><code>sort</code> &mdash; sort alphabetically (required for <code>uniq</code>)</li>
+        <li><code>uniq -c</code> &mdash; count consecutive identical lines</li>
+        <li><code>sort -rn</code> &mdash; sort numerically, highest first</li>
+        <li><code>head -10</code> &mdash; show top 10</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q8: "How would you check if a remote server is reachable and which ports are open?"</h3>
+    <p><strong>Why they ask:</strong> Tests networking and connectivity troubleshooting skills.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Step 1: Check basic connectivity</span>
+<span class="prompt">$</span> ping -c 3 server.example.com
+<span class="output">PING server.example.com (198.51.100.50) 56(84) bytes of data.</span>
+<span class="output">64 bytes from 198.51.100.50: icmp_seq=1 ttl=64 time=0.5 ms</span>
+
+<span class="prompt"># Step 2: Check specific ports</span>
+<span class="prompt">$</span> nc -zv server.example.com 22      # SSH
+<span class="output">Connection to server.example.com 22 port [tcp/ssh] succeeded!</span>
+
+<span class="prompt">$</span> nc -zv server.example.com 80      # HTTP
+<span class="output">Connection to server.example.com 80 port [tcp/http] succeeded!</span>
+
+<span class="prompt">$</span> nc -zv server.example.com 3306    # MySQL
+<span class="output">nc: connect to server.example.com port 3306 (tcp) failed: Connection refused</span>
+
+<span class="prompt"># Step 3: Scan a range of ports (if nmap is available)</span>
+<span class="prompt">$</span> nmap -p 1-1024 server.example.com
+<span class="output">PORT    STATE SERVICE</span>
+<span class="output">22/tcp  open  ssh</span>
+<span class="output">80/tcp  open  http</span>
+<span class="output">443/tcp open  https</span>
+
+<span class="prompt"># Step 4: Check DNS resolution</span>
+<span class="prompt">$</span> dig server.example.com +short
+<span class="output">198.51.100.50</span>
+
+<span class="prompt"># Step 5: Trace the route</span>
+<span class="prompt">$</span> traceroute server.example.com</pre></div>
+      <p><strong>Approach:</strong> Start with ping (is it reachable?), then test specific ports with nc, optionally scan with nmap, and check DNS if name resolution fails.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q9: "How would you troubleshoot a full disk?"</h3>
+    <p><strong>Why they ask:</strong> Tests real-world incident response and systematic troubleshooting.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Step 1: Confirm the problem</span>
+<span class="prompt">$</span> df -h
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="output">/dev/sda1       500G  495G  0    100% /</span>
+
+<span class="prompt"># Step 2: Find the biggest directories</span>
+<span class="prompt">$</span> sudo du -h --max-depth=1 / 2>/dev/null | sort -rh | head -10
+<span class="output">495G    /</span>
+<span class="output">300G    /var</span>
+<span class="output">100G    /home</span>
+<span class="output">50G     /opt</span>
+
+<span class="prompt"># Step 3: Drill down into the culprit</span>
+<span class="prompt">$</span> sudo du -h --max-depth=1 /var | sort -rh | head -10
+<span class="output">300G    /var</span>
+<span class="output">280G    /var/log</span>
+
+<span class="prompt"># Step 4: Find the specific large files</span>
+<span class="prompt">$</span> sudo find /var/log -type f -size +1G -exec ls -lh {} \;
+<span class="output">-rw-r--r-- 1 root root 250G Mar 31 14:00 /var/log/app-debug.log</span>
+
+<span class="prompt"># Step 5: Quick fixes</span>
+<span class="prompt">$</span> sudo truncate -s 0 /var/log/app-debug.log   # Empty the log file
+<span class="prompt">$</span> sudo apt clean                                # Clear package cache
+<span class="prompt">$</span> sudo journalctl --vacuum-size=500M            # Trim journal logs
+<span class="prompt">$</span> sudo find /tmp -mtime +7 -delete              # Clear old temp files
+
+<span class="prompt"># Step 6: Check for deleted files still held open</span>
+<span class="prompt">$</span> sudo lsof +L1
+<span class="output"># Shows files that are deleted but still open by a process</span>
+<span class="output"># Restarting that process will free the space</span></pre></div>
+      <p><strong>Key insight for interviews:</strong> Mention <code>lsof +L1</code>. This shows deleted files still held open by processes. The disk space is not freed until the process releases the file handle. This is a common gotcha that impresses interviewers.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Q10: "What is the difference between a process and a thread?"</h3>
+    <p><strong>Why they ask:</strong> Tests fundamental operating system knowledge.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <p><strong>Process:</strong></p>
+      <ul>
+        <li>An independent program in execution with its own memory space, file descriptors, and PID.</li>
+        <li>Processes are isolated from each other. One crashing process does not affect another.</li>
+        <li>Communication between processes requires IPC (Inter-Process Communication): pipes, sockets, shared memory.</li>
+        <li>Creating a process (fork) is relatively expensive.</li>
+      </ul>
+      <p><strong>Thread:</strong></p>
+      <ul>
+        <li>A lightweight unit of execution within a process. Threads share the same memory space and file descriptors.</li>
+        <li>Threads can communicate by reading/writing shared memory directly (but need synchronization).</li>
+        <li>One thread crashing can bring down the entire process.</li>
+        <li>Creating a thread is cheaper than creating a process.</li>
+      </ul>
+      <div class="code-block"><pre><span class="prompt"># View threads for a specific process</span>
+<span class="prompt">$</span> ps -T -p $(pidof mysqld) | head -10
+<span class="output">    PID    SPID TTY          TIME CMD</span>
+<span class="output">  12345   12345 ?        00:00:05 mysqld</span>
+<span class="output">  12345   12346 ?        00:00:10 mysqld</span>
+<span class="output">  12345   12347 ?        00:00:08 mysqld</span>
+
+<span class="prompt"># Count threads for a process</span>
+<span class="prompt">$</span> ps -T -p $(pidof mysqld) --no-headers | wc -l
+<span class="output">42</span></pre></div>
+    </details>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Quick Command Reference for Interviews</h2>
+  <!-- ================================================================ -->
+
+  <div class="concept-box">
+    <h3>Commands You Must Know</h3>
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Category</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Command</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">What It Does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">System</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>uptime</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">System uptime and load average</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">System</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>free -h</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Memory usage</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">System</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>df -h</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Disk space usage</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">System</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>top</code> / <code>htop</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Real-time process monitor</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Processes</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>ps aux</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">List all processes</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Processes</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>kill</code> / <code>pkill</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Terminate processes</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Network</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>ss -tulnp</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Listening ports and processes</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Network</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>ip addr show</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Network interfaces and IPs</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Network</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>ping</code> / <code>traceroute</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Connectivity testing</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Network</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>dig</code> / <code>nslookup</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">DNS troubleshooting</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Files</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>find</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Find files by name, size, time, etc.</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Files</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>grep -rn</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Search text in files recursively</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Files</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>du -h</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Directory size</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Files</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>chmod</code> / <code>chown</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Change permissions and ownership</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Logs</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>journalctl</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">View systemd logs</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Logs</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>tail -f</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Follow a log file in real time</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Services</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>systemctl status/start/stop</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Manage services</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Text</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>awk</code> / <code>sed</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Text processing and transformation</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Automation</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>crontab -e</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Schedule recurring tasks</td>
+        </tr>
+        <tr>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Transfer</td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);"><code>scp</code> / <code>rsync</code></td>
+          <td style="padding:6px; border-bottom:1px solid var(--border);">Copy files between machines</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Interview Preparation Tips</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-tip">
+    <div class="alert__title">How to stand out in a Linux interview</div>
+    <p>Follow these tips to make a strong impression:</p>
+  </div>
+
+  <ol>
+    <li><strong>Explain your thought process.</strong> Do not just give the command. Say "First I would check X because... then I would look at Y to narrow it down..."</li>
+    <li><strong>Know multiple methods.</strong> For most tasks, there are 2-3 ways to do it. Showing alternatives demonstrates deeper knowledge.</li>
+    <li><strong>Mention safety precautions.</strong> When asked about deleting or modifying, mention backups, dry runs, and double-checking first.</li>
+    <li><strong>Know the modern tools.</strong> Use <code>ss</code> instead of <code>netstat</code>, <code>ip</code> instead of <code>ifconfig</code>, <code>journalctl</code> instead of just <code>/var/log</code>.</li>
+    <li><strong>Practice on a real system.</strong> Spin up a virtual machine or use a cloud instance. Type the commands yourself. Reading about them is not enough.</li>
+    <li><strong>Know troubleshooting patterns.</strong> Most problems follow: check symptoms, identify the resource (CPU, memory, disk, network), find the root cause, fix it, verify the fix.</li>
+  </ol>
+
+  <div class="concept-box">
+    <h3>Troubleshooting Framework</h3>
+    <p>When asked "How would you troubleshoot X?", follow this systematic approach:</p>
+    <ol>
+      <li><strong>Reproduce / confirm the problem:</strong> "Can you describe the symptoms? When did it start?"</li>
+      <li><strong>Check system resources:</strong> <code>uptime</code>, <code>free -h</code>, <code>df -h</code>, <code>top</code></li>
+      <li><strong>Check logs:</strong> <code>journalctl -u service -n 50</code>, <code>tail /var/log/syslog</code></li>
+      <li><strong>Check the service:</strong> <code>systemctl status service</code></li>
+      <li><strong>Check the network:</strong> <code>ss -tulnp</code>, <code>ping</code>, <code>nc -zv</code></li>
+      <li><strong>Identify the root cause and fix it</strong></li>
+      <li><strong>Verify the fix and document what happened</strong></li>
+    </ol>
+  </div>
+
+  <div class="quiz">
+    <h3>Self-Assessment Quiz</h3>
+    <p>Can you answer these without looking? If not, review the sections above.</p>
+    <ol>
+      <li>What command shows all listening TCP ports with process names?</li>
+      <li>How do you find the top 5 memory-consuming processes?</li>
+      <li>What does <code>chmod 644</code> mean in terms of rwx?</li>
+      <li>How do you search for "error" across all files in <code>/var/log</code> recursively?</li>
+      <li>How do you check if a remote host's port 443 is open?</li>
+      <li>What is the cron syntax for "every Monday at 9 AM"?</li>
+      <li>How do you find files larger than 100 MB?</li>
+      <li>What is the difference between <code>></code> and <code>>></code>?</li>
+      <li>How do you follow a log file in real time?</li>
+      <li>What command shows disk space freed from deleted-but-open files?</li>
+    </ol>
+
+    <details>
+      <summary>Show Answers</summary>
+      <ol>
+        <li><code>sudo ss -tulnp</code></li>
+        <li><code>ps aux --sort=-%mem | head -6</code></li>
+        <li>Owner: rw- (read/write), Group: r-- (read only), Others: r-- (read only)</li>
+        <li><code>grep -rn "error" /var/log/</code></li>
+        <li><code>nc -zv host 443</code></li>
+        <li><code>0 9 * * 1</code></li>
+        <li><code>find / -type f -size +100M</code></li>
+        <li><code>></code> overwrites the file; <code>>></code> appends to it</li>
+        <li><code>tail -f /var/log/logfile</code> or <code>journalctl -f -u service</code></li>
+        <li><code>sudo lsof +L1</code></li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

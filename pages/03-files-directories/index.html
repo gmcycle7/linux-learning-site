@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 3: Files &amp; Directories — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link active" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &gt; Files &amp; Directories
+  </nav>
+
+  <h1>Chapter 3: File and Directory Commands</h1>
+
+  <p>In this chapter you will learn how to create, copy, move, rename, and delete files and directories from the command line. These commands form the backbone of everyday Linux work. You will also learn about links, file type identification, and how to inspect detailed file metadata.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Prerequisites</div>
+    <p>Before starting this chapter, make sure you are comfortable with <strong>pwd</strong>, <strong>ls</strong>, and <strong>cd</strong> from <a href="../02-terminal-basics/index.html">Chapter 2: Terminal Basics</a>. You should know how to navigate the filesystem and list directory contents.</p>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- CONCEPT BOX: How Files Work in Linux                                -->
+  <!-- ================================================================== -->
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: How Files Work in Linux</div>
+    <p>Before you start creating and deleting files, it helps to understand what a "file" actually is under the hood in Linux.</p>
+
+    <h4>Everything is a file</h4>
+    <p>In Linux, almost everything is represented as a file: regular documents, directories, hardware devices (<code>/dev/sda</code>), network sockets, and even running processes (<code>/proc</code>). This unified design means the same commands work on many different kinds of objects.</p>
+
+    <h4>Inodes &mdash; the real identity of a file</h4>
+    <p>Every file on disk has a unique number called an <strong>inode</strong> (index node). The inode stores all the metadata about the file: its size, owner, permissions, timestamps, and the locations of the actual data blocks on disk. Crucially, the inode does <em>not</em> store the filename.</p>
+
+    <h4>Directories are just lists</h4>
+    <p>A directory is a special file that contains a table mapping names to inode numbers. When you "create a file" named <code>report.txt</code>, you are really adding an entry in the parent directory that says <em>"the name report.txt points to inode 284710."</em></p>
+
+    <div class="diagram">
+<pre>
+  Directory: /home/user/
+  +-----------------+----------+
+  | Name            | Inode #  |
+  +-----------------+----------+
+  | .               | 131073   |   (this directory itself)
+  | ..              | 2        |   (parent directory)
+  | report.txt      | 284710   |
+  | notes.txt       | 284711   |
+  | projects/       | 284720   |   (another directory)
+  +-----------------+----------+
+
+  Inode 284710:
+  +-----------------------------+
+  | size: 2048 bytes            |
+  | owner: user                 |
+  | permissions: rw-r--r--      |
+  | data blocks: 50123, 50124  |
+  +-----------------------------+
+</pre>
+    </div>
+
+    <h4>Why this matters</h4>
+    <ul>
+      <li><strong>Renaming</strong> a file is instant &mdash; you only change the name in the directory table, not the data.</li>
+      <li><strong>Hard links</strong> are additional directory entries pointing to the same inode, so the same data can have multiple names.</li>
+      <li><strong>Deleting</strong> a file removes the directory entry. The actual data is only freed when no directory entries (links) point to the inode anymore.</li>
+      <li><strong>Moving</strong> a file within the same filesystem is just updating directory entries &mdash; no data is copied.</li>
+    </ul>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- 1. touch                                                            -->
+  <!-- ================================================================== -->
+  <h2 id="touch">1. touch &mdash; Create Files and Update Timestamps</h2>
+
+  <p>The <code>touch</code> command creates empty files or updates the access and modification timestamps of existing files. It is the quickest way to create a new empty file from the command line.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>touch [OPTIONS] FILE...</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-a</code></td><td>Change only the access time</td></tr>
+      <tr><td><code>-m</code></td><td>Change only the modification time</td></tr>
+      <tr><td><code>-t STAMP</code></td><td>Set time to a specific value (format: [[CC]YY]MMDDhhmm[.ss])</td></tr>
+      <tr><td><code>-d STRING</code></td><td>Set time using a human-readable date string</td></tr>
+      <tr><td><code>-r REF</code></td><td>Use the timestamp of another file as reference</td></tr>
+      <tr><td><code>-c</code></td><td>Do not create the file if it does not exist</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> touch newfile.txt
+<span class="prompt">$</span> ls -l newfile.txt
+<span class="output">-rw-r--r-- 1 user user 0 Mar 31 10:00 newfile.txt</span></code></pre>
+  <p>Creates an empty file. If the file already exists, its timestamp is updated to the current time.</p>
+
+  <pre><code><span class="prompt">$</span> touch file1.txt file2.txt file3.txt
+<span class="prompt">$</span> ls
+<span class="output">file1.txt  file2.txt  file3.txt</span></code></pre>
+  <p>Create multiple files at once.</p>
+
+  <pre><code><span class="prompt">$</span> touch notes_{monday,tuesday,wednesday}.txt
+<span class="prompt">$</span> ls
+<span class="output">notes_monday.txt  notes_tuesday.txt  notes_wednesday.txt</span></code></pre>
+  <p>Using brace expansion to create several files with a pattern.</p>
+
+  <pre><code><span class="prompt">$</span> touch -t 202301150830.00 oldfile.txt
+<span class="prompt">$</span> ls -l oldfile.txt
+<span class="output">-rw-r--r-- 1 user user 0 Jan 15  2023 oldfile.txt</span></code></pre>
+  <p>Set a specific timestamp. Format: YYYYMMDDhhmm.ss</p>
+
+  <pre><code><span class="prompt">$</span> touch -d "2024-06-15 14:30" meeting.txt
+<span class="prompt">$</span> ls -l meeting.txt
+<span class="output">-rw-r--r-- 1 user user 0 Jun 15  2024 meeting.txt</span></code></pre>
+  <p>Set timestamp using a human-readable date string.</p>
+
+  <pre><code><span class="prompt">$</span> touch -r file1.txt file2.txt
+<span class="prompt">$</span> stat file1.txt file2.txt | grep Modify
+<span class="output">Modify: 2026-03-31 10:00:00.000000000 +0000
+Modify: 2026-03-31 10:00:00.000000000 +0000</span></code></pre>
+  <p>Copy the timestamp from file1.txt to file2.txt.</p>
+
+  <pre><code><span class="prompt">$</span> touch -a config.cfg
+</code></pre>
+  <p>Update only the access time, leaving the modification time unchanged.</p>
+
+  <pre><code><span class="prompt">$</span> touch -c nonexistent.txt
+<span class="prompt">$</span> ls nonexistent.txt
+<span class="output">ls: cannot access 'nonexistent.txt': No such file or directory</span></code></pre>
+  <p>With <code>-c</code>, the file is not created if it does not exist. Useful in scripts where you only want to update timestamps.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>A common pattern is <code>touch logfile.log</code> to ensure a log file exists before a program tries to write to it. This prevents "file not found" errors.</p>
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <ul>
+    <li>Forgetting that <code>touch</code> on an existing file does <em>not</em> erase its contents &mdash; it only updates the timestamp.</li>
+    <li>Using <code>touch</code> when you meant to use <code>&gt; file.txt</code> (which <em>does</em> truncate the file to zero bytes).</li>
+  </ul>
+
+  <p><strong>Related commands:</strong> <code>stat</code>, <code>date</code>, <code>ls -l</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 2. mkdir                                                            -->
+  <!-- ================================================================== -->
+  <h2 id="mkdir">2. mkdir &mdash; Create Directories</h2>
+
+  <p>The <code>mkdir</code> command creates new directories. It is one of the first commands any Linux user learns.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>mkdir [OPTIONS] DIRECTORY...</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-p</code></td><td>Create parent directories as needed (no error if they exist)</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose &mdash; print a message for each created directory</td></tr>
+      <tr><td><code>-m MODE</code></td><td>Set permissions (mode) when creating the directory</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> mkdir projects
+<span class="prompt">$</span> ls -ld projects
+<span class="output">drwxr-xr-x 2 user user 4096 Mar 31 10:05 projects</span></code></pre>
+  <p>Create a single directory.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir docs images scripts
+<span class="prompt">$</span> ls
+<span class="output">docs  images  scripts</span></code></pre>
+  <p>Create multiple directories at once.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir project/src/main
+<span class="output">mkdir: cannot create directory 'project/src/main': No such file or directory</span>
+
+<span class="prompt">$</span> mkdir -p project/src/main
+<span class="prompt">$</span> tree project
+<span class="output">project
+└── src
+    └── main</span></code></pre>
+  <p>Without <code>-p</code>, mkdir fails if parent directories do not exist. The <code>-p</code> flag creates the entire path.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir -pv app/{bin,lib,config,logs}
+<span class="output">mkdir: created directory 'app'
+mkdir: created directory 'app/bin'
+mkdir: created directory 'app/lib'
+mkdir: created directory 'app/config'
+mkdir: created directory 'app/logs'</span></code></pre>
+  <p>Combine <code>-p</code> and brace expansion to create an entire project structure in one command.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir -pv website/{css,js,images,pages/{about,contact,blog}}
+<span class="output">mkdir: created directory 'website'
+mkdir: created directory 'website/css'
+mkdir: created directory 'website/js'
+mkdir: created directory 'website/images'
+mkdir: created directory 'website/pages'
+mkdir: created directory 'website/pages/about'
+mkdir: created directory 'website/pages/contact'
+mkdir: created directory 'website/pages/blog'</span></code></pre>
+  <p>Nested brace expansion for complex structures.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir -m 700 private_data
+<span class="prompt">$</span> ls -ld private_data
+<span class="output">drwx------ 2 user user 4096 Mar 31 10:10 private_data</span></code></pre>
+  <p>Create a directory with specific permissions. <code>700</code> means only the owner can read, write, or enter it.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir -pv backup/$(date +%Y/%m/%d)
+<span class="output">mkdir: created directory 'backup'
+mkdir: created directory 'backup/2026'
+mkdir: created directory 'backup/2026/03'
+mkdir: created directory 'backup/2026/03/31'</span></code></pre>
+  <p>Use command substitution to create date-based directory structures.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir "my folder"
+<span class="prompt">$</span> ls
+<span class="output">my folder</span></code></pre>
+  <p>Directories with spaces require quotes. Prefer hyphens or underscores instead: <code>my-folder</code>.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Always use <code>mkdir -p</code> in scripts. It will not fail if the directory already exists, making your scripts more robust.</p>
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <ul>
+    <li>Forgetting <code>-p</code> when creating nested paths.</li>
+    <li>Not quoting directory names that contain spaces.</li>
+  </ul>
+
+  <p><strong>Related commands:</strong> <code>rmdir</code>, <code>tree</code>, <code>ls</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 3. rmdir                                                            -->
+  <!-- ================================================================== -->
+  <h2 id="rmdir">3. rmdir &mdash; Remove Empty Directories</h2>
+
+  <p><code>rmdir</code> removes directories, but <em>only</em> if they are empty. This makes it a safe command &mdash; you cannot accidentally delete a directory full of files.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>rmdir [OPTIONS] DIRECTORY...</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-p</code></td><td>Remove the directory and its empty parent directories</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose &mdash; print a message for each removed directory</td></tr>
+      <tr><td><code>--ignore-fail-on-non-empty</code></td><td>Suppress error messages for non-empty directories</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> mkdir test_dir
+<span class="prompt">$</span> rmdir test_dir
+<span class="prompt">$</span> ls test_dir
+<span class="output">ls: cannot access 'test_dir': No such file or directory</span></code></pre>
+  <p>Remove an empty directory.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir -p a/b/c
+<span class="prompt">$</span> rmdir a
+<span class="output">rmdir: failed to remove 'a': Directory not empty</span></code></pre>
+  <p>rmdir refuses to remove a directory that contains other files or directories.</p>
+
+  <pre><code><span class="prompt">$</span> rmdir -p a/b/c
+<span class="prompt">$</span> ls a
+<span class="output">ls: cannot access 'a': No such file or directory</span></code></pre>
+  <p>With <code>-p</code>, rmdir removes <code>c</code>, then <code>b</code>, then <code>a</code> &mdash; but only because each becomes empty after its child is removed.</p>
+
+  <pre><code><span class="prompt">$</span> rmdir -v empty1 empty2 empty3
+<span class="output">rmdir: removing directory, 'empty1'
+rmdir: removing directory, 'empty2'
+rmdir: removing directory, 'empty3'</span></code></pre>
+  <p>Verbose removal of multiple empty directories.</p>
+
+  <pre><code><span class="prompt">$</span> mkdir -p temp/data
+<span class="prompt">$</span> touch temp/data/file.txt
+<span class="prompt">$</span> rmdir -p temp/data
+<span class="output">rmdir: failed to remove 'temp/data': Directory not empty</span></code></pre>
+  <p>If any directory in the chain is not empty, rmdir stops and reports an error.</p>
+
+  <pre><code><span class="prompt">$</span> rmdir nonempty_dir --ignore-fail-on-non-empty
+</code></pre>
+  <p>Silently skip non-empty directories. Useful in scripts where you want to clean up only empty directories.</p>
+
+  <pre><code><span class="prompt">$</span> rmdir dir1 dir2 dir3
+<span class="output">rmdir: failed to remove 'dir2': Directory not empty</span></code></pre>
+  <p>When removing multiple directories, rmdir reports errors individually but continues with the rest.</p>
+
+  <pre><code><span class="prompt">$</span> find . -type d -empty -exec rmdir -v {} +
+<span class="output">rmdir: removing directory, './old_cache'
+rmdir: removing directory, './tmp_build'</span></code></pre>
+  <p>Find and remove all empty directories in the current tree. A useful cleanup pattern.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">rmdir vs rm -r</div>
+    <p><code>rmdir</code> is safe because it only removes empty directories. If you need to remove a directory and everything inside it, you need <code>rm -r</code> &mdash; but that is a much more dangerous command. See the <a href="#rm">rm section</a> below.</p>
+  </div>
+
+  <p><strong>Related commands:</strong> <code>mkdir</code>, <code>rm -r</code>, <code>find -empty</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 4. cp                                                               -->
+  <!-- ================================================================== -->
+  <h2 id="cp">4. cp &mdash; Copy Files and Directories</h2>
+
+  <p>The <code>cp</code> command copies files and directories. It is one of the most used commands in day-to-day Linux work.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>cp [OPTIONS] SOURCE DEST
+cp [OPTIONS] SOURCE... DIRECTORY</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-r</code> / <code>-R</code></td><td>Recursive &mdash; copy directories and their contents</td></tr>
+      <tr><td><code>-i</code></td><td>Interactive &mdash; prompt before overwriting</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose &mdash; show each file as it is copied</td></tr>
+      <tr><td><code>-u</code></td><td>Update &mdash; only copy if the source is newer than the destination</td></tr>
+      <tr><td><code>-a</code></td><td>Archive &mdash; preserve permissions, timestamps, ownership, and links (same as <code>-dR --preserve=all</code>)</td></tr>
+      <tr><td><code>-n</code></td><td>No clobber &mdash; do not overwrite existing files</td></tr>
+      <tr><td><code>-p</code></td><td>Preserve permissions, ownership, and timestamps</td></tr>
+      <tr><td><code>-l</code></td><td>Create hard links instead of copying</td></tr>
+      <tr><td><code>-s</code></td><td>Create symbolic links instead of copying</td></tr>
+      <tr><td><code>--backup</code></td><td>Create a backup of each existing destination file</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> cp original.txt copy.txt
+<span class="prompt">$</span> ls
+<span class="output">copy.txt  original.txt</span></code></pre>
+  <p>Copy a single file. The copy is independent of the original.</p>
+
+  <pre><code><span class="prompt">$</span> cp file1.txt file2.txt file3.txt backup/
+<span class="prompt">$</span> ls backup/
+<span class="output">file1.txt  file2.txt  file3.txt</span></code></pre>
+  <p>Copy multiple files into a directory. The destination must already exist and be a directory.</p>
+
+  <pre><code><span class="prompt">$</span> cp report.txt docs/
+<span class="prompt">$</span> ls docs/
+<span class="output">report.txt</span></code></pre>
+  <p>Copy a file into an existing directory, keeping the same filename.</p>
+
+  <pre><code><span class="prompt">$</span> cp -r project/ project_backup/
+<span class="prompt">$</span> ls project_backup/
+<span class="output">src  docs  README.md</span></code></pre>
+  <p>Copy an entire directory tree. <strong>Without <code>-r</code>, cp refuses to copy directories.</strong></p>
+
+  <pre><code><span class="prompt">$</span> cp -i important.txt backup/important.txt
+<span class="output">cp: overwrite 'backup/important.txt'? y</span></code></pre>
+  <p>Interactive mode asks before overwriting. Very useful for important files.</p>
+
+  <pre><code><span class="prompt">$</span> cp -v *.log /var/log/archive/
+<span class="output">'access.log' -> '/var/log/archive/access.log'
+'error.log' -> '/var/log/archive/error.log'
+'debug.log' -> '/var/log/archive/debug.log'</span></code></pre>
+  <p>Verbose mode shows what is being copied. Great for monitoring large copy operations.</p>
+
+  <pre><code><span class="prompt">$</span> cp -u *.txt backup/
+</code></pre>
+  <p>Only copy files that are newer than what is already in <code>backup/</code>. Useful for incremental backups.</p>
+
+  <pre><code><span class="prompt">$</span> cp -a /home/user/project /media/usb/project_backup
+</code></pre>
+  <p>Archive mode: preserves everything (permissions, ownership, timestamps, symlinks). The gold standard for backups.</p>
+
+  <pre><code><span class="prompt">$</span> cp -rn source_dir/ dest_dir/
+</code></pre>
+  <p>Copy a directory recursively but never overwrite existing files in the destination.</p>
+
+  <pre><code><span class="prompt">$</span> cp --backup=numbered config.cfg config.cfg
+<span class="prompt">$</span> ls
+<span class="output">config.cfg  config.cfg.~1~</span></code></pre>
+  <p>Create a numbered backup before overwriting.</p>
+
+  <pre><code><span class="prompt">$</span> cp -rv project/{src,docs} release/
+<span class="output">'project/src' -> 'release/src'
+'project/src/main.c' -> 'release/src/main.c'
+'project/docs' -> 'release/docs'
+'project/docs/manual.txt' -> 'release/docs/manual.txt'</span></code></pre>
+  <p>Copy selected subdirectories using brace expansion.</p>
+
+  <pre><code><span class="prompt">$</span> cp -s /usr/local/bin/myapp ~/bin/myapp
+<span class="prompt">$</span> ls -l ~/bin/myapp
+<span class="output">lrwxrwxrwx 1 user user 22 Mar 31 10:20 /home/user/bin/myapp -> /usr/local/bin/myapp</span></code></pre>
+  <p>Create a symbolic link instead of a physical copy.</p>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Warning: cp overwrites silently</div>
+    <p>By default, <code>cp</code> silently overwrites existing files at the destination. Use <code>-i</code> (interactive) or <code>-n</code> (no clobber) to protect against accidental data loss. Many system administrators add <code>alias cp='cp -i'</code> to their shell profile.</p>
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <ul>
+    <li>Forgetting <code>-r</code> when copying directories &mdash; cp will skip them and print an error.</li>
+    <li>Copying into a non-existent directory path &mdash; cp will treat the path as a filename instead.</li>
+    <li>Not using <code>-a</code> for backups and losing file permissions or ownership.</li>
+  </ul>
+
+  <p><strong>Related commands:</strong> <code>mv</code>, <code>rsync</code>, <code>scp</code>, <code>install</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 5. mv                                                               -->
+  <!-- ================================================================== -->
+  <h2 id="mv">5. mv &mdash; Move and Rename Files</h2>
+
+  <p><code>mv</code> moves files and directories to a new location. When used on the same filesystem, it simply updates directory entries without copying data, making it nearly instant regardless of file size. It also serves as the standard way to rename files and directories.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>mv [OPTIONS] SOURCE DEST
+mv [OPTIONS] SOURCE... DIRECTORY</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-i</code></td><td>Interactive &mdash; prompt before overwriting</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose &mdash; show each file being moved</td></tr>
+      <tr><td><code>-n</code></td><td>No clobber &mdash; do not overwrite existing files</td></tr>
+      <tr><td><code>-u</code></td><td>Update &mdash; move only if the source is newer</td></tr>
+      <tr><td><code>-f</code></td><td>Force &mdash; do not prompt before overwriting (default behavior)</td></tr>
+      <tr><td><code>--backup</code></td><td>Create a backup of each existing destination file</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> mv oldname.txt newname.txt
+<span class="prompt">$</span> ls
+<span class="output">newname.txt</span></code></pre>
+  <p>Rename a file. This is the standard way to rename in Linux.</p>
+
+  <pre><code><span class="prompt">$</span> mv old_directory/ new_directory/
+<span class="prompt">$</span> ls
+<span class="output">new_directory</span></code></pre>
+  <p>Rename a directory. Unlike <code>cp</code>, <code>mv</code> does not need <code>-r</code> for directories.</p>
+
+  <pre><code><span class="prompt">$</span> mv report.txt docs/
+<span class="prompt">$</span> ls docs/
+<span class="output">report.txt</span></code></pre>
+  <p>Move a file into a directory.</p>
+
+  <pre><code><span class="prompt">$</span> mv file1.txt file2.txt file3.txt archive/
+<span class="prompt">$</span> ls archive/
+<span class="output">file1.txt  file2.txt  file3.txt</span></code></pre>
+  <p>Move multiple files into a directory at once.</p>
+
+  <pre><code><span class="prompt">$</span> mv *.jpg images/
+</code></pre>
+  <p>Move all JPEG files into an images directory using a glob pattern.</p>
+
+  <pre><code><span class="prompt">$</span> mv -i data.csv backup/data.csv
+<span class="output">mv: overwrite 'backup/data.csv'? n</span></code></pre>
+  <p>Interactive mode gives you a chance to cancel before overwriting.</p>
+
+  <pre><code><span class="prompt">$</span> mv -v project/ /opt/
+<span class="output">renamed 'project/' -> '/opt/project'</span></code></pre>
+  <p>Verbose output shows the action taken.</p>
+
+  <pre><code><span class="prompt">$</span> mv -n incoming.txt archive/incoming.txt
+</code></pre>
+  <p>No clobber: if archive/incoming.txt already exists, do nothing.</p>
+
+  <pre><code><span class="prompt">$</span> mv report.txt docs/final_report.txt
+</code></pre>
+  <p>Move and rename in one step.</p>
+
+  <pre><code><span class="prompt">$</span> mv --backup=numbered config.yaml config.yaml.bak
+<span class="prompt">$</span> ls
+<span class="output">config.yaml.bak  config.yaml.bak.~1~</span></code></pre>
+  <p>Automatically create numbered backups of the destination file.</p>
+
+  <pre><code><span class="prompt">$</span> for f in *.JPEG; do mv "$f" "${f%.JPEG}.jpg"; done
+</code></pre>
+  <p>Batch rename: convert all .JPEG extensions to .jpg using a shell loop.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: Safe aliases</div>
+    <p>Add <code>alias mv='mv -i'</code> to your <code>~/.bashrc</code> to always be prompted before overwriting. You can override the alias temporarily with <code>\mv</code> or <code>command mv</code> when you explicitly want force behavior.</p>
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <ul>
+    <li>Moving a file into a directory that does not exist &mdash; mv will rename the file to that path instead of reporting an error in some cases.</li>
+    <li>Forgetting that <code>mv</code> across filesystems (e.g., from <code>/home</code> to <code>/tmp</code> on a different partition) performs a copy-then-delete, which is slower and may fail if disk space is low.</li>
+  </ul>
+
+  <p><strong>Related commands:</strong> <code>cp</code>, <code>rename</code>, <code>install</code></p>
+
+  <!-- ================================================================== -->
+  <!-- Comparison: cp vs mv                                                -->
+  <!-- ================================================================== -->
+  <h2 id="cp-vs-mv">Comparison: cp vs mv</h2>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>cp (copy)</th><th>mv (move/rename)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Original file</td><td>Kept &mdash; a new copy is created</td><td>Removed from original location</td></tr>
+      <tr><td>Speed (same filesystem)</td><td>Slow &mdash; reads and writes all data</td><td>Instant &mdash; only updates directory entries</td></tr>
+      <tr><td>Speed (across filesystems)</td><td>Slow &mdash; reads and writes all data</td><td>Slow &mdash; copies data then deletes original</td></tr>
+      <tr><td>Needs <code>-r</code> for directories</td><td>Yes</td><td>No</td></tr>
+      <tr><td>Preserves inode number</td><td>No &mdash; new inode is allocated</td><td>Yes (same filesystem) / No (across filesystems)</td></tr>
+      <tr><td>Default overwrite behavior</td><td>Silently overwrites</td><td>Silently overwrites</td></tr>
+      <tr><td>Safe flag</td><td><code>-i</code> or <code>-n</code></td><td><code>-i</code> or <code>-n</code></td></tr>
+      <tr><td>Use for renaming</td><td>Not typical</td><td>Standard method</td></tr>
+      <tr><td>Use for backups</td><td>Yes &mdash; <code>cp -a</code></td><td>No &mdash; original is lost</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ================================================================== -->
+  <!-- 6. rm                                                               -->
+  <!-- ================================================================== -->
+  <h2 id="rm">6. rm &mdash; Remove Files and Directories</h2>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: rm is permanent</div>
+    <p><strong>Linux has no recycle bin on the command line.</strong> When you <code>rm</code> a file, it is gone. There is no undo. There is no confirmation by default. Double-check your command before pressing Enter, especially when using <code>-r</code> and <code>-f</code> flags together.</p>
+  </div>
+
+  <p>The <code>rm</code> command removes (deletes) files and directories. It is powerful and dangerous. Use it with care.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>rm [OPTIONS] FILE...</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-r</code> / <code>-R</code></td><td>Recursive &mdash; remove directories and all their contents</td></tr>
+      <tr><td><code>-f</code></td><td>Force &mdash; never prompt, ignore nonexistent files</td></tr>
+      <tr><td><code>-i</code></td><td>Interactive &mdash; prompt before every removal</td></tr>
+      <tr><td><code>-I</code></td><td>Prompt once before removing more than three files or recursing</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose &mdash; print each file as it is removed</td></tr>
+      <tr><td><code>-d</code></td><td>Remove empty directories (like rmdir)</td></tr>
+      <tr><td><code>--preserve-root</code></td><td>Do not remove <code>/</code> (this is the default on modern systems)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> rm unwanted.txt
+<span class="prompt">$</span> ls unwanted.txt
+<span class="output">ls: cannot access 'unwanted.txt': No such file or directory</span></code></pre>
+  <p>Remove a single file. Gone instantly, no confirmation.</p>
+
+  <pre><code><span class="prompt">$</span> rm file1.txt file2.txt file3.txt
+</code></pre>
+  <p>Remove multiple files at once.</p>
+
+  <pre><code><span class="prompt">$</span> rm *.tmp
+</code></pre>
+  <p>Remove all files matching a pattern. Always double-check your glob with <code>ls *.tmp</code> first.</p>
+
+  <pre><code><span class="prompt">$</span> rm -i important_data.csv
+<span class="output">rm: remove regular file 'important_data.csv'? y</span></code></pre>
+  <p>Interactive mode asks for confirmation. Use this for important files.</p>
+
+  <pre><code><span class="prompt">$</span> rm -r old_project/
+</code></pre>
+  <p>Recursively remove a directory and everything inside it.</p>
+
+  <pre><code><span class="prompt">$</span> rm -rv build/
+<span class="output">removed 'build/output/main.o'
+removed 'build/output/utils.o'
+removed directory 'build/output'
+removed 'build/Makefile'
+removed directory 'build/'</span></code></pre>
+  <p>Verbose recursive removal shows every file and directory being deleted.</p>
+
+  <pre><code><span class="prompt">$</span> rm -rf temp_dir/
+</code></pre>
+  <p>Force recursive removal. No prompts, no errors for missing files. <strong>Use only when you are absolutely certain.</strong></p>
+
+  <pre><code><span class="prompt">$</span> rm -I *.log
+<span class="output">rm: remove 47 arguments? y</span></code></pre>
+  <p><code>-I</code> prompts once when removing many files. A good middle ground between <code>-i</code> (too many prompts) and no flag (too dangerous).</p>
+
+  <pre><code><span class="prompt">$</span> rm -- -weird-filename.txt
+</code></pre>
+  <p>Use <code>--</code> to remove files whose names start with a dash. Without it, rm would interpret <code>-weird-filename.txt</code> as flags.</p>
+
+  <pre><code><span class="prompt">$</span> rm -f nonexistent.txt
+</code></pre>
+  <p><code>-f</code> suppresses the "No such file or directory" error. Useful in scripts for idempotent cleanup.</p>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">NEVER run: rm -rf /</div>
+    <p>The command <code>rm -rf /</code> attempts to delete every single file on the entire system. Modern Linux distributions have a safeguard (<code>--preserve-root</code>) that blocks this exact command, but variations like <code>rm -rf /*</code> or <code>rm -rf $VAR/</code> (when <code>$VAR</code> is empty) can still destroy your system. <strong>Never use <code>rm -rf</code> with variables that could expand to <code>/</code> or empty strings.</strong></p>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">NEVER run: rm -rf $VARIABLE/ when the variable might be empty</div>
+    <p>If you write a script like <code>rm -rf $DIR/</code> and <code>$DIR</code> is unset or empty, the command becomes <code>rm -rf /</code>. Always validate variables and use <code>${DIR:?Variable not set}</code> to abort instead of deleting everything.</p>
+  </div>
+
+  <!-- Wrong-Right Section for rm -->
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> rm -rf $DEPLOY_DIR/
+<span class="output"># If DEPLOY_DIR is empty, this becomes: rm -rf /
+# YOUR ENTIRE SYSTEM IS NOW BEING DELETED</span></code></pre>
+      <pre><code><span class="prompt">$</span> rm -rf /home/user/*
+<span class="output"># One typo (extra space) and you delete everything:
+# rm -rf /home/user/ *    (deletes home AND everything in cwd)</span></code></pre>
+      <pre><code><span class="prompt">$</span> rm -rf temp *
+<span class="output"># Missing the / between temp and *
+# Deletes "temp" AND everything in the current directory</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> rm -rf "${DEPLOY_DIR:?Error: variable not set}/"
+<span class="output"># Aborts with an error if DEPLOY_DIR is empty</span></code></pre>
+      <pre><code><span class="prompt">$</span> # First, verify what will be deleted:
+<span class="prompt">$</span> ls /home/user/*
+<span class="prompt">$</span> # Then delete:
+<span class="prompt">$</span> rm -ri /home/user/*
+<span class="output">rm: remove regular file '/home/user/old.txt'? y</span></code></pre>
+      <pre><code><span class="prompt">$</span> rm -rf temp/
+<span class="output"># Use a trailing slash for clarity
+# Or better: rm -rv temp/ to see what is deleted</span></code></pre>
+    </div>
+  </div>
+
+  <h3>Safe Usage Tips for rm</h3>
+  <ul>
+    <li><strong>Use <code>ls</code> first</strong> &mdash; run your glob with <code>ls</code> before <code>rm</code>: <code>ls *.tmp</code> then <code>rm *.tmp</code>.</li>
+    <li><strong>Use <code>-i</code> or <code>-I</code></strong> &mdash; especially when using wildcards or the <code>-r</code> flag.</li>
+    <li><strong>Use <code>-v</code></strong> &mdash; verbose output lets you see what is happening and cancel if something looks wrong.</li>
+    <li><strong>Alias rm</strong> &mdash; add <code>alias rm='rm -I'</code> to your <code>~/.bashrc</code> for a safety net.</li>
+    <li><strong>Avoid <code>-rf</code> with variables</strong> &mdash; always validate variables in scripts before using them with rm.</li>
+    <li><strong>Consider <code>trash-cli</code></strong> &mdash; install a trash utility to move files to a recycle bin instead of deleting them permanently.</li>
+  </ul>
+
+  <p><strong>Related commands:</strong> <code>rmdir</code>, <code>find -delete</code>, <code>shred</code>, <code>trash-put</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 7. ln                                                               -->
+  <!-- ================================================================== -->
+  <h2 id="ln">7. ln &mdash; Create Links</h2>
+
+  <p>The <code>ln</code> command creates links between files. Links allow a file to be accessed by multiple names or from multiple locations without duplicating data.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>ln [OPTIONS] TARGET LINK_NAME</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-s</code></td><td>Create a symbolic (soft) link instead of a hard link</td></tr>
+      <tr><td><code>-f</code></td><td>Force &mdash; remove existing destination files</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose &mdash; print the name of each link created</td></tr>
+      <tr><td><code>-n</code></td><td>Treat a symlink to a directory as a file (do not follow it)</td></tr>
+      <tr><td><code>-r</code></td><td>Create relative symbolic links</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Hard Links vs Symbolic (Soft) Links</div>
+
+    <p>There are two types of links in Linux, and understanding the difference requires knowing about inodes (see the mental model at the top of this chapter).</p>
+
+    <h4>Hard Links</h4>
+    <p>A hard link is an additional directory entry pointing to the <em>same inode</em>. The original file and the hard link are completely equal &mdash; there is no "original" and "link," just two names for the same data.</p>
+
+    <h4>Symbolic (Soft) Links</h4>
+    <p>A symbolic link (symlink) is a special file that contains a text path pointing to another file. It is like a shortcut. If the target is deleted, the symlink becomes a "dangling" link that points to nothing.</p>
+
+    <div class="diagram">
+<pre>
+  HARD LINK                           SYMBOLIC LINK
+  ─────────                           ─────────────
+
+  Directory entries:                  Directory entries:
+  ┌────────────────┐                  ┌────────────────┐
+  │ report.txt ────┤──┐               │ data.txt ──────┤──> Inode 500
+  └────────────────┘  │               └────────────────┘    (actual data)
+  ┌────────────────┐  │               ┌────────────────┐
+  │ report_v2.txt ─┤──┘──> Inode 100  │ latest.txt ────┤──> Inode 501
+  └────────────────┘      (data on    └────────────────┘    (contains the
+                           disk)                             text path:
+                                                             "data.txt")
+  Both names point to the            latest.txt -> data.txt
+  SAME inode and data.               If data.txt is deleted,
+  Delete one, the other              latest.txt becomes a
+  still works perfectly.             broken (dangling) link.
+
+  Hard link count: 2                 Hard link count: 1 each
+  Same filesystem only               Can cross filesystems
+  Cannot link to directories          Can link to directories
+  Cannot tell which came first       ls -l shows the -> target
+</pre>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Hard Link</th><th>Symbolic Link</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Created with</td><td><code>ln TARGET LINK</code></td><td><code>ln -s TARGET LINK</code></td></tr>
+        <tr><td>Points to</td><td>Same inode (same data)</td><td>A path (another filename)</td></tr>
+        <tr><td>Cross filesystems</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Link to directories</td><td>No (usually)</td><td>Yes</td></tr>
+        <tr><td>Survives target deletion</td><td>Yes (data remains)</td><td>No (becomes broken)</td></tr>
+        <tr><td>File size</td><td>Same as original</td><td>Size of the path string</td></tr>
+        <tr><td>Identified by</td><td>Same inode number</td><td><code>ls -l</code> shows <code>-></code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> echo "Hello" > original.txt
+<span class="prompt">$</span> ln original.txt hardlink.txt
+<span class="prompt">$</span> ls -li original.txt hardlink.txt
+<span class="output">284710 -rw-r--r-- 2 user user 6 Mar 31 10:30 hardlink.txt
+284710 -rw-r--r-- 2 user user 6 Mar 31 10:30 original.txt</span></code></pre>
+  <p>Create a hard link. Notice: same inode number (284710), and the link count is 2.</p>
+
+  <pre><code><span class="prompt">$</span> ln -s /var/log/syslog ~/logs/syslog
+<span class="prompt">$</span> ls -l ~/logs/syslog
+<span class="output">lrwxrwxrwx 1 user user 15 Mar 31 10:32 /home/user/logs/syslog -> /var/log/syslog</span></code></pre>
+  <p>Create a symbolic link. The <code>l</code> at the start of permissions indicates a symlink.</p>
+
+  <pre><code><span class="prompt">$</span> ln -s /opt/myapp/bin/app /usr/local/bin/app
+</code></pre>
+  <p>A common pattern: create a symlink in a directory on the PATH so you can run a program from anywhere.</p>
+
+  <pre><code><span class="prompt">$</span> rm original.txt
+<span class="prompt">$</span> cat hardlink.txt
+<span class="output">Hello</span></code></pre>
+  <p>After deleting the original, the hard link still works because it points to the same inode. The data is only freed when all links are removed.</p>
+
+  <pre><code><span class="prompt">$</span> ln -s target.txt symlink.txt
+<span class="prompt">$</span> rm target.txt
+<span class="prompt">$</span> cat symlink.txt
+<span class="output">cat: symlink.txt: No such file or directory</span>
+<span class="prompt">$</span> ls -l symlink.txt
+<span class="output">lrwxrwxrwx 1 user user 10 Mar 31 10:35 symlink.txt -> target.txt</span></code></pre>
+  <p>A broken (dangling) symlink. The link still exists but points to nothing.</p>
+
+  <pre><code><span class="prompt">$</span> ln -sf new_target.txt existing_link.txt
+</code></pre>
+  <p>Force-update a symlink to point to a new target.</p>
+
+  <pre><code><span class="prompt">$</span> ln -s /opt/app/v2 /opt/app/current
+<span class="prompt">$</span> ls -l /opt/app/current
+<span class="output">lrwxrwxrwx 1 root root 12 Mar 31 10:38 /opt/app/current -> /opt/app/v2</span></code></pre>
+  <p>Common deployment pattern: a "current" symlink points to the active version. Switch versions by changing the symlink.</p>
+
+  <pre><code><span class="prompt">$</span> ln -sv config.prod.yaml config.yaml
+<span class="output">'config.yaml' -> 'config.prod.yaml'</span></code></pre>
+  <p>Verbose mode confirms the link creation.</p>
+
+  <pre><code><span class="prompt">$</span> find . -xtype l
+<span class="output">./broken_link1
+./broken_link2</span></code></pre>
+  <p>Find all broken symbolic links in the current directory tree.</p>
+
+  <pre><code><span class="prompt">$</span> stat hardlink.txt
+<span class="output">  File: hardlink.txt
+  Size: 6          Blocks: 8          IO Block: 4096   regular file
+Device: 801h/2049d  Inode: 284710      Links: 2</span></code></pre>
+  <p>Use <code>stat</code> to see the inode number and link count of a file.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">When to use which type of link</div>
+    <p><strong>Use symbolic links</strong> in most cases &mdash; they are more flexible (cross filesystems, link to directories) and easier to understand (you can see the target with <code>ls -l</code>).</p>
+    <p><strong>Use hard links</strong> when you need the data to survive deletion of the "original" name, or when you want to save disk space by having multiple names for the same data without the overhead of a symlink.</p>
+  </div>
+
+  <p><strong>Related commands:</strong> <code>readlink</code>, <code>stat</code>, <code>ls -l</code>, <code>find -type l</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 8. file                                                             -->
+  <!-- ================================================================== -->
+  <h2 id="file">8. file &mdash; Identify File Types</h2>
+
+  <p>The <code>file</code> command examines files and tells you what type they are. Unlike Windows, Linux does not rely on file extensions to determine types &mdash; <code>file</code> inspects the actual contents (magic bytes) of the file.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>file [OPTIONS] FILE...</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-b</code></td><td>Brief &mdash; do not prepend the filename in output</td></tr>
+      <tr><td><code>-i</code></td><td>Output MIME type instead of human-readable description</td></tr>
+      <tr><td><code>-L</code></td><td>Follow symbolic links</td></tr>
+      <tr><td><code>-z</code></td><td>Look inside compressed files</td></tr>
+      <tr><td><code>-f LIST</code></td><td>Read filenames from a list file</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> file document.pdf
+<span class="output">document.pdf: PDF document, version 1.4</span></code></pre>
+  <p>Identifies a PDF file by its content, not its extension.</p>
+
+  <pre><code><span class="prompt">$</span> file photo.jpg
+<span class="output">photo.jpg: JPEG image data, JFIF standard 1.01, resolution (DPI), density 72x72, segment length 16</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> file script.sh
+<span class="output">script.sh: Bourne-Again shell script, ASCII text executable</span></code></pre>
+  <p>Identifies the type of script by reading the shebang line (<code>#!/bin/bash</code>).</p>
+
+  <pre><code><span class="prompt">$</span> file /usr/bin/ls
+<span class="output">/usr/bin/ls: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked</span></code></pre>
+  <p>Identifies a compiled binary executable.</p>
+
+  <pre><code><span class="prompt">$</span> file mystery_file
+<span class="output">mystery_file: gzip compressed data, was "backup.tar", last modified: Sun Mar 29 08:00:00 2026</span></code></pre>
+  <p>Even without an extension, <code>file</code> identifies the content correctly.</p>
+
+  <pre><code><span class="prompt">$</span> file -b notes.txt
+<span class="output">ASCII text</span></code></pre>
+  <p>Brief mode omits the filename from the output.</p>
+
+  <pre><code><span class="prompt">$</span> file -i data.json
+<span class="output">data.json: application/json; charset=utf-8</span></code></pre>
+  <p>MIME type output, useful for scripting and web applications.</p>
+
+  <pre><code><span class="prompt">$</span> file /dev/sda
+<span class="output">/dev/sda: block special (8/0)</span></code></pre>
+  <p>Identifies device files too.</p>
+
+  <pre><code><span class="prompt">$</span> file -i *
+<span class="output">image.png:    image/png; charset=binary
+README.md:    text/plain; charset=utf-8
+data.csv:     text/plain; charset=us-ascii
+app:          application/x-executable; charset=binary</span></code></pre>
+  <p>Check MIME types of all files in a directory.</p>
+
+  <pre><code><span class="prompt">$</span> mv photo.jpg photo.txt
+<span class="prompt">$</span> file photo.txt
+<span class="output">photo.txt: JPEG image data, JFIF standard 1.01</span></code></pre>
+  <p>Renaming the extension does not fool <code>file</code> &mdash; it reads the actual content.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Use <code>file</code> when you find a mysterious file with no extension, or when you suspect a file has the wrong extension. It is also helpful for verifying that downloads are what they claim to be.</p>
+  </div>
+
+  <p><strong>Related commands:</strong> <code>stat</code>, <code>mimetype</code>, <code>xdg-mime</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 9. stat                                                             -->
+  <!-- ================================================================== -->
+  <h2 id="stat">9. stat &mdash; Detailed File Information</h2>
+
+  <p>The <code>stat</code> command displays detailed metadata about a file or filesystem. It shows everything that <code>ls -l</code> shows and much more: inode number, exact timestamps (with nanoseconds), block count, device IDs, and more.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>stat [OPTIONS] FILE...</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-f</code></td><td>Display filesystem status instead of file status</td></tr>
+      <tr><td><code>-L</code></td><td>Follow symbolic links</td></tr>
+      <tr><td><code>-c FORMAT</code></td><td>Use a custom output format string</td></tr>
+      <tr><td><code>--printf=FORMAT</code></td><td>Like <code>-c</code> but interprets backslash escapes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> stat report.txt
+<span class="output">  File: report.txt
+  Size: 2048        Blocks: 8          IO Block: 4096   regular file
+Device: 801h/2049d  Inode: 284710      Links: 1
+Access: (0644/-rw-r--r--)  Uid: ( 1000/    user)   Gid: ( 1000/    user)
+Access: 2026-03-31 09:00:00.123456789 +0000
+Modify: 2026-03-30 14:30:22.987654321 +0000
+Change: 2026-03-30 14:30:22.987654321 +0000
+ Birth: 2026-03-28 08:15:00.000000000 +0000</span></code></pre>
+  <p>Full file status. Shows the inode number, link count, three timestamps (Access, Modify, Change), and the birth (creation) time.</p>
+
+  <pre><code><span class="prompt">$</span> stat -c "%n: %s bytes, inode %i, %h links" report.txt
+<span class="output">report.txt: 2048 bytes, inode 284710, 1 links</span></code></pre>
+  <p>Custom format output. Useful format specifiers: <code>%n</code> (name), <code>%s</code> (size), <code>%i</code> (inode), <code>%h</code> (link count), <code>%U</code> (owner), <code>%a</code> (octal permissions).</p>
+
+  <pre><code><span class="prompt">$</span> stat -c "%a %U %G %n" *
+<span class="output">644 user user report.txt
+755 user user script.sh
+700 user user private/</span></code></pre>
+  <p>Show octal permissions, owner, group, and name for all files.</p>
+
+  <pre><code><span class="prompt">$</span> stat -c "%y" report.txt
+<span class="output">2026-03-30 14:30:22.987654321 +0000</span></code></pre>
+  <p>Show only the modification time with nanosecond precision.</p>
+
+  <pre><code><span class="prompt">$</span> stat -f /
+<span class="output">  File: "/"
+    ID: abcdef12345678 Namelen: 255     Type: ext2/ext3
+Block size: 4096       Fundamental block size: 4096
+Blocks: Total: 25600000   Free: 12800000   Available: 11520000
+Inodes: Total: 6553600    Free: 5242880</span></code></pre>
+  <p>Filesystem status. Shows total and available disk space at the block level.</p>
+
+  <pre><code><span class="prompt">$</span> stat -c "%F" /dev/sda /tmp report.txt /dev/null
+<span class="output">block special file
+directory
+regular file
+character special file</span></code></pre>
+  <p>The <code>%F</code> format shows the file type in words.</p>
+
+  <pre><code><span class="prompt">$</span> stat -L symlink.txt
+</code></pre>
+  <p>Follow a symbolic link and show the status of the target file instead of the link itself.</p>
+
+  <pre><code><span class="prompt">$</span> stat --printf="Owner: %U\nSize: %s\nModified: %y\n" data.csv
+<span class="output">Owner: user
+Size: 4096
+Modified: 2026-03-31 08:00:00.000000000 +0000</span></code></pre>
+  <p>Using <code>--printf</code> with newline escapes for readable output.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Three timestamps explained</div>
+    <ul>
+      <li><strong>Access (atime):</strong> Last time the file contents were read.</li>
+      <li><strong>Modify (mtime):</strong> Last time the file contents were changed.</li>
+      <li><strong>Change (ctime):</strong> Last time the file metadata (permissions, ownership, etc.) was changed. This is NOT the creation time.</li>
+      <li><strong>Birth:</strong> The actual creation time (not available on all filesystems).</li>
+    </ul>
+  </div>
+
+  <p><strong>Related commands:</strong> <code>ls -l</code>, <code>file</code>, <code>df</code>, <code>du</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 10. tree                                                            -->
+  <!-- ================================================================== -->
+  <h2 id="tree">10. tree &mdash; Visual Directory Structure</h2>
+
+  <p>The <code>tree</code> command displays the contents of a directory in a tree-like format. It is not installed by default on all systems but is extremely useful for understanding project layouts.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Installation</div>
+    <p>If <code>tree</code> is not available, install it with: <code>sudo apt install tree</code> (Debian/Ubuntu) or <code>sudo yum install tree</code> (RHEL/CentOS).</p>
+  </div>
+
+  <h3>Syntax</h3>
+  <pre><code>tree [OPTIONS] [DIRECTORY...]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-L N</code></td><td>Limit display to N levels deep</td></tr>
+      <tr><td><code>-d</code></td><td>Show only directories (no files)</td></tr>
+      <tr><td><code>-a</code></td><td>Show hidden files (starting with .)</td></tr>
+      <tr><td><code>-f</code></td><td>Show full path prefix for each file</td></tr>
+      <tr><td><code>-h</code></td><td>Show human-readable file sizes</td></tr>
+      <tr><td><code>-s</code></td><td>Show file size in bytes</td></tr>
+      <tr><td><code>-p</code></td><td>Show permissions</td></tr>
+      <tr><td><code>-I PATTERN</code></td><td>Exclude files matching the pattern</td></tr>
+      <tr><td><code>-P PATTERN</code></td><td>List only files matching the pattern</td></tr>
+      <tr><td><code>--dirsfirst</code></td><td>List directories before files</td></tr>
+      <tr><td><code>-C</code></td><td>Colorize output</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> tree
+<span class="output">.
+├── docs
+│   ├── guide.md
+│   └── notes.txt
+├── src
+│   ├── main.c
+│   └── utils.c
+├── Makefile
+└── README.md
+
+2 directories, 5 files</span></code></pre>
+  <p>Default tree view of the current directory.</p>
+
+  <pre><code><span class="prompt">$</span> tree -L 2
+<span class="output">.
+├── docs
+│   ├── guide.md
+│   └── notes.txt
+├── src
+│   ├── main.c
+│   └── utils.c
+├── Makefile
+└── README.md
+
+2 directories, 5 files</span></code></pre>
+  <p>Limit depth to 2 levels. Essential for large directory trees.</p>
+
+  <pre><code><span class="prompt">$</span> tree -d
+<span class="output">.
+├── docs
+├── src
+└── tests
+
+3 directories</span></code></pre>
+  <p>Show only directories, not files.</p>
+
+  <pre><code><span class="prompt">$</span> tree -h
+<span class="output">.
+├── [4.0K]  docs
+│   ├── [1.2K]  guide.md
+│   └── [ 256]  notes.txt
+├── [4.0K]  src
+│   ├── [3.4K]  main.c
+│   └── [1.1K]  utils.c
+├── [ 512]  Makefile
+└── [ 890]  README.md
+
+2 directories, 5 files</span></code></pre>
+  <p>Human-readable file sizes next to each file.</p>
+
+  <pre><code><span class="prompt">$</span> tree -p
+<span class="output">.
+├── [drwxr-xr-x]  docs
+│   ├── [-rw-r--r--]  guide.md
+│   └── [-rw-r--r--]  notes.txt
+├── [drwxr-xr-x]  src
+│   ├── [-rw-r--r--]  main.c
+│   └── [-rwxr-xr-x]  utils.c
+├── [-rw-r--r--]  Makefile
+└── [-rw-r--r--]  README.md</span></code></pre>
+  <p>Show file permissions in the tree output.</p>
+
+  <pre><code><span class="prompt">$</span> tree -I "node_modules|.git|__pycache__"
+<span class="output">.
+├── package.json
+├── src
+│   ├── app.js
+│   └── utils.js
+└── README.md
+
+1 directory, 3 files</span></code></pre>
+  <p>Exclude directories matching patterns. Essential for projects with large dependency directories.</p>
+
+  <pre><code><span class="prompt">$</span> tree -P "*.py"
+<span class="output">.
+├── src
+│   ├── main.py
+│   ├── utils.py
+│   └── config.py
+└── tests
+    ├── test_main.py
+    └── test_utils.py
+
+2 directories, 5 files</span></code></pre>
+  <p>Show only Python files.</p>
+
+  <pre><code><span class="prompt">$</span> tree --dirsfirst -L 2 /etc
+<span class="output">/etc
+├── apt
+│   ├── sources.list
+│   └── trusted.gpg.d
+├── ssh
+│   ├── ssh_config
+│   └── sshd_config
+├── hostname
+├── passwd
+└── resolv.conf
+
+2 directories, 5 files</span></code></pre>
+  <p>Directories first, limited depth. Good for exploring system directories.</p>
+
+  <pre><code><span class="prompt">$</span> tree -a -L 1
+<span class="output">.
+├── .git
+├── .gitignore
+├── .env
+├── docs
+├── src
+└── README.md
+
+3 directories, 3 files</span></code></pre>
+  <p>Show hidden files too.</p>
+
+  <pre><code><span class="prompt">$</span> tree -f
+<span class="output">.
+├── ./docs/guide.md
+├── ./docs/notes.txt
+├── ./src/main.c
+├── ./src/utils.c
+├── ./Makefile
+└── ./README.md</span></code></pre>
+  <p>Show full relative paths for each file.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Pipe tree output to a file to document a project structure: <code>tree -I "node_modules" > project_structure.txt</code>. This is great for README files and onboarding documentation.</p>
+  </div>
+
+  <p><strong>Related commands:</strong> <code>ls -R</code>, <code>find</code>, <code>du</code></p>
+
+  <!-- ================================================================== -->
+  <!-- 11. basename and dirname                                            -->
+  <!-- ================================================================== -->
+  <h2 id="basename-dirname">11. basename and dirname &mdash; Extract Path Components</h2>
+
+  <p><code>basename</code> extracts the filename from a path. <code>dirname</code> extracts the directory part. These are essential for shell scripting when you need to work with parts of file paths.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>basename PATH [SUFFIX]
+dirname PATH</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Command</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-a</code></td><td>basename</td><td>Support multiple arguments</td></tr>
+      <tr><td><code>-s SUFFIX</code></td><td>basename</td><td>Remove a trailing suffix (extension)</td></tr>
+      <tr><td><code>-z</code></td><td>both</td><td>Separate output with NUL instead of newline</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> basename /home/user/documents/report.txt
+<span class="output">report.txt</span></code></pre>
+  <p>Extract just the filename from a full path.</p>
+
+  <pre><code><span class="prompt">$</span> dirname /home/user/documents/report.txt
+<span class="output">/home/user/documents</span></code></pre>
+  <p>Extract just the directory path.</p>
+
+  <pre><code><span class="prompt">$</span> basename /home/user/documents/report.txt .txt
+<span class="output">report</span></code></pre>
+  <p>Remove a suffix (extension) from the filename.</p>
+
+  <pre><code><span class="prompt">$</span> basename -s .tar.gz backup-2026-03-31.tar.gz
+<span class="output">backup-2026-03-31</span></code></pre>
+  <p>The <code>-s</code> flag explicitly specifies the suffix to remove.</p>
+
+  <pre><code><span class="prompt">$</span> basename -a /path/to/file1.txt /path/to/file2.txt /path/to/file3.txt
+<span class="output">file1.txt
+file2.txt
+file3.txt</span></code></pre>
+  <p>Process multiple paths at once.</p>
+
+  <pre><code><span class="prompt">$</span> dirname /var/log/syslog
+<span class="output">/var/log</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> dirname /home/user/
+<span class="output">/home</span></code></pre>
+  <p>Trailing slashes are handled correctly.</p>
+
+  <pre><code><span class="prompt">$</span> dirname filename.txt
+<span class="output">.</span></code></pre>
+  <p>When there is no directory component, dirname returns <code>.</code> (current directory).</p>
+
+  <h4>Practical scripting examples</h4>
+
+  <pre><code><span class="prompt">$</span> # Get the name of the current directory
+<span class="prompt">$</span> basename $(pwd)
+<span class="output">projects</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Convert file extensions in a script
+<span class="prompt">$</span> file="photo.jpeg"
+<span class="prompt">$</span> echo "$(basename "$file" .jpeg).png"
+<span class="output">photo.png</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Create an output file in the same directory as the input
+<span class="prompt">$</span> input="/data/raw/measurements.csv"
+<span class="prompt">$</span> output="$(dirname "$input")/$(basename "$input" .csv)_processed.csv"
+<span class="prompt">$</span> echo "$output"
+<span class="output">/data/raw/measurements_processed.csv</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Process all .log files: create .bak copies in the same directories
+<span class="prompt">$</span> for f in /var/log/*.log; do
+<span class="prompt">></span>   cp "$f" "$(dirname "$f")/$(basename "$f" .log).bak"
+<span class="prompt">></span> done</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: Shell parameter expansion alternative</div>
+    <p>In Bash, you can also use parameter expansion: <code>${path##*/}</code> works like <code>basename</code> and <code>${path%/*}</code> works like <code>dirname</code>. These are faster in scripts because they do not fork a new process, but they are less readable.</p>
+  </div>
+
+  <p><strong>Related commands:</strong> <code>realpath</code>, <code>readlink</code>, <code>pwd</code></p>
+
+  <!-- ================================================================== -->
+  <!-- EXERCISES                                                           -->
+  <!-- ================================================================== -->
+  <h2 id="exercises">Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Project Setup</div>
+    <p>Using only the commands from this chapter, create the following project structure in your home directory:</p>
+    <pre><code><span class="output">webapp/
+├── public/
+│   ├── css/
+│   ├── js/
+│   └── images/
+├── src/
+│   ├── controllers/
+│   ├── models/
+│   └── views/
+├── tests/
+├── config/
+├── README.md
+└── .gitignore</span></code></pre>
+    <p><strong>Hints:</strong> Use <code>mkdir -p</code> with brace expansion and <code>touch</code> for the files.</p>
+    <details>
+      <summary>Show solution</summary>
+      <pre><code><span class="prompt">$</span> mkdir -p webapp/{public/{css,js,images},src/{controllers,models,views},tests,config}
+<span class="prompt">$</span> touch webapp/README.md webapp/.gitignore
+<span class="prompt">$</span> tree -a webapp
+<span class="output">webapp
+├── .gitignore
+├── config
+├── public
+│   ├── css
+│   ├── images
+│   └── js
+├── README.md
+├── src
+│   ├── controllers
+│   ├── models
+│   └── views
+└── tests
+
+10 directories, 2 files</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Safe File Organization</div>
+    <p>You have these files in a directory: <code>report_v1.txt</code>, <code>report_v2.txt</code>, <code>report_final.txt</code>, <code>notes.txt</code>, <code>todo.txt</code>. Perform these tasks:</p>
+    <ol>
+      <li>Create directories: <code>reports/</code> and <code>misc/</code></li>
+      <li>Copy all report files into <code>reports/</code> using interactive mode</li>
+      <li>Move <code>notes.txt</code> and <code>todo.txt</code> into <code>misc/</code></li>
+      <li>Rename <code>report_final.txt</code> to <code>report_submitted.txt</code></li>
+      <li>Create a symbolic link called <code>latest_report</code> pointing to <code>reports/report_submitted.txt</code></li>
+      <li>Verify the link works with <code>ls -l</code> and <code>file</code></li>
+    </ol>
+    <details>
+      <summary>Show solution</summary>
+      <pre><code><span class="prompt">$</span> mkdir reports misc
+<span class="prompt">$</span> cp -iv report_*.txt reports/
+<span class="output">'report_v1.txt' -> 'reports/report_v1.txt'
+'report_v2.txt' -> 'reports/report_v2.txt'
+'report_final.txt' -> 'reports/report_final.txt'</span>
+<span class="prompt">$</span> mv notes.txt todo.txt misc/
+<span class="prompt">$</span> mv reports/report_final.txt reports/report_submitted.txt
+<span class="prompt">$</span> ln -s reports/report_submitted.txt latest_report
+<span class="prompt">$</span> ls -l latest_report
+<span class="output">lrwxrwxrwx 1 user user 31 Mar 31 11:00 latest_report -> reports/report_submitted.txt</span>
+<span class="prompt">$</span> file latest_report
+<span class="output">latest_report: symbolic link to reports/report_submitted.txt</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Backup and Cleanup Script</div>
+    <p>Write a series of commands that:</p>
+    <ol>
+      <li>Create a backup directory named <code>backup_YYYY-MM-DD</code> using today's date</li>
+      <li>Copy all <code>.conf</code> files from <code>/etc/</code> into the backup directory (use <code>-a</code> to preserve attributes)</li>
+      <li>Use <code>tree</code> to verify the structure</li>
+      <li>Use <code>stat</code> to check that the timestamps were preserved</li>
+      <li>Use <code>file</code> to identify the types of the copied files</li>
+    </ol>
+    <details>
+      <summary>Show solution</summary>
+      <pre><code><span class="prompt">$</span> mkdir -p "backup_$(date +%Y-%m-%d)"
+<span class="prompt">$</span> sudo cp -av /etc/*.conf "backup_$(date +%Y-%m-%d)/"
+<span class="output">'/etc/sysctl.conf' -> 'backup_2026-03-31/sysctl.conf'
+'/etc/resolv.conf' -> 'backup_2026-03-31/resolv.conf'
+...</span>
+<span class="prompt">$</span> tree "backup_$(date +%Y-%m-%d)"
+<span class="output">backup_2026-03-31
+├── resolv.conf
+├── sysctl.conf
+└── ... (other .conf files)
+
+0 directories, N files</span>
+<span class="prompt">$</span> stat "backup_$(date +%Y-%m-%d)/resolv.conf"
+<span class="prompt">$</span> file "backup_$(date +%Y-%m-%d)"/*
+<span class="output">backup_2026-03-31/resolv.conf: ASCII text
+backup_2026-03-31/sysctl.conf: ASCII text
+...</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 4: Understanding Links</div>
+    <p>Perform the following and explain the output at each step:</p>
+    <ol>
+      <li>Create a file: <code>echo "important data" > original.txt</code></li>
+      <li>Create a hard link: <code>ln original.txt hardlink.txt</code></li>
+      <li>Create a soft link: <code>ln -s original.txt softlink.txt</code></li>
+      <li>Run <code>ls -li</code> and note the inode numbers and link counts</li>
+      <li>Delete <code>original.txt</code></li>
+      <li>Try <code>cat hardlink.txt</code> and <code>cat softlink.txt</code> &mdash; which one still works and why?</li>
+    </ol>
+    <details>
+      <summary>Show solution</summary>
+      <pre><code><span class="prompt">$</span> echo "important data" > original.txt
+<span class="prompt">$</span> ln original.txt hardlink.txt
+<span class="prompt">$</span> ln -s original.txt softlink.txt
+<span class="prompt">$</span> ls -li
+<span class="output">284710 -rw-r--r-- 2 user user 15 Mar 31 11:10 hardlink.txt
+284710 -rw-r--r-- 2 user user 15 Mar 31 11:10 original.txt
+284720 lrwxrwxrwx 1 user user 12 Mar 31 11:10 softlink.txt -> original.txt</span>
+<span class="prompt">$</span> rm original.txt
+<span class="prompt">$</span> cat hardlink.txt
+<span class="output">important data</span>
+<span class="prompt">$</span> cat softlink.txt
+<span class="output">cat: softlink.txt: No such file or directory</span></code></pre>
+      <p><strong>Explanation:</strong> The hard link shares the same inode (284710) as the original, so deleting one name does not affect the data &mdash; it is still reachable via the other name. The soft link stored the text path "original.txt", and since that name no longer exists, the soft link is broken.</p>
+    </details>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- QUIZZES                                                             -->
+  <!-- ================================================================== -->
+  <h2 id="quizzes">Quizzes</h2>
+
+  <div class="quiz">
+    <div class="quiz__question">
+      <p><strong>Quiz 1:</strong> You want to copy a directory called <code>photos/</code> and all its contents to <code>/backup/photos/</code>, preserving all permissions and timestamps. Which command is correct?</p>
+      <ol type="A">
+        <li><code>cp photos/ /backup/photos/</code></li>
+        <li><code>cp -r photos/ /backup/photos/</code></li>
+        <li><code>cp -a photos/ /backup/photos/</code></li>
+        <li><code>mv photos/ /backup/photos/</code></li>
+      </ol>
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+    <div class="quiz__answer" style="display:none">
+      <p><strong>C</strong> is the best answer. <code>cp -a</code> copies recursively AND preserves permissions, timestamps, ownership, and symbolic links. Option A fails because <code>cp</code> refuses to copy directories without <code>-r</code>. Option B copies recursively but does not preserve all metadata. Option D would move (not copy) the directory, so the original would be gone.</p>
+    </div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">
+      <p><strong>Quiz 2:</strong> You create a file and a symbolic link:</p>
+      <pre><code>echo "data" > file.txt
+ln -s file.txt link.txt</code></pre>
+      <p>Then you delete <code>file.txt</code> and run <code>ls -l link.txt</code>. What happens?</p>
+      <ol type="A">
+        <li><code>link.txt</code> is automatically deleted too</li>
+        <li><code>link.txt</code> still exists but points to nothing (dangling link)</li>
+        <li><code>link.txt</code> still works because it has a copy of the data</li>
+        <li>An error occurs when creating the link</li>
+      </ol>
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+    <div class="quiz__answer" style="display:none">
+      <p><strong>B</strong> is correct. A symbolic link is just a pointer that stores the path "file.txt". Deleting the target does not delete the link. The link becomes "dangling" &mdash; it points to a path that no longer exists. Running <code>ls -l</code> will still show the link, but attempting to read it with <code>cat</code> will give a "No such file or directory" error.</p>
+    </div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">
+      <p><strong>Quiz 3:</strong> What is the difference between <code>rm file.txt</code> and <code>rmdir file.txt</code>?</p>
+      <ol type="A">
+        <li>They do the same thing</li>
+        <li><code>rm</code> deletes files; <code>rmdir</code> only deletes empty directories</li>
+        <li><code>rmdir</code> is safer because it moves files to the trash</li>
+        <li><code>rm</code> only works on directories; <code>rmdir</code> only works on files</li>
+      </ol>
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+    <div class="quiz__answer" style="display:none">
+      <p><strong>B</strong> is correct. <code>rm</code> deletes files (and with <code>-r</code>, directories). <code>rmdir</code> only removes directories, and only if they are empty. Neither command moves anything to a trash bin &mdash; deletion is permanent in both cases.</p>
+    </div>
+  </div>
+
+  <!-- ================================================================== -->
+  <!-- Chapter summary                                                     -->
+  <!-- ================================================================== -->
+  <h2 id="summary">Chapter Summary</h2>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Purpose</th><th>Key Flags</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>touch</code></td><td>Create empty files, update timestamps</td><td><code>-t</code>, <code>-d</code>, <code>-r</code>, <code>-c</code></td></tr>
+      <tr><td><code>mkdir</code></td><td>Create directories</td><td><code>-p</code>, <code>-v</code>, <code>-m</code></td></tr>
+      <tr><td><code>rmdir</code></td><td>Remove empty directories</td><td><code>-p</code>, <code>-v</code></td></tr>
+      <tr><td><code>cp</code></td><td>Copy files and directories</td><td><code>-r</code>, <code>-i</code>, <code>-v</code>, <code>-u</code>, <code>-a</code></td></tr>
+      <tr><td><code>mv</code></td><td>Move and rename files</td><td><code>-i</code>, <code>-v</code>, <code>-n</code></td></tr>
+      <tr><td><code>rm</code></td><td>Remove files and directories</td><td><code>-r</code>, <code>-f</code>, <code>-i</code>, <code>-v</code></td></tr>
+      <tr><td><code>ln</code></td><td>Create hard and symbolic links</td><td><code>-s</code>, <code>-f</code>, <code>-v</code></td></tr>
+      <tr><td><code>file</code></td><td>Identify file types</td><td><code>-b</code>, <code>-i</code></td></tr>
+      <tr><td><code>stat</code></td><td>Detailed file/filesystem information</td><td><code>-c</code>, <code>-f</code></td></tr>
+      <tr><td><code>tree</code></td><td>Visual directory structure</td><td><code>-L</code>, <code>-d</code>, <code>-I</code>, <code>-h</code></td></tr>
+      <tr><td><code>basename</code></td><td>Extract filename from path</td><td><code>-s</code>, <code>-a</code></td></tr>
+      <tr><td><code>dirname</code></td><td>Extract directory from path</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ================================================================== -->
+  <!-- Navigation                                                          -->
+  <!-- ================================================================== -->
+  <div class="chapter-nav">
+    <a class="chapter-nav__prev" href="../02-terminal-basics/index.html">&larr; Chapter 2: Terminal Basics</a>
+    <a class="chapter-nav__next" href="../04-viewing-editing/index.html">Chapter 4: Viewing &amp; Editing &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

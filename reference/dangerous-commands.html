@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dangerous Commands and How to Stay Safe — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../pages/06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../pages/09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../pages/10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../pages/13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../pages/15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="command-index.html">Command Index</a>
+    <a class="sidebar__link" href="glossary.html">Glossary</a>
+    <a class="sidebar__link" href="top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link active" href="dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="exercises.html">Exercises</a>
+    <a class="sidebar__link" href="daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <h1>Dangerous Commands and How to Stay Safe</h1>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Critical Warning</div>
+    <p>The commands on this page can <strong>permanently destroy data, corrupt your system, or make it completely unbootable</strong>. They are listed here so that you can recognize them and avoid running them by accident. <strong>Never run any of these commands on a real system unless you fully understand the consequences.</strong></p>
+  </div>
+
+  <p>Linux gives you enormous power. Unlike Windows or macOS, there are very few guardrails preventing you from destroying your own system. The root user (and anyone using <code>sudo</code>) can do absolutely anything, including wiping the entire filesystem in a single command. This page documents the most dangerous commands and patterns, explains exactly what they do, and provides safe alternatives and protective habits.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Why learn dangerous commands?</div>
+    <p>You are not learning these to use them. You are learning these to <strong>recognize</strong> them. Malicious users sometimes post these commands in forums disguised as "helpful advice." Knowing what they do will keep you safe.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>1. rm -rf / and rm -rf *</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">EXTREME DANGER: Total Data Destruction</div>
+    <p>This is the single most destructive command in Linux. It permanently deletes everything on your system with no recovery possible.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p>The <code>rm</code> command removes files. The flags change its behavior dramatically:</p>
+  <ul>
+    <li><code>-r</code> (recursive) &mdash; delete directories and all their contents, descending into every subdirectory</li>
+    <li><code>-f</code> (force) &mdash; never prompt for confirmation, ignore non-existent files, override write protection</li>
+    <li><code>/</code> &mdash; the root of the entire filesystem (everything on your computer)</li>
+  </ul>
+
+  <div class="code-block"><pre><span class="prompt"># DO NOT RUN THIS - Deletes EVERYTHING on the system</span>
+<span class="prompt">$</span> sudo rm -rf /
+
+<span class="prompt"># Also extremely dangerous - deletes everything in current directory</span>
+<span class="prompt">$</span> rm -rf *
+
+<span class="prompt"># Hidden variation with space before slash - deletes current dir AND root</span>
+<span class="prompt">$</span> rm -rf / tmp/junk</pre></div>
+
+  <h3>Why it is catastrophic</h3>
+  <p>This command deletes every file, every program, the kernel, the bootloader, all user data, all configurations &mdash; everything. The system will crash partway through as essential files are removed. Recovery requires a full reinstall from backup. If you have no backup, your data is gone forever.</p>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Watch out for accidental spaces</div>
+    <p><code>rm -rf / tmp/junk</code> (with a space after <code>/</code>) is very different from <code>rm -rf /tmp/junk</code>. The first command deletes the root filesystem AND a directory called <code>tmp/junk</code>. One misplaced space can destroy your system.</p>
+  </div>
+
+  <h3>Safe alternatives and protection</h3>
+  <ul>
+    <li>Modern Linux distributions include the <code>--preserve-root</code> flag by default, which prevents <code>rm -rf /</code>. However, <code>--no-preserve-root</code> overrides it, and <code>rm -rf /*</code> bypasses it entirely.</li>
+    <li>Always use <code>rm -ri</code> (interactive) to confirm each deletion.</li>
+    <li>Install <code>trash-cli</code> and use <code>trash-put</code> instead of <code>rm</code>. Files go to a trash folder you can recover from.</li>
+    <li>Use <code>ls</code> first to see what would be deleted before running <code>rm</code>.</li>
+    <li>Set an alias: <code>alias rm='rm -i'</code> to always prompt for confirmation.</li>
+  </ul>
+
+  <div class="code-block"><pre><span class="prompt"># SAFE: Check what you are about to delete first</span>
+<span class="prompt">$</span> ls /tmp/junk
+<span class="output">file1.txt  file2.log  old_data/</span>
+
+<span class="prompt"># SAFE: Use interactive mode</span>
+<span class="prompt">$</span> rm -ri /tmp/junk
+<span class="output">rm: descend into '/tmp/junk'? y</span>
+<span class="output">rm: remove regular file '/tmp/junk/file1.txt'? y</span>
+
+<span class="prompt"># SAFE: Use trash-cli instead</span>
+<span class="prompt">$</span> trash-put /tmp/junk
+<span class="prompt">$</span> trash-list          # see what is in the trash
+<span class="prompt">$</span> trash-restore       # recover if needed</pre></div>
+
+  <!-- ================================================================ -->
+  <h2>2. chmod -R 777 /</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: Destroys All File Security</div>
+    <p>This command makes every file on the system readable, writable, and executable by every user. It completely destroys the Linux permission model.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p><code>chmod</code> changes file permissions. <code>777</code> means read (4) + write (2) + execute (1) for the owner, the group, and everyone else. The <code>-R</code> flag applies this recursively to every file and directory starting from <code>/</code> (the entire system).</p>
+
+  <div class="code-block"><pre><span class="prompt"># DO NOT RUN THIS - Destroys all security on the system</span>
+<span class="prompt">$</span> sudo chmod -R 777 /</pre></div>
+
+  <h3>Why it is dangerous</h3>
+  <ul>
+    <li>Any user can read, modify, or delete any file, including <code>/etc/passwd</code>, <code>/etc/shadow</code>, system binaries, and configuration files.</li>
+    <li>SSH will refuse to work because it requires strict permissions on key files.</li>
+    <li>sudo may stop working because <code>/etc/sudoers</code> must have specific permissions.</li>
+    <li>Many services (Apache, MySQL, SSH) will refuse to start if their config files have world-writable permissions.</li>
+    <li>The system becomes completely insecure. Any user can install malware, read passwords, or take over the system.</li>
+    <li>Reversing this is nearly impossible because you need to know the correct permissions for every file on the system.</li>
+  </ul>
+
+  <h3>Safe alternatives</h3>
+
+  <div class="code-block"><pre><span class="prompt"># SAFE: Only change permissions on a specific directory you own</span>
+<span class="prompt">$</span> chmod -R 755 ~/my-project/
+
+<span class="prompt"># SAFE: Use more restrictive permissions</span>
+<span class="prompt">$</span> chmod 644 myfile.txt     # Owner read/write, others read only
+<span class="prompt">$</span> chmod 755 myscript.sh    # Owner full, others read/execute
+
+<span class="prompt"># SAFE: Only change what you need</span>
+<span class="prompt">$</span> chmod u+x script.sh      # Add execute only for the owner</pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Rule of thumb</div>
+    <p>Never use <code>777</code> unless you are doing temporary testing on throwaway files. For web servers, <code>755</code> for directories and <code>644</code> for files is the standard. Always apply permissions to specific paths, never to <code>/</code>.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>3. dd if=/dev/zero of=/dev/sda</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">EXTREME DANGER: Wipes Entire Disk</div>
+    <p>This command overwrites your entire hard drive with zeros, destroying the partition table, bootloader, operating system, and all data.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p><code>dd</code> is a low-level tool for copying and converting data. It reads from an input file (<code>if=</code>) and writes to an output file (<code>of=</code>). <code>/dev/zero</code> is a special device that produces an infinite stream of zero bytes. <code>/dev/sda</code> is typically your primary hard drive.</p>
+
+  <div class="code-block"><pre><span class="prompt"># DO NOT RUN THIS - Overwrites the entire disk with zeros</span>
+<span class="prompt">$</span> sudo dd if=/dev/zero of=/dev/sda
+
+<span class="prompt"># Also destructive - writes random data to disk</span>
+<span class="prompt">$</span> sudo dd if=/dev/urandom of=/dev/sda</pre></div>
+
+  <h3>Why it is dangerous</h3>
+  <ul>
+    <li>Directly writes to the raw disk device, bypassing the filesystem entirely.</li>
+    <li>Destroys the partition table, making recovery tools much less effective.</li>
+    <li>Overwrites the bootloader (GRUB), so the system cannot start.</li>
+    <li>There is no confirmation prompt. The moment you press Enter, data is being overwritten.</li>
+    <li>Data recovery after a <code>dd</code> overwrite with zeros is essentially impossible.</li>
+  </ul>
+
+  <h3>When dd is legitimate</h3>
+  <p><code>dd</code> is a valid tool. It is commonly used to create bootable USB drives and disk images. The danger is writing to the wrong device.</p>
+
+  <div class="code-block"><pre><span class="prompt"># SAFE: Always triple-check the output device</span>
+<span class="prompt">$</span> lsblk                              # List all block devices first
+<span class="output">NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT</span>
+<span class="output">sda      8:0    0 500.0G  0 disk</span>
+<span class="output">├─sda1   8:1    0 499.0G  0 part /</span>
+<span class="output">└─sda2   8:2    0   1.0G  0 part [SWAP]</span>
+<span class="output">sdb      8:16   1  14.9G  0 disk        &lt;-- USB drive</span>
+<span class="output">└─sdb1   8:17   1  14.9G  0 part /media/usb</span>
+
+<span class="prompt"># SAFE: Write to the USB drive (sdb), NOT the system disk (sda)</span>
+<span class="prompt">$</span> sudo dd if=ubuntu.iso of=/dev/sdb bs=4M status=progress
+
+<span class="prompt"># SAFE: Use the status=progress flag to see what is happening</span>
+<span class="prompt">$</span> sudo dd if=backup.img of=/dev/sdb bs=4M status=progress</pre></div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Always run lsblk first</div>
+    <p>Before any <code>dd</code> command, run <code>lsblk</code> to identify your devices. Double-check the output device (<code>of=</code>) is the correct target. One wrong letter (<code>sda</code> instead of <code>sdb</code>) will wipe your system disk.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>4. :(){ :|:& };: (Fork Bomb)</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: System Freeze / Denial of Service</div>
+    <p>This command creates processes that exponentially replicate, consuming all system resources until the system freezes or crashes.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p>This cryptic string is a bash function that calls itself twice, with each copy running in the background. Let us break it down:</p>
+
+  <div class="code-block"><pre><span class="prompt"># DO NOT RUN THIS - Fork bomb explained</span>
+<span class="prompt"># :(){ :|:& };:</span>
+<span class="prompt">#</span>
+<span class="prompt"># :()      - Define a function named ":"</span>
+<span class="prompt"># {        - Start function body</span>
+<span class="prompt">#   :|:    - Call itself and pipe to another copy of itself</span>
+<span class="prompt">#   &amp;      - Run in the background</span>
+<span class="prompt"># };       - End function definition</span>
+<span class="prompt"># :        - Call the function to start the chain</span>
+
+<span class="prompt"># More readable version (still DO NOT RUN):</span>
+bomb() {
+  bomb | bomb &amp;
+};
+bomb</pre></div>
+
+  <h3>Why it is dangerous</h3>
+  <ul>
+    <li>Each function call creates two new processes, which each create two more, and so on exponentially: 1, 2, 4, 8, 16, 32, 64...</li>
+    <li>Within seconds, the system runs out of process IDs and memory.</li>
+    <li>The system becomes completely unresponsive. You cannot open a terminal, run <code>kill</code>, or even move the mouse.</li>
+    <li>Usually requires a hard reboot (holding the power button).</li>
+    <li>Does not cause permanent damage, but any unsaved work is lost.</li>
+  </ul>
+
+  <h3>How to protect yourself</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Check current process limits</span>
+<span class="prompt">$</span> ulimit -u
+<span class="output">63451</span>
+
+<span class="prompt"># Set a per-user process limit (add to /etc/security/limits.conf)</span>
+<span class="prompt"># This limits each user to 500 processes</span>
+<span class="prompt">$</span> sudo nano /etc/security/limits.conf
+<span class="output">*    hard    nproc    500</span>
+<span class="output">*    soft    nproc    500</span>
+
+<span class="prompt"># Temporary limit for current session</span>
+<span class="prompt">$</span> ulimit -u 500</pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Be suspicious of cryptic one-liners</div>
+    <p>If someone in a forum suggests a command that looks like random punctuation, do not run it. Look it up first. Fork bombs are often disguised in obfuscated forms.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>5. mkfs.ext4 /dev/sda</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">EXTREME DANGER: Formats Entire Disk</div>
+    <p>This command creates a new filesystem on the specified device, destroying all existing data, partitions, and the operating system.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p><code>mkfs</code> (make filesystem) creates a new, empty filesystem on a device. Running it on <code>/dev/sda</code> (your primary disk) destroys the partition table and all data, replacing it with a blank ext4 filesystem.</p>
+
+  <div class="code-block"><pre><span class="prompt"># DO NOT RUN THIS - Formats your primary disk</span>
+<span class="prompt">$</span> sudo mkfs.ext4 /dev/sda
+
+<span class="prompt"># Also dangerous variants:</span>
+<span class="prompt">$</span> sudo mkfs.xfs /dev/sda
+<span class="prompt">$</span> sudo mkfs.btrfs /dev/sda
+<span class="prompt">$</span> sudo mkfs.vfat /dev/sda1</pre></div>
+
+  <h3>Why it is dangerous</h3>
+  <ul>
+    <li>Erases all data on the target device or partition.</li>
+    <li>If run on the system disk, the operating system is destroyed.</li>
+    <li>The original partition table is overwritten.</li>
+    <li>Some data recovery may be possible with specialized tools, but it is not guaranteed.</li>
+  </ul>
+
+  <h3>When mkfs is legitimate</h3>
+
+  <div class="code-block"><pre><span class="prompt"># SAFE: Format a NEW, EMPTY USB drive (after confirming device with lsblk)</span>
+<span class="prompt">$</span> lsblk                               # Verify which device is the USB
+<span class="prompt">$</span> sudo mkfs.ext4 /dev/sdb1             # Format a specific partition on USB
+
+<span class="prompt"># SAFE: Always work with partitions (sdb1), not whole devices (sdb)</span>
+<span class="prompt"># SAFE: Always run lsblk and double-check before formatting</span></pre></div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">The golden rule of mkfs</div>
+    <p>Always run <code>lsblk</code> and <code>mount</code> before using <code>mkfs</code>. Never format a mounted device. Never format a device without verifying it is the correct target. When in doubt, do not format.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>6. > important_file (Truncation)</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: Silently Empties Files</div>
+    <p>The redirect operator <code>&gt;</code> by itself truncates a file to zero bytes. The data is gone instantly and silently.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p>In bash, <code>&gt; filename</code> opens the file for writing, truncating it to zero length. If the file contained 10 GB of important data, it now contains nothing. There is no confirmation, no warning, and no undo.</p>
+
+  <div class="code-block"><pre><span class="prompt"># DO NOT RUN THIS on important files</span>
+<span class="prompt">$</span> > /etc/resolv.conf       # DNS configuration gone
+<span class="prompt">$</span> > ~/.bashrc               # Shell configuration gone
+<span class="prompt">$</span> > /var/log/syslog         # All logs gone
+
+<span class="prompt"># How it happens accidentally:</span>
+<span class="prompt"># You meant to APPEND to a log file:</span>
+<span class="prompt">$</span> echo "entry" >> logfile.txt    # Correct: appends
+<span class="prompt"># But you typed only one &gt;:</span>
+<span class="prompt">$</span> echo "entry" > logfile.txt     # WRONG: overwrites entire file!</pre></div>
+
+  <h3>Why it is dangerous</h3>
+  <ul>
+    <li>The operation is instant and silent. No error message, no confirmation.</li>
+    <li>The original file contents are irrecoverable (unlike <code>rm</code>, there is no "trash" to check).</li>
+    <li>Can happen easily by typing <code>&gt;</code> instead of <code>&gt;&gt;</code>.</li>
+    <li>If done on a critical system file, services may break immediately.</li>
+  </ul>
+
+  <h3>Safe alternatives</h3>
+
+  <div class="code-block"><pre><span class="prompt"># SAFE: Always use >> to append</span>
+<span class="prompt">$</span> echo "new log entry" >> logfile.txt
+
+<span class="prompt"># SAFE: Use tee to append (also shows output on screen)</span>
+<span class="prompt">$</span> echo "new entry" | tee -a logfile.txt
+
+<span class="prompt"># SAFE: Make a backup before overwriting</span>
+<span class="prompt">$</span> cp important_file important_file.bak
+<span class="prompt">$</span> some_command > important_file
+
+<span class="prompt"># SAFE: Use noclobber to prevent accidental overwrites</span>
+<span class="prompt">$</span> set -o noclobber
+<span class="prompt">$</span> echo "test" > existing_file
+<span class="output">bash: existing_file: cannot overwrite existing file</span>
+
+<span class="prompt"># To override noclobber when you really mean it:</span>
+<span class="prompt">$</span> echo "test" >| existing_file</pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Enable noclobber in your .bashrc</div>
+    <p>Add <code>set -o noclobber</code> to your <code>~/.bashrc</code> file. This prevents <code>&gt;</code> from overwriting any existing file. You can still force an overwrite with <code>&gt;|</code> when you truly intend to.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>7. wget url -O- | sh (Running Untrusted Scripts)</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: Executing Unknown Code</div>
+    <p>Piping a download directly into a shell executes whatever code is at that URL with no review, no confirmation, and potentially with root privileges.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p>This pattern downloads a script from the internet and immediately executes it in your shell. You have no chance to inspect what the script does before it runs.</p>
+
+  <div class="code-block"><pre><span class="prompt"># RISKY patterns - downloading and executing in one step</span>
+<span class="prompt">$</span> wget http://example.com/setup.sh -O- | sh
+<span class="prompt">$</span> curl -s http://example.com/install.sh | bash
+<span class="prompt">$</span> curl http://example.com/script.sh | sudo bash    # Even worse with sudo!</pre></div>
+
+  <h3>Why it is dangerous</h3>
+  <ul>
+    <li>You are running code you have never seen. It could do anything: install malware, create backdoors, steal SSH keys, mine cryptocurrency, or delete files.</li>
+    <li>Adding <code>sudo</code> gives the unknown script root access to your entire system.</li>
+    <li>The URL could change at any time. A script that was safe yesterday might be malicious today.</li>
+    <li>Network errors could cause partial downloads, executing an incomplete (and unpredictable) script.</li>
+    <li>Some legitimate software uses this installation method (Docker, Node Version Manager), but you should still verify the source.</li>
+  </ul>
+
+  <h3>Safe alternatives</h3>
+
+  <div class="code-block"><pre><span class="prompt"># SAFE: Download first, review, then execute</span>
+<span class="prompt">$</span> wget http://example.com/setup.sh -O setup.sh
+<span class="prompt">$</span> cat setup.sh                  # Read the entire script
+<span class="prompt">$</span> less setup.sh                 # Or use less for long scripts
+<span class="prompt">$</span> bash setup.sh                 # Run only after reviewing
+
+<span class="prompt"># SAFE: Verify checksums if provided</span>
+<span class="prompt">$</span> wget http://example.com/setup.sh
+<span class="prompt">$</span> sha256sum setup.sh
+<span class="output">a3f5b9c... setup.sh</span>
+<span class="prompt"># Compare the hash with the one published on the official site</span>
+
+<span class="prompt"># SAFE: Use your distribution's package manager instead</span>
+<span class="prompt">$</span> sudo apt install docker.io     # Better than curl | bash</pre></div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Rule: Never pipe to sh with sudo</div>
+    <p>If any installation instructions tell you to run <code>curl ... | sudo bash</code>, stop and ask yourself: do I trust this source completely? Is there a package manager alternative? Can I download and review the script first?</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>8. mv file /dev/null</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: File Destroyed Permanently</div>
+    <p>Moving a file to <code>/dev/null</code> does not "discard the output" like redirecting to it. It destroys the file and replaces <code>/dev/null</code> with it, potentially breaking the system.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p><code>/dev/null</code> is a special device file that discards everything written to it. However, <code>mv</code> does not "write" to a destination &mdash; it replaces it. So <code>mv file /dev/null</code> removes the original file and replaces the <code>/dev/null</code> device with a regular file.</p>
+
+  <div class="code-block"><pre><span class="prompt"># DO NOT RUN THIS</span>
+<span class="prompt">$</span> mv important_document.pdf /dev/null
+<span class="prompt"># Result: important_document.pdf is gone, AND /dev/null is broken</span>
+
+<span class="prompt"># This breaks /dev/null because it is no longer a special device file.</span>
+<span class="prompt"># Many programs depend on /dev/null working correctly.</span></pre></div>
+
+  <h3>Why it is dangerous</h3>
+  <ul>
+    <li>Your original file is gone permanently (not in any trash).</li>
+    <li>The <code>/dev/null</code> device node is destroyed and replaced with a regular file.</li>
+    <li>Programs that depend on <code>/dev/null</code> may malfunction until it is recreated.</li>
+    <li>Beginners sometimes think <code>mv file /dev/null</code> is the same as <code>command > /dev/null</code>, but they are completely different operations.</li>
+  </ul>
+
+  <h3>Safe alternatives</h3>
+
+  <div class="code-block"><pre><span class="prompt"># SAFE: Use rm (or trash-put) to delete files</span>
+<span class="prompt">$</span> rm unwanted_file.txt
+<span class="prompt">$</span> trash-put unwanted_file.txt    # Even safer - can recover
+
+<span class="prompt"># SAFE: Redirect output to /dev/null (this is fine)</span>
+<span class="prompt">$</span> command > /dev/null 2>&amp;1       # Discard stdout and stderr
+
+<span class="prompt"># If /dev/null was accidentally destroyed, recreate it:</span>
+<span class="prompt">$</span> sudo rm /dev/null
+<span class="prompt">$</span> sudo mknod /dev/null c 1 3
+<span class="prompt">$</span> sudo chmod 666 /dev/null</pre></div>
+
+  <!-- ================================================================ -->
+  <h2>9. Redirect Mistakes: > vs >></h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: Data Loss from Wrong Redirect</div>
+    <p>Using <code>&gt;</code> when you meant <code>&gt;&gt;</code> overwrites the file instead of appending to it. All previous contents are lost.</p>
+  </div>
+
+  <h3>What it does</h3>
+  <p>Bash has two redirect operators for writing to files:</p>
+  <ul>
+    <li><code>&gt;</code> &mdash; <strong>Overwrite</strong>: truncates the file to zero, then writes the new content.</li>
+    <li><code>&gt;&gt;</code> &mdash; <strong>Append</strong>: keeps all existing content and adds new content at the end.</li>
+  </ul>
+
+  <div class="code-block"><pre><span class="prompt"># Scenario: You have a log file with months of data</span>
+<span class="prompt">$</span> wc -l application.log
+<span class="output">847291 application.log</span>
+
+<span class="prompt"># You meant to append a new entry:</span>
+<span class="prompt">$</span> echo "2025-03-31 Maintenance complete" >> application.log   # CORRECT
+
+<span class="prompt"># But you accidentally typed one > instead of >>:</span>
+<span class="prompt">$</span> echo "2025-03-31 Maintenance complete" > application.log    # WRONG!
+
+<span class="prompt">$</span> wc -l application.log
+<span class="output">1 application.log</span>
+<span class="prompt"># 847,291 lines of log data are gone. Only the one new line remains.</span></pre></div>
+
+  <h3>Common real-world accidents</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Accident 1: Overwriting /etc/hosts instead of adding an entry</span>
+<span class="prompt">$</span> echo "192.168.1.100 myserver" > /etc/hosts     # All DNS entries gone!
+
+<span class="prompt"># Accident 2: Destroying a config file</span>
+<span class="prompt">$</span> echo "new_setting=true" > ~/.bashrc             # All aliases, paths, config gone!
+
+<span class="prompt"># Accident 3: Cron job that overwrites instead of appending logs</span>
+<span class="prompt"># In crontab:</span>
+<span class="prompt"># 0 * * * * /usr/local/bin/backup.sh > /var/log/backup.log</span>
+<span class="prompt"># This overwrites the log every hour. Only the last run is kept.</span></pre></div>
+
+  <h3>How to protect yourself</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Protection 1: Enable noclobber</span>
+<span class="prompt">$</span> set -o noclobber
+<span class="prompt">$</span> echo "test" > existing_file.txt
+<span class="output">bash: existing_file.txt: cannot overwrite existing file</span>
+
+<span class="prompt"># Protection 2: Use tee -a for appending (visual confirmation)</span>
+<span class="prompt">$</span> echo "new entry" | tee -a logfile.txt
+<span class="output">new entry</span>
+
+<span class="prompt"># Protection 3: Back up before modifying</span>
+<span class="prompt">$</span> cp /etc/hosts /etc/hosts.bak
+<span class="prompt">$</span> echo "192.168.1.100 myserver" >> /etc/hosts
+
+<span class="prompt"># Protection 4: Add noclobber to .bashrc permanently</span>
+<span class="prompt">$</span> echo 'set -o noclobber' >> ~/.bashrc</pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Build the habit</div>
+    <p>When you type a <code>&gt;</code>, stop and ask yourself: "Do I want to overwrite or append?" Make this a conscious check every time. It takes one second and can save hours of recovery work.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Safety Checklist</h2>
+  <!-- ================================================================ -->
+
+  <div class="concept-box">
+    <h3>Before Running Any Destructive Command</h3>
+    <p>Follow this checklist every time you run a command that modifies or deletes files, especially with <code>sudo</code>:</p>
+
+    <ol>
+      <li><strong>Check your current directory with <code>pwd</code></strong>
+        <p>Make sure you are where you think you are. Running <code>rm -rf *</code> in <code>/</code> is very different from running it in <code>/tmp/test</code>.</p>
+        <div class="code-block"><pre><span class="prompt">$</span> pwd
+<span class="output">/home/user/projects/old-project</span>
+<span class="prompt"># Good - I am in the right place</span></pre></div>
+      </li>
+
+      <li><strong>Use <code>-i</code> (interactive) flags</strong>
+        <p>Many commands support <code>-i</code> to prompt for confirmation before each action.</p>
+        <div class="code-block"><pre><span class="prompt">$</span> rm -ri old-directory/         # Confirm each file deletion
+<span class="prompt">$</span> cp -i source.txt dest.txt     # Confirm before overwriting
+<span class="prompt">$</span> mv -i file.txt /other/path/   # Confirm before overwriting</pre></div>
+      </li>
+
+      <li><strong>Preview before executing</strong>
+        <p>Use <code>ls</code>, <code>find</code>, or <code>echo</code> to see what would be affected.</p>
+        <div class="code-block"><pre><span class="prompt"># See what rm would delete</span>
+<span class="prompt">$</span> ls *.log
+<span class="output">app.log  error.log  debug.log</span>
+<span class="prompt"># Okay, those are the ones I want to remove</span>
+<span class="prompt">$</span> rm *.log
+
+<span class="prompt"># Preview find results before deleting</span>
+<span class="prompt">$</span> find /tmp -name "*.tmp" -mtime +7
+<span class="output">/tmp/session_abc123.tmp</span>
+<span class="output">/tmp/upload_xyz789.tmp</span>
+<span class="prompt">$</span> find /tmp -name "*.tmp" -mtime +7 -delete</pre></div>
+      </li>
+
+      <li><strong>Use <code>--dry-run</code> where available</strong>
+        <p>Some commands support <code>--dry-run</code> or <code>-n</code> to show what would happen without actually doing it.</p>
+        <div class="code-block"><pre><span class="prompt">$</span> rsync -av --dry-run source/ dest/
+<span class="output">sending incremental file list</span>
+<span class="output">file1.txt</span>
+<span class="output">file2.txt</span>
+<span class="output">sent 150 bytes  received 25 bytes  350.00 bytes/sec</span>
+<span class="output">(DRY RUN)</span></pre></div>
+      </li>
+
+      <li><strong>Install and use <code>trash-cli</code></strong>
+        <p>Replace <code>rm</code> with <code>trash-put</code> so deleted files go to a recoverable trash folder.</p>
+        <div class="code-block"><pre><span class="prompt">$</span> sudo apt install trash-cli
+<span class="prompt">$</span> trash-put unwanted-file.txt     # Moves to trash
+<span class="prompt">$</span> trash-list                       # See what is in trash
+<span class="prompt">$</span> trash-restore                    # Recover a file
+<span class="prompt">$</span> trash-empty                      # Permanently delete trash</pre></div>
+      </li>
+
+      <li><strong>Back up important files before modifying them</strong>
+        <p>A quick <code>cp</code> can save hours of recovery work.</p>
+        <div class="code-block"><pre><span class="prompt">$</span> cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+<span class="prompt">$</span> cp ~/.bashrc ~/.bashrc.bak
+<span class="prompt">$</span> cp -r ~/important-project ~/important-project-backup</pre></div>
+      </li>
+
+      <li><strong>Use version control (git) for code and configuration</strong>
+        <p>If your files are in a git repository, you can always recover any previous version.</p>
+        <div class="code-block"><pre><span class="prompt">$</span> cd ~/my-project
+<span class="prompt">$</span> git add .
+<span class="prompt">$</span> git commit -m "Backup before major changes"
+<span class="prompt"># Now you can safely experiment. If things go wrong:</span>
+<span class="prompt">$</span> git checkout -- .              # Restore all files to last commit</pre></div>
+      </li>
+
+      <li><strong>Read the man page when unsure</strong>
+        <p>If you are not 100% sure what a flag does, check the manual first.</p>
+        <div class="code-block"><pre><span class="prompt">$</span> man rm
+<span class="prompt">$</span> rm --help</pre></div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Protective Shell Aliases</h2>
+  <!-- ================================================================ -->
+
+  <p>Add these aliases to your <code>~/.bashrc</code> to add safety nets to common commands:</p>
+
+  <div class="code-block"><pre><span class="prompt"># Add these lines to ~/.bashrc</span>
+
+# Always ask before overwriting or deleting
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Prevent accidental overwriting with >
+set -o noclobber
+
+# Make rm safer with colors showing what is deleted
+alias rm='rm -Iv'
+
+# Use trash instead of rm (install trash-cli first)
+alias del='trash-put'
+
+# Always show what chmod/chown is changing
+alias chmod='chmod -v'
+alias chown='chown -v'
+
+# Confirm before running dd
+# (dd does not have a -i flag, so use a function)
+safe_dd() {
+  echo "WARNING: You are about to run dd with these arguments:"
+  echo "  dd $@"
+  echo ""
+  read -p "Are you sure? (yes/no): " confirm
+  if [ "$confirm" = "yes" ]; then
+    command dd "$@"
+  else
+    echo "Aborted."
+  fi
+}
+alias dd='safe_dd'</pre></div>
+
+  <!-- ================================================================ -->
+  <h2>Quick Reference: Dangerous vs. Safe</h2>
+  <!-- ================================================================ -->
+
+  <div class="concept-box">
+    <h3>Dangerous Commands vs. Safe Alternatives</h3>
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Dangerous</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">What It Does</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Safe Alternative</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>rm -rf /</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Deletes everything</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>rm -ri specific_dir/</code></td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>rm -rf *</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Deletes all in current dir</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>ls *</code> first, then <code>rm -ri *</code></td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>chmod -R 777 /</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Removes all security</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>chmod 755 specific_dir/</code></td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>dd if=/dev/zero of=/dev/sda</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Wipes entire disk</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>lsblk</code> first, target specific partition</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>:(){ :|:& };:</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Fork bomb (freezes system)</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Set <code>ulimit -u</code> process limits</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>mkfs.ext4 /dev/sda</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Formats disk</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>lsblk</code> + <code>mount</code> first, target specific partition</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>> important_file</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Empties file contents</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>set -o noclobber</code>, use <code>>></code></td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>curl url | sudo bash</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Runs untrusted code as root</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Download, review, then run</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>mv file /dev/null</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Destroys file and /dev/null</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>rm file</code> or <code>trash-put file</code></td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><code>> file</code> instead of <code>>> file</code></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Overwrites instead of appending</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Use <code>>></code>, <code>tee -a</code>, or <code>noclobber</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>What To Do If You Already Ran Something Dangerous</h2>
+  <!-- ================================================================ -->
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Stay calm and assess the damage</div>
+    <p>If you accidentally ran a destructive command, follow these steps:</p>
+  </div>
+
+  <ol>
+    <li><strong>Stop immediately.</strong> Press <kbd>Ctrl+C</kbd> to interrupt the command if it is still running. Every second matters.</li>
+    <li><strong>Do not reboot yet.</strong> If files were deleted but the system is still running, programs in memory may still work. Rebooting could make things worse.</li>
+    <li><strong>Assess what was affected.</strong> Check which files are missing or changed.</li>
+    <li><strong>Check backups.</strong> Do you have recent backups? Cloud storage? Git repositories? Another copy somewhere?</li>
+    <li><strong>For deleted files:</strong> Tools like <code>testdisk</code>, <code>photorec</code>, or <code>extundelete</code> may recover some data, but this is not guaranteed. The sooner you act, the better the chances.</li>
+    <li><strong>For permission changes:</strong> If you ran <code>chmod -R 777</code> on a large part of the system, reinstalling may be the fastest fix. Manually restoring permissions for thousands of system files is extremely tedious.</li>
+    <li><strong>For formatted drives:</strong> Do not write anything more to the drive. Use a live USB to boot and attempt recovery with <code>testdisk</code>.</li>
+    <li><strong>Learn from it.</strong> Set up the safety measures described on this page so it does not happen again.</li>
+  </ol>
+
+  <div class="code-block"><pre><span class="prompt"># Emergency: Try to recover deleted files (from a live USB)</span>
+<span class="prompt">$</span> sudo apt install testdisk
+<span class="prompt">$</span> sudo testdisk /dev/sda
+
+<span class="prompt"># Emergency: Recover specific file types (photos, documents)</span>
+<span class="prompt">$</span> sudo apt install photorec
+<span class="prompt">$</span> sudo photorec /dev/sda</pre></div>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Prevention is always better than recovery</div>
+    <p>Data recovery is unreliable, expensive, and time-consuming. The best protection is to never run dangerous commands in the first place, and to maintain regular backups of everything important. Set up automated backups today &mdash; do not wait until you need them.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Knowledge Check</h3>
+    <p>For each scenario, identify the risk and the safe alternative:</p>
+    <ol>
+      <li>Your coworker tells you to run <code>sudo rm -rf /tmp /old-logs</code>. What should you check first?</li>
+      <li>A tutorial says to run <code>curl -sS https://example.com/install | sudo bash</code>. What is the safer approach?</li>
+      <li>You need to clear a log file but keep the file itself. How do you do it safely?</li>
+    </ol>
+
+    <details>
+      <summary>Show Answers</summary>
+      <ol>
+        <li>Check for accidental spaces: is it <code>/tmp/old-logs</code> (one path) or <code>/tmp /old-logs</code> (two paths, where <code>/tmp</code> would be deleted entirely)? Also verify you want the <code>-rf</code> flags. Run <code>ls /tmp/old-logs</code> first to see what is there.</li>
+        <li>Download the script first: <code>curl -sS https://example.com/install -o install.sh</code>, then read it with <code>less install.sh</code>, and only run it after reviewing: <code>bash install.sh</code>.</li>
+        <li>Use <code>truncate -s 0 logfile.log</code> or <code>: > logfile.log</code> (with noclobber disabled). Both empty the file while keeping it intact. Back up first if the log data might be needed.</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

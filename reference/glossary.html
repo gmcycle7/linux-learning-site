@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glossary of Linux Terms — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../pages/06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../pages/09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../pages/10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../pages/13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../pages/15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="command-index.html">Command Index</a>
+    <a class="sidebar__link active" href="glossary.html">Glossary</a>
+    <a class="sidebar__link" href="top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="exercises.html">Exercises</a>
+    <a class="sidebar__link" href="daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a><span class="sep">/</span>Reference<span class="sep">/</span>Glossary
+  </div>
+
+  <h1>Glossary of Linux Terms</h1>
+
+  <p>An alphabetical reference of Linux terminology, jargon, and abbreviations. If you encounter an unfamiliar term anywhere in this guide, look it up here.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Use your browser's find feature (<code>Ctrl+F</code>) to quickly jump to any term on this page.</p>
+  </div>
+
+  <!-- ===== A ===== -->
+  <h2>A</h2>
+
+  <h4 id="alias">Alias</h4>
+  <p>A custom shortcut for a command or series of commands, defined with the <code>alias</code> built-in. For example, <code>alias ll='ls -la'</code> lets you type <code>ll</code> instead of the full command. Aliases are typically defined in <code>~/.bashrc</code> or <code>~/.zshrc</code> to make them permanent.</p>
+
+  <h4 id="argument">Argument</h4>
+  <p>A value passed to a command that tells it what to act on. In <code>cp file.txt backup/</code>, the arguments are <code>file.txt</code> and <code>backup/</code>. Arguments are different from flags/options, which modify the command's behavior.</p>
+
+  <h4 id="absolute-path">Absolute Path</h4>
+  <p>A file path that starts from the root directory <code>/</code> and specifies the complete location of a file, such as <code>/home/alex/documents/notes.txt</code>. Absolute paths work regardless of your current working directory. Compare with <a href="#relative-path">Relative Path</a>.</p>
+
+  <!-- ===== B ===== -->
+  <h2>B</h2>
+
+  <h4 id="bash">Bash (Bourne Again SHell)</h4>
+  <p>The most common shell on Linux systems. Bash interprets your commands, supports scripting with variables, loops, and conditionals, and reads configuration from files like <code>~/.bashrc</code>. It is the default shell on most Linux distributions.</p>
+
+  <h4 id="binary">Binary</h4>
+  <p>An executable file compiled from source code into machine-readable format. Binaries are stored in directories like <code>/usr/bin</code> and <code>/usr/local/bin</code>. The term is also used to distinguish compiled programs from human-readable text files and scripts.</p>
+
+  <h4 id="boot">Boot</h4>
+  <p>The process of starting up a computer. During boot, the BIOS/UEFI loads the bootloader (like GRUB), which loads the Linux kernel, which then starts the init system (systemd), which starts all configured services and presents you with a login prompt.</p>
+
+  <h4 id="builtin">Built-in (Shell Built-in)</h4>
+  <p>A command that is part of the shell itself rather than a separate program on disk. Examples include <code>cd</code>, <code>echo</code>, <code>export</code>, <code>alias</code>, and <code>source</code>. Built-ins execute faster because the shell does not need to create a new process. Check whether a command is a built-in with <code>type command</code>.</p>
+
+  <!-- ===== C ===== -->
+  <h2>C</h2>
+
+  <h4 id="cli">CLI (Command-Line Interface)</h4>
+  <p>A text-based interface where you interact with the computer by typing commands. The opposite of a GUI. The Linux CLI is accessed through a terminal emulator and uses a shell (like Bash) to interpret commands.</p>
+
+  <h4 id="command">Command</h4>
+  <p>An instruction given to the shell to perform a task. A command can be a built-in shell feature (like <code>cd</code>), an external program (like <code>ls</code>), or a script. Commands can take flags and arguments to modify their behavior.</p>
+
+  <h4 id="config-file">Configuration File (Config File)</h4>
+  <p>A text file that stores settings for a program or the system. On Linux, config files are often plain text and found in <code>/etc/</code> (system-wide) or <code>~/</code> as dotfiles (per-user). Examples include <code>/etc/ssh/sshd_config</code> and <code>~/.bashrc</code>.</p>
+
+  <h4 id="cron">Cron</h4>
+  <p>A time-based job scheduler that runs commands or scripts at specified intervals (every minute, every day, etc.). Cron jobs are configured using <code>crontab -e</code>. The cron daemon runs in the background and checks the schedule every minute.</p>
+
+  <h4 id="cwd">Current Working Directory (CWD)</h4>
+  <p>The directory you are currently "in" within the shell. Commands like <code>ls</code> operate on the CWD by default. Check it with <code>pwd</code> and change it with <code>cd</code>. Represented by <code>.</code> (a single dot) in paths.</p>
+
+  <!-- ===== D ===== -->
+  <h2>D</h2>
+
+  <h4 id="dotfile">Dotfile</h4>
+  <p>A file or directory whose name starts with a dot (<code>.</code>), making it hidden from normal <code>ls</code> output. Dotfiles are used for user configuration: <code>.bashrc</code>, <code>.ssh/</code>, <code>.gitconfig</code>, etc. Use <code>ls -a</code> to see them.</p>
+
+  <h4 id="daemon">Daemon</h4>
+  <p>A background process that runs continuously, providing services to other programs or the system. Daemons typically start at boot and have names ending in <code>d</code> (like <code>sshd</code>, <code>httpd</code>, <code>crond</code>). They have no direct user interface.</p>
+
+  <h4 id="directory">Directory</h4>
+  <p>The Linux equivalent of a folder. Directories contain files and other directories, forming the filesystem hierarchy. The root directory is <code>/</code>, and every path on the system starts from there.</p>
+
+  <h4 id="distro">Distribution (Distro)</h4>
+  <p>A complete operating system built around the Linux kernel, packaged with a specific set of software, package manager, and configuration. Examples include Ubuntu, Fedora, Debian, Arch Linux, and CentOS. Each distro targets different use cases and user preferences.</p>
+
+  <!-- ===== E ===== -->
+  <h2>E</h2>
+
+  <h4 id="env-var">Environment Variable</h4>
+  <p>A named value stored in the shell's environment that affects how processes behave. Important examples include <code>PATH</code> (where to find commands), <code>HOME</code> (your home directory), and <code>USER</code> (your username). Set with <code>export VAR=value</code> and view with <code>echo $VAR</code> or <code>env</code>.</p>
+
+  <h4 id="executable">Executable</h4>
+  <p>A file that can be run as a program. On Linux, a file is executable if it has the execute permission bit set (<code>chmod +x</code>). Executables can be compiled binaries or text scripts with a shebang line.</p>
+
+  <h4 id="exit-code">Exit Code (Return Code)</h4>
+  <p>A numeric value returned by a command when it finishes. An exit code of <code>0</code> means success; any non-zero value indicates an error. Check the most recent exit code with <code>echo $?</code>. Exit codes are used in scripts for conditional logic (<code>if command; then ...</code>).</p>
+
+  <!-- ===== F ===== -->
+  <h2>F</h2>
+
+  <h4 id="file-descriptor">File Descriptor</h4>
+  <p>A number that the kernel assigns to an open file, socket, or pipe within a process. The three standard file descriptors are: <code>0</code> (stdin), <code>1</code> (stdout), and <code>2</code> (stderr). Redirection uses these numbers: <code>2>/dev/null</code> sends stderr to nowhere.</p>
+
+  <h4 id="filesystem">Filesystem</h4>
+  <p>The method and structure used to organize files on a storage device. Common Linux filesystems include ext4, XFS, and Btrfs. The term also refers to the overall directory hierarchy starting from <code>/</code> (the Filesystem Hierarchy Standard).</p>
+
+  <h4 id="flag">Flag (Option)</h4>
+  <p>A modifier passed to a command that changes its behavior, usually prefixed with <code>-</code> (short form) or <code>--</code> (long form). For example, <code>ls -l</code> uses the <code>-l</code> flag for long format. Flags can often be combined: <code>ls -la</code> is the same as <code>ls -l -a</code>.</p>
+
+  <h4 id="fork">Fork</h4>
+  <p>When a running process creates an exact copy of itself. The original is the parent process and the copy is the child. Forking is the standard way Linux creates new processes. The child can then replace itself with a different program using <code>exec</code>.</p>
+
+  <!-- ===== G ===== -->
+  <h2>G</h2>
+
+  <h4 id="glob">Glob (Globbing)</h4>
+  <p>A pattern-matching syntax used by the shell to expand filenames. Common glob characters: <code>*</code> matches any number of characters, <code>?</code> matches exactly one character, <code>[abc]</code> matches any one of the listed characters. For example, <code>*.txt</code> matches all files ending in <code>.txt</code>.</p>
+
+  <h4 id="gnu">GNU</h4>
+  <p>A recursive acronym for "GNU's Not Unix." The GNU project, started by Richard Stallman in 1983, created free replacements for Unix tools (gcc, coreutils, bash, etc.). Most "Linux" systems are technically GNU/Linux: the Linux kernel combined with GNU userland tools.</p>
+
+  <h4 id="grep">grep</h4>
+  <p>A command that searches for text patterns in files or input. The name comes from the <code>ed</code> editor command <code>g/re/p</code> (globally search for a regular expression and print). It is one of the most frequently used Linux commands.</p>
+
+  <h4 id="gui">GUI (Graphical User Interface)</h4>
+  <p>A visual interface with windows, buttons, icons, and a mouse pointer. Linux desktop environments like GNOME, KDE, and XFCE provide GUIs. Servers typically run without a GUI to save resources.</p>
+
+  <h4 id="gid">GID (Group ID)</h4>
+  <p>A unique numeric identifier for a group. Every file and process is associated with a GID in addition to a UID. Users can belong to multiple groups, gaining the file permissions of each. Check your groups with <code>id</code> or <code>groups</code>.</p>
+
+  <!-- ===== H ===== -->
+  <h2>H</h2>
+
+  <h4 id="home-directory">Home Directory</h4>
+  <p>Each user's personal directory, typically located at <code>/home/username</code>. Represented by the tilde <code>~</code> shortcut. Your home directory contains your personal files, configuration files (dotfiles), and is where your shell session starts by default.</p>
+
+  <h4 id="hard-link">Hard Link</h4>
+  <p>A directory entry that points directly to a file's inode (its actual data on disk). Multiple hard links to the same file share the same data; deleting one link does not delete the data until all links are removed. Created with <code>ln file link</code> (without <code>-s</code>). Hard links cannot cross filesystem boundaries or link to directories.</p>
+
+  <!-- ===== I ===== -->
+  <h2>I</h2>
+
+  <h4 id="inode">Inode</h4>
+  <p>A data structure on the filesystem that stores metadata about a file: permissions, owner, size, timestamps, and pointers to the actual data blocks. Every file has an inode, identified by an inode number. The filename is just a human-readable label pointing to an inode.</p>
+
+  <h4 id="init">Init System</h4>
+  <p>The first process started by the Linux kernel after booting (PID 1). It is responsible for starting all other system services and processes. Modern Linux systems use <code>systemd</code> as their init system. Older systems used SysVinit or Upstart.</p>
+
+  <!-- ===== J ===== -->
+  <h2>J</h2>
+
+  <h4 id="job">Job</h4>
+  <p>A process or group of processes started from the shell. Jobs can be in the foreground (receiving your keyboard input) or background (running while you type other commands). Manage jobs with <code>jobs</code>, <code>bg</code>, <code>fg</code>, and <code>Ctrl+Z</code>.</p>
+
+  <!-- ===== K ===== -->
+  <h2>K</h2>
+
+  <h4 id="kernel">Kernel</h4>
+  <p>The core of the operating system that manages hardware, memory, processes, and system calls. The Linux kernel was created by Linus Torvalds in 1991. It sits between the hardware and user-space applications, handling all low-level operations. Check your kernel version with <code>uname -r</code>.</p>
+
+  <!-- ===== L ===== -->
+  <h2>L</h2>
+
+  <h4 id="library">Library</h4>
+  <p>A collection of pre-compiled code that programs can use to perform common tasks without rewriting the code themselves. Shared libraries (files ending in <code>.so</code>) are loaded at runtime and shared between programs to save memory and disk space.</p>
+
+  <h4 id="link">Link</h4>
+  <p>A filesystem entry that points to another file or directory. Linux supports two types: <strong>hard links</strong> (direct pointers to an inode) and <strong>symbolic links (symlinks)</strong> (pointers to a file path). See <a href="#hard-link">Hard Link</a> and <a href="#symlink">Symlink</a>.</p>
+
+  <h4 id="log">Log</h4>
+  <p>A file that records events, errors, and activity. System logs are typically stored in <code>/var/log/</code>. Important log files include <code>syslog</code> (general system messages), <code>auth.log</code> (authentication events), and <code>kern.log</code> (kernel messages). View logs with <code>less</code>, <code>tail -f</code>, or <code>journalctl</code>.</p>
+
+  <h4 id="loop-device">Loop Device</h4>
+  <p>A pseudo-device that makes a file accessible as a block device (like a disk). This lets you mount disk images (like ISO files) as if they were physical drives: <code>mount -o loop image.iso /mnt</code>.</p>
+
+  <!-- ===== M ===== -->
+  <h2>M</h2>
+
+  <h4 id="mount">Mount</h4>
+  <p>To attach a filesystem (from a disk, partition, USB drive, or network share) to a directory in the filesystem tree, making its contents accessible. The <code>mount</code> command performs this operation. The directory where a filesystem is attached is called the <strong>mount point</strong>.</p>
+
+  <h4 id="man-page">Man Page (Manual Page)</h4>
+  <p>Built-in documentation for commands, system calls, and configuration files. Access with <code>man command</code>. Man pages are organized into sections (1 for user commands, 5 for file formats, 8 for admin commands). Navigate like <code>less</code>: <code>/</code> to search, <code>q</code> to quit.</p>
+
+  <!-- ===== N ===== -->
+  <h2>N</h2>
+
+  <h4 id="namespace">Namespace</h4>
+  <p>A kernel feature that isolates system resources for groups of processes, making each group think it has its own instance of that resource. Namespaces are the foundation of container technologies like Docker. Types include PID, network, mount, and user namespaces.</p>
+
+  <!-- ===== O ===== -->
+  <h2>O</h2>
+
+  <h4 id="option">Option</h4>
+  <p>See <a href="#flag">Flag</a>. The terms "option" and "flag" are used interchangeably in Linux documentation. Options modify how a command behaves.</p>
+
+  <!-- ===== P ===== -->
+  <h2>P</h2>
+
+  <h4 id="pager">Pager</h4>
+  <p>A program that displays text one screenful at a time. The most common pager is <code>less</code>. Pagers are automatically used by commands like <code>man</code> and <code>git log</code>. The default pager is set by the <code>PAGER</code> environment variable.</p>
+
+  <h4 id="package">Package</h4>
+  <p>A bundle of software files (binaries, libraries, configuration, documentation) that can be installed, updated, and removed as a unit. Packages are managed by package managers like <code>apt</code> (Debian/Ubuntu), <code>dnf</code> (Fedora), or <code>pacman</code> (Arch). Package formats include <code>.deb</code> and <code>.rpm</code>.</p>
+
+  <h4 id="partition">Partition</h4>
+  <p>A logical division of a physical disk. Each partition acts like a separate disk and can hold its own filesystem. Common partitions on a Linux system include <code>/</code> (root), <code>/boot</code>, <code>/home</code>, and swap. View partitions with <code>lsblk</code> or <code>fdisk -l</code>.</p>
+
+  <h4 id="path">PATH</h4>
+  <p>An environment variable that contains a colon-separated list of directories where the shell searches for executable commands. When you type <code>ls</code>, the shell checks each directory in <code>PATH</code> until it finds an executable named <code>ls</code>. View with <code>echo $PATH</code>.</p>
+
+  <h4 id="pid">PID (Process ID)</h4>
+  <p>A unique numeric identifier assigned to every running process by the kernel. PID 1 is always the init system. Use <code>ps</code> or <code>top</code> to see PIDs. You need a process's PID to send it signals with <code>kill</code>.</p>
+
+  <h4 id="pipe">Pipe</h4>
+  <p>A mechanism that connects the output (stdout) of one command to the input (stdin) of another, using the <code>|</code> symbol. Pipes let you chain commands together: <code>cat file | grep error | wc -l</code> counts lines containing "error".</p>
+
+  <h4 id="port">Port</h4>
+  <p>A numbered endpoint for network communication. Ports range from 0 to 65535. Well-known ports include 22 (SSH), 80 (HTTP), 443 (HTTPS), and 3306 (MySQL). Use <code>ss -tulnp</code> to see which ports are in use on your system.</p>
+
+  <h4 id="process">Process</h4>
+  <p>A running instance of a program. Each process has a PID, its own memory space, and a state (running, sleeping, stopped, zombie). The kernel manages all processes and allocates CPU time. View processes with <code>ps</code> or <code>top</code>.</p>
+
+  <h4 id="prompt">Prompt</h4>
+  <p>The text displayed by the shell to indicate it is ready for your input, typically showing the username, hostname, and current directory. A common format is <code>alex@server:~$</code>. The <code>$</code> indicates a normal user; <code>#</code> indicates root. Customized via the <code>PS1</code> variable.</p>
+
+  <!-- ===== R ===== -->
+  <h2>R</h2>
+
+  <h4 id="redirect">Redirect (Redirection)</h4>
+  <p>Changing where a command's input comes from or output goes to. <code>&gt;</code> sends stdout to a file (overwrites), <code>&gt;&gt;</code> appends, <code>&lt;</code> reads input from a file, <code>2&gt;</code> redirects stderr. Example: <code>ls &gt; files.txt</code> saves the file list to a file instead of showing it on screen.</p>
+
+  <h4 id="relative-path">Relative Path</h4>
+  <p>A file path specified relative to the current working directory, without starting from <code>/</code>. Examples: <code>./script.sh</code>, <code>../config/</code>, <code>documents/notes.txt</code>. The path depends on where you currently are. Compare with <a href="#absolute-path">Absolute Path</a>.</p>
+
+  <h4 id="regex">Regex (Regular Expression)</h4>
+  <p>A pattern language for matching text. Used by <code>grep</code>, <code>sed</code>, <code>awk</code>, and many other tools. Common elements: <code>.</code> matches any character, <code>*</code> matches zero or more of the previous character, <code>^</code> matches start of line, <code>$</code> matches end of line, <code>[abc]</code> matches a character class.</p>
+
+  <h4 id="repository">Repository (Repo)</h4>
+  <p>A remote server (or collection of servers) that hosts software packages. When you run <code>apt update</code>, you are downloading the latest package list from your configured repositories. You can also add third-party repositories for additional software.</p>
+
+  <h4 id="root-user">Root (User)</h4>
+  <p>The superuser account with UID 0 that has unrestricted access to the entire system. Root can read, write, and execute any file, kill any process, and modify any setting. Use <code>sudo</code> to run individual commands as root instead of logging in as root directly.</p>
+
+  <h4 id="root-dir">Root Directory</h4>
+  <p>The top-level directory in the Linux filesystem hierarchy, represented by <code>/</code>. Every file and directory on the system is contained under <code>/</code>. Not to be confused with the root user's home directory, which is <code>/root</code>.</p>
+
+  <!-- ===== S ===== -->
+  <h2>S</h2>
+
+  <h4 id="script">Script</h4>
+  <p>A text file containing a sequence of commands that the shell executes in order. Shell scripts typically start with a shebang line (<code>#!/bin/bash</code>) and have the execute permission set. Scripts automate repetitive tasks and can include variables, loops, conditionals, and functions.</p>
+
+  <h4 id="shell">Shell</h4>
+  <p>A program that interprets commands typed by the user and communicates with the kernel. The shell reads your input, executes commands, and displays output. Common shells include Bash, Zsh, Fish, and Dash. Check your current shell with <code>echo $SHELL</code>.</p>
+
+  <h4 id="shebang">Shebang</h4>
+  <p>The character sequence <code>#!</code> at the very beginning of a script file, followed by the path to the interpreter that should run it. For example, <code>#!/bin/bash</code> tells the system to use Bash, and <code>#!/usr/bin/env python3</code> tells it to use Python 3.</p>
+
+  <h4 id="signal">Signal</h4>
+  <p>A software notification sent to a process. Common signals include <code>SIGTERM</code> (15, polite shutdown request), <code>SIGKILL</code> (9, forced termination), <code>SIGINT</code> (2, interrupt from Ctrl+C), and <code>SIGHUP</code> (1, terminal hangup). Send signals with <code>kill</code>.</p>
+
+  <h4 id="socket">Socket</h4>
+  <p>An endpoint for network communication between two processes, either on the same machine (Unix socket) or across a network (TCP/UDP socket). Sockets are identified by an IP address and port number. View active sockets with <code>ss</code>.</p>
+
+  <h4 id="ssh">SSH (Secure Shell)</h4>
+  <p>A cryptographic network protocol for secure remote login, command execution, and file transfer. SSH encrypts all traffic between client and server. The <code>ssh</code> command connects to remote machines; <code>scp</code> and <code>sftp</code> transfer files over SSH.</p>
+
+  <h4 id="stdin">stdin (Standard Input)</h4>
+  <p>The default input stream for a process, file descriptor 0. By default, stdin comes from the keyboard. It can be redirected from a file with <code>&lt;</code> or piped from another command with <code>|</code>.</p>
+
+  <h4 id="stdout">stdout (Standard Output)</h4>
+  <p>The default output stream for a process, file descriptor 1. By default, stdout goes to the terminal screen. It can be redirected to a file with <code>&gt;</code> or piped to another command with <code>|</code>.</p>
+
+  <h4 id="stderr">stderr (Standard Error)</h4>
+  <p>The output stream for error messages, file descriptor 2. Stderr is separate from stdout so that error messages are not mixed into normal output. Redirect stderr with <code>2&gt;</code> or combine it with stdout using <code>2&gt;&amp;1</code>.</p>
+
+  <h4 id="sudo">sudo</h4>
+  <p>A command that lets permitted users run commands as the superuser (root) or another user. Instead of logging in as root, you prefix commands with <code>sudo</code>: <code>sudo apt update</code>. Configuration is in <code>/etc/sudoers</code>.</p>
+
+  <h4 id="superuser">Superuser</h4>
+  <p>See <a href="#root-user">Root (User)</a>. The superuser has unlimited privileges on the system. The superuser account has UID 0.</p>
+
+  <h4 id="swap">Swap</h4>
+  <p>A portion of disk space used as an extension of RAM. When physical memory is full, the kernel moves less-used data to swap space. Swap can be a dedicated partition or a swap file. Check swap usage with <code>free -h</code> or <code>swapon --show</code>.</p>
+
+  <h4 id="symlink">Symlink (Symbolic Link / Soft Link)</h4>
+  <p>A special file that points to another file or directory by its path name. Created with <code>ln -s target linkname</code>. Unlike hard links, symlinks can point across filesystems and to directories. If the target is deleted, the symlink becomes a "dangling" (broken) link.</p>
+
+  <!-- ===== T ===== -->
+  <h2>T</h2>
+
+  <h4 id="terminal">Terminal (Terminal Emulator)</h4>
+  <p>A program that provides a text-based interface to the shell. Modern terminal emulators (like GNOME Terminal, Konsole, Alacritty, or Windows Terminal for WSL) emulate the behavior of old hardware terminals. The terminal displays the shell prompt and renders command output.</p>
+
+  <h4 id="tty">TTY (Teletypewriter)</h4>
+  <p>Originally a physical terminal device. In modern Linux, TTY refers to virtual consoles accessible with <code>Ctrl+Alt+F1</code> through <code>F6</code>. The term is also used generically for any terminal session. Check your current TTY with <code>tty</code> or <code>who</code>.</p>
+
+  <h4 id="tarball">Tarball</h4>
+  <p>A colloquial name for a <code>.tar</code> archive file, often compressed (e.g., <code>.tar.gz</code>, <code>.tar.xz</code>). Tarballs are the standard way to distribute source code and bundle files on Linux. Created and extracted with the <code>tar</code> command.</p>
+
+  <!-- ===== U ===== -->
+  <h2>U</h2>
+
+  <h4 id="uid">UID (User ID)</h4>
+  <p>A unique numeric identifier assigned to each user account. Root always has UID 0. Regular users typically start at UID 1000. The system uses UIDs (not usernames) internally for permission checks. Check yours with <code>id</code>.</p>
+
+  <h4 id="umask">umask</h4>
+  <p>A value that determines the default permissions for newly created files and directories. The umask is subtracted from the maximum permissions (666 for files, 777 for directories). A common umask of 022 results in files with 644 and directories with 755. Check with the <code>umask</code> command.</p>
+
+  <!-- ===== V ===== -->
+  <h2>V</h2>
+
+  <h4 id="variable">Variable</h4>
+  <p>A named container that stores a value in the shell. Shell variables are set with <code>NAME=value</code> (no spaces around <code>=</code>) and accessed with <code>$NAME</code>. Variables can store strings, numbers, or command output. Environment variables (set with <code>export</code>) are passed to child processes.</p>
+
+  <!-- ===== W ===== -->
+  <h2>W</h2>
+
+  <h4 id="wildcard">Wildcard</h4>
+  <p>Special characters used in file name patterns that the shell expands before running a command. The main wildcards are <code>*</code> (match any number of characters), <code>?</code> (match exactly one character), and <code>[...]</code> (match one character from a set). See also <a href="#glob">Glob</a>.</p>
+
+  <h4 id="working-directory">Working Directory</h4>
+  <p>See <a href="#cwd">Current Working Directory</a>. The directory you are currently "in" within the shell session.</p>
+
+  <!-- ===== Z ===== -->
+  <h2>Z</h2>
+
+  <h4 id="zombie">Zombie Process</h4>
+  <p>A process that has finished executing but still has an entry in the process table because its parent has not yet read its exit status. Zombies consume no resources except a PID slot. They appear in <code>ps</code> output with a state of <code>Z</code>. They are cleaned up when the parent reads the exit code or when the parent process ends.</p>
+
+  <h4 id="zsh">Zsh (Z Shell)</h4>
+  <p>An advanced shell that is compatible with Bash but adds features like better autocompletion, spelling correction, themeable prompts, and plugin support (via frameworks like Oh My Zsh). Zsh is the default shell on macOS and is increasingly popular on Linux.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Missing a term?</div>
+    <p>This glossary covers the terms used throughout this guide. As you learn more about Linux, you will encounter additional concepts. The <code>man</code> command and online resources like the Arch Wiki and Linux man-pages project are excellent references for deeper exploration.</p>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

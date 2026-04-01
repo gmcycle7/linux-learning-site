@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 4: Viewing &amp; Editing Files — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link active" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions &amp; Ownership</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking Basics</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives &amp; Compression</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Real-World Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Command Comparisons</a>
+  </div>
+
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index (A-Z)</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Practice Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &gt; Viewing &amp; Editing Files
+  </nav>
+
+  <h1>Chapter 4: Viewing &amp; Editing Files</h1>
+
+  <p>Now that you know how to create, move, copy, and delete files, it is time to look <em>inside</em> them. This chapter covers every essential command for reading file contents, paging through long output, editing text, and transforming data on the command line. These are skills you will use every single day.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">What you will learn</div>
+    <p>How to display files with <code>cat</code>, page through them with <code>less</code> and <code>more</code>, peek at the beginning or end with <code>head</code> and <code>tail</code>, edit with <code>nano</code> and <code>vim</code>, count with <code>wc</code>, and transform text with <code>sort</code>, <code>uniq</code>, <code>cut</code>, <code>paste</code>, and <code>tr</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- CONCEPT BOX: TEXT STREAMS                                      -->
+  <!-- ============================================================ -->
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Text Streams</div>
+    <p>In Linux, almost everything is text. Configuration files, log files, command output &mdash; all plain text. Data flows through commands like water through pipes. A command reads text from <strong>standard input (stdin)</strong>, processes it, and writes the result to <strong>standard output (stdout)</strong>.</p>
+    <p>Think of each command as a station on an assembly line. <code>cat</code> pours the file onto the line, <code>sort</code> arranges it, <code>uniq</code> removes duplicates, <code>cut</code> trims columns, and <code>wc</code> counts the result. You chain these stations together with the pipe symbol (<code>|</code>) to build powerful data pipelines &mdash; all without writing a single script.</p>
+    <pre><code>file on disk  --&gt;  cat  --&gt;  sort  --&gt;  uniq  --&gt;  wc -l  --&gt;  answer on screen</code></pre>
+    <p>Keep this mental model in mind as you learn each command below. Every one of them reads a stream in and pushes a stream out.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 1. CAT                                                         -->
+  <!-- ============================================================ -->
+  <h2 id="cat">1. <code>cat</code> &mdash; Display and Concatenate Files</h2>
+
+  <p><code>cat</code> (short for <em>concatenate</em>) is the simplest way to dump the contents of a file to the terminal. It reads one or more files and prints them sequentially to standard output. For short files it is perfect; for long files you will want <code>less</code> instead.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>cat [OPTIONS] [FILE...]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-n</code></td><td>Number all output lines</td></tr>
+      <tr><td><code>-b</code></td><td>Number non-blank lines only</td></tr>
+      <tr><td><code>-s</code></td><td>Squeeze multiple blank lines into one</td></tr>
+      <tr><td><code>-A</code></td><td>Show all non-printing characters (equivalent to <code>-vET</code>)</td></tr>
+      <tr><td><code>-E</code></td><td>Display <code>$</code> at end of each line</td></tr>
+      <tr><td><code>-T</code></td><td>Show tabs as <code>^I</code></td></tr>
+      <tr><td><code>-v</code></td><td>Show non-printing characters using caret notation</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> cat greeting.txt
+<span class="output">Hello, world!
+Welcome to Linux.</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat -n greeting.txt
+<span class="output">     1	Hello, world!
+     2	Welcome to Linux.</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat file1.txt file2.txt
+<span class="output">Contents of file1
+Contents of file2</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat file1.txt file2.txt &gt; combined.txt
+<span class="prompt">$</span> cat combined.txt
+<span class="output">Contents of file1
+Contents of file2</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat -b notes.txt
+<span class="output">     1	First line
+
+     2	Third line (blank line above is not numbered)</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat -s messy.txt
+<span class="output">Line one
+
+Line four (three blanks squeezed to one)</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat -A config.txt
+<span class="output">name=Alice$
+path=/home/alice^I/docs$</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat -T Makefile
+<span class="output">target:
+^Igcc -o app main.c</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat &lt;&lt;EOF &gt; newfile.txt
+&gt; Line one
+&gt; Line two
+&gt; EOF
+<span class="prompt">$</span> cat newfile.txt
+<span class="output">Line one
+Line two</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat /dev/null &gt; logfile.txt   # truncate a file to zero bytes</code></pre>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> cat hugefile.log          # floods terminal with 100,000 lines</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> less hugefile.log          # page through it instead</code></pre>
+    </div>
+  </div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Use <code>cat</code> for short files (under ~50 lines) or when piping into another command. For anything longer, reach for <code>less</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 2. LESS                                                        -->
+  <!-- ============================================================ -->
+  <h2 id="less">2. <code>less</code> &mdash; Page Through Files</h2>
+
+  <p><code>less</code> is the go-to pager on Linux. It lets you scroll forward and backward through a file without loading the entire thing into memory. The name is a joke &mdash; "less is more" &mdash; because it replaced the older <code>more</code> command with far more features.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>less [OPTIONS] FILE</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-N</code></td><td>Show line numbers</td></tr>
+      <tr><td><code>-S</code></td><td>Chop (don't wrap) long lines</td></tr>
+      <tr><td><code>-i</code></td><td>Case-insensitive search</td></tr>
+      <tr><td><code>-F</code></td><td>Quit if file fits on one screen</td></tr>
+      <tr><td><code>-R</code></td><td>Display raw ANSI color codes</td></tr>
+      <tr><td><code>-X</code></td><td>Don't clear screen on exit</td></tr>
+      <tr><td><code>+F</code></td><td>Follow mode (like <code>tail -f</code>; press Ctrl+C to stop)</td></tr>
+      <tr><td><code>-p PATTERN</code></td><td>Start at first match of PATTERN</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Navigation Keys Inside <code>less</code></h3>
+  <table>
+    <thead><tr><th>Key</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Space</kbd> or <kbd>f</kbd></td><td>Forward one screen</td></tr>
+      <tr><td><kbd>b</kbd></td><td>Backward one screen</td></tr>
+      <tr><td><kbd>d</kbd></td><td>Forward half screen</td></tr>
+      <tr><td><kbd>u</kbd></td><td>Backward half screen</td></tr>
+      <tr><td><kbd>g</kbd></td><td>Go to beginning of file</td></tr>
+      <tr><td><kbd>G</kbd></td><td>Go to end of file</td></tr>
+      <tr><td><kbd>/pattern</kbd></td><td>Search forward for <em>pattern</em></td></tr>
+      <tr><td><kbd>?pattern</kbd></td><td>Search backward for <em>pattern</em></td></tr>
+      <tr><td><kbd>n</kbd></td><td>Next search match</td></tr>
+      <tr><td><kbd>N</kbd></td><td>Previous search match</td></tr>
+      <tr><td><kbd>q</kbd></td><td>Quit</td></tr>
+      <tr><td><kbd>&amp;pattern</kbd></td><td>Show only lines matching <em>pattern</em></td></tr>
+      <tr><td><kbd>v</kbd></td><td>Open current file in editor</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> less /var/log/syslog</code></pre>
+
+  <pre><code><span class="prompt">$</span> less -N /etc/passwd          # with line numbers</code></pre>
+
+  <pre><code><span class="prompt">$</span> less -S /var/log/access.log  # long lines chopped, scroll right with arrow</code></pre>
+
+  <pre><code><span class="prompt">$</span> less -i /etc/hosts           # case-insensitive searching</code></pre>
+
+  <pre><code><span class="prompt">$</span> dmesg | less                  # pipe command output into less</code></pre>
+
+  <pre><code><span class="prompt">$</span> less +F /var/log/syslog      # follow mode, like tail -f</code></pre>
+
+  <pre><code><span class="prompt">$</span> less -p "error" /var/log/syslog   # jump straight to first "error"</code></pre>
+
+  <pre><code><span class="prompt">$</span> less -R colored_output.txt   # preserve ANSI colors</code></pre>
+
+  <pre><code><span class="prompt">$</span> less file1.txt file2.txt     # view multiple files; :n next, :p previous</code></pre>
+
+  <pre><code><span class="prompt">$</span> less -NRS /var/log/auth.log  # numbers + raw colors + chopped lines</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Inside <code>less</code>, type <kbd>&amp;ERROR</kbd> and press Enter to filter and show only lines containing "ERROR". Press <kbd>&amp;</kbd> and Enter with no pattern to remove the filter.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 3. MORE                                                        -->
+  <!-- ============================================================ -->
+  <h2 id="more">3. <code>more</code> &mdash; The Older Pager</h2>
+
+  <p><code>more</code> is the original Unix pager. It can only scroll forward (not backward), has no search, and fewer features than <code>less</code>. It still ships with every Linux system and you may encounter it in minimal environments or old scripts.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>more [OPTIONS] FILE</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-d</code></td><td>Display help prompt instead of ringing bell</td></tr>
+      <tr><td><code>-f</code></td><td>Count logical lines (ignore line wrapping)</td></tr>
+      <tr><td><code>-s</code></td><td>Squeeze multiple blank lines</td></tr>
+      <tr><td><code>+NUM</code></td><td>Start display at line NUM</td></tr>
+      <tr><td><code>-NUM</code></td><td>Set screen size to NUM lines</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> more /etc/services</code></pre>
+
+  <pre><code><span class="prompt">$</span> more +100 /etc/services      # start at line 100</code></pre>
+
+  <pre><code><span class="prompt">$</span> ls -la /usr/bin | more        # page through long listing</code></pre>
+
+  <pre><code><span class="prompt">$</span> more -d /etc/passwd           # shows "[Press space to continue, 'q' to quit.]"</code></pre>
+
+  <pre><code><span class="prompt">$</span> more -s log_with_blanks.txt   # squeeze blank lines</code></pre>
+
+  <pre><code><span class="prompt">$</span> more -20 /etc/hosts           # show 20 lines at a time</code></pre>
+
+  <pre><code><span class="prompt">$</span> cat README.md | more           # pipe into more</code></pre>
+
+  <pre><code><span class="prompt">$</span> more file1.txt file2.txt      # view multiple files sequentially</code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Why less is better</div>
+    <p><code>less</code> can scroll backward, search with <code>/</code>, does not load the whole file into memory, and supports many more keybindings. Unless you are on a minimal rescue system that only has <code>more</code>, always prefer <code>less</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- COMPARISON TABLE                                               -->
+  <!-- ============================================================ -->
+  <h2 id="comparison">cat vs less vs head vs tail &mdash; Comparison</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th><code>cat</code></th>
+        <th><code>less</code></th>
+        <th><code>head</code></th>
+        <th><code>tail</code></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Shows entire file</td><td>Yes</td><td>Yes (paged)</td><td>No</td><td>No</td></tr>
+      <tr><td>Scroll backward</td><td>No</td><td>Yes</td><td>N/A</td><td>N/A</td></tr>
+      <tr><td>Search within file</td><td>No</td><td>Yes (<code>/</code>)</td><td>No</td><td>No</td></tr>
+      <tr><td>Best for short files</td><td>Yes</td><td>Overkill</td><td>First few lines</td><td>Last few lines</td></tr>
+      <tr><td>Best for long files</td><td>No</td><td>Yes</td><td>Preview only</td><td>Preview only</td></tr>
+      <tr><td>Follow live updates</td><td>No</td><td>Yes (<code>+F</code>)</td><td>No</td><td>Yes (<code>-f</code>)</td></tr>
+      <tr><td>Good for piping</td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Line numbers</td><td><code>-n</code></td><td><code>-N</code></td><td><code>-n</code> (count)</td><td><code>-n</code> (count)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- 4. HEAD                                                        -->
+  <!-- ============================================================ -->
+  <h2 id="head">4. <code>head</code> &mdash; View the First N Lines</h2>
+
+  <p><code>head</code> prints the first part of a file. By default it shows the first 10 lines, but you can change that with <code>-n</code>. It is perfect for quickly checking what a file looks like, inspecting CSV headers, or peeking at log files.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>head [OPTIONS] [FILE...]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-n NUM</code></td><td>Print the first NUM lines (default 10)</td></tr>
+      <tr><td><code>-n -NUM</code></td><td>Print all lines <em>except</em> the last NUM lines</td></tr>
+      <tr><td><code>-c NUM</code></td><td>Print the first NUM bytes</td></tr>
+      <tr><td><code>-q</code></td><td>Never print headers when given multiple files</td></tr>
+      <tr><td><code>-v</code></td><td>Always print headers</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> head /etc/passwd
+<span class="output">root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> head -n 3 /etc/passwd
+<span class="output">root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> head -3 /etc/passwd          # shorthand, same as -n 3
+<span class="output">root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> head -c 20 /etc/passwd       # first 20 bytes
+<span class="output">root:x:0:0:root:/ro</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> head -n 1 data.csv           # see just the header row
+<span class="output">name,age,city,email</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> head -n -2 numbers.txt       # all lines except the last 2
+<span class="output">one
+two
+three</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> head -v file1.txt file2.txt  # headers shown for each file
+<span class="output">==&gt; file1.txt &lt;==
+alpha
+bravo
+
+==&gt; file2.txt &lt;==
+charlie
+delta</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> ls -lt /var/log | head -5    # 5 most recently modified log files
+<span class="output">total 5260
+-rw-r----- 1 syslog adm  102400 Mar 31 08:12 auth.log
+-rw-r----- 1 syslog adm   84321 Mar 31 08:10 syslog
+-rw-r----- 1 syslog adm   55012 Mar 31 07:55 kern.log
+-rw-r--r-- 1 root   root  31452 Mar 31 06:30 dpkg.log</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Combine <code>head</code> and <code>tail</code> to extract a range. For example, lines 5-10: <code>head -n 10 file | tail -n 6</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 5. TAIL                                                        -->
+  <!-- ============================================================ -->
+  <h2 id="tail">5. <code>tail</code> &mdash; View the Last N Lines</h2>
+
+  <p><code>tail</code> prints the last part of a file. By default it shows the last 10 lines. Its killer feature is <code>-f</code> (follow), which keeps watching the file and prints new lines as they appear &mdash; essential for monitoring log files in real time.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>tail [OPTIONS] [FILE...]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-n NUM</code></td><td>Print the last NUM lines (default 10)</td></tr>
+      <tr><td><code>-n +NUM</code></td><td>Print starting from line NUM (skip first NUM-1 lines)</td></tr>
+      <tr><td><code>-c NUM</code></td><td>Print the last NUM bytes</td></tr>
+      <tr><td><code>-f</code></td><td>Follow: keep watching for new lines (Ctrl+C to stop)</td></tr>
+      <tr><td><code>-F</code></td><td>Follow and retry if file is rotated/replaced</td></tr>
+      <tr><td><code>--pid=PID</code></td><td>Stop following after process PID dies</td></tr>
+      <tr><td><code>-q</code></td><td>Never print headers</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> tail /var/log/syslog          # last 10 lines</code></pre>
+
+  <pre><code><span class="prompt">$</span> tail -n 5 /var/log/syslog     # last 5 lines
+<span class="output">Mar 31 08:10:01 server CRON[4521]: (root) CMD (test -x /usr/sbin/anacron)
+Mar 31 08:10:12 server systemd[1]: Started Session 42 of user alice.
+Mar 31 08:10:15 server sshd[4530]: Accepted publickey for alice
+Mar 31 08:10:15 server sshd[4530]: pam_unix(sshd:session): session opened
+Mar 31 08:10:16 server systemd-logind[812]: New session 42 of user alice.</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> tail -n +5 data.txt           # everything from line 5 onward
+<span class="output">line 5
+line 6
+line 7
+...</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> tail -f /var/log/auth.log     # follow live, Ctrl+C to stop
+<span class="output">Mar 31 08:12:33 server sshd[4600]: Failed password for root from 192.168.1.50
+Mar 31 08:12:35 server sshd[4600]: Failed password for root from 192.168.1.50
+(new lines appear here in real time...)</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> tail -F /var/log/nginx/access.log   # follow even if file is rotated</code></pre>
+
+  <pre><code><span class="prompt">$</span> tail -c 100 /var/log/syslog   # last 100 bytes</code></pre>
+
+  <pre><code><span class="prompt">$</span> tail -f /var/log/syslog --pid=1234  # stop following when PID 1234 exits</code></pre>
+
+  <pre><code><span class="prompt">$</span> tail -f log1.txt log2.txt     # follow two files at once
+<span class="output">==&gt; log1.txt &lt;==
+new line in log1
+
+==&gt; log2.txt &lt;==
+new line in log2</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> dmesg | tail -20               # last 20 kernel messages</code></pre>
+
+  <pre><code><span class="prompt">$</span> head -n 20 file.txt | tail -n 5    # extract lines 16-20
+<span class="output">line 16
+line 17
+line 18
+line 19
+line 20</span></code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Safe usage</div>
+    <p><code>tail -f</code> will run forever until you press <strong>Ctrl+C</strong>. Don't forget to stop it when you're done, or it will hold your terminal hostage. Use <code>--pid</code> if you're watching a log tied to a specific process.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 6. NANO                                                        -->
+  <!-- ============================================================ -->
+  <h2 id="nano">6. <code>nano</code> &mdash; Beginner-Friendly Text Editor</h2>
+
+  <p><code>nano</code> is the easiest terminal text editor. It shows a helpful shortcut bar at the bottom of the screen, works the way you expect (type to insert, arrow keys to move), and requires no mode-switching. If you are new to Linux, start with <code>nano</code>.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>nano [OPTIONS] [FILE]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-B</code></td><td>Create backup of file before saving</td></tr>
+      <tr><td><code>-i</code></td><td>Auto-indent new lines</td></tr>
+      <tr><td><code>-l</code></td><td>Show line numbers</td></tr>
+      <tr><td><code>-m</code></td><td>Enable mouse support</td></tr>
+      <tr><td><code>-c</code></td><td>Constantly show cursor position</td></tr>
+      <tr><td><code>+LINE</code></td><td>Open file at a specific line number</td></tr>
+      <tr><td><code>-w</code></td><td>Don't wrap long lines (important for config files)</td></tr>
+      <tr><td><code>-E</code></td><td>Convert tabs to spaces</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Keyboard Shortcuts</h3>
+  <p>In nano's shortcut bar, <code>^</code> means <kbd>Ctrl</kbd> and <code>M-</code> means <kbd>Alt</kbd>.</p>
+  <table>
+    <thead><tr><th>Shortcut</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Ctrl+O</kbd></td><td>Save (Write Out) the file</td></tr>
+      <tr><td><kbd>Ctrl+X</kbd></td><td>Exit nano (prompts to save if unsaved changes)</td></tr>
+      <tr><td><kbd>Ctrl+K</kbd></td><td>Cut (delete) current line</td></tr>
+      <tr><td><kbd>Ctrl+U</kbd></td><td>Paste (Uncut) previously cut text</td></tr>
+      <tr><td><kbd>Ctrl+W</kbd></td><td>Search for text</td></tr>
+      <tr><td><kbd>Ctrl+\</kbd></td><td>Search and replace</td></tr>
+      <tr><td><kbd>Ctrl+G</kbd></td><td>Show help</td></tr>
+      <tr><td><kbd>Ctrl+C</kbd></td><td>Show current line/column/character position</td></tr>
+      <tr><td><kbd>Ctrl+_</kbd></td><td>Go to a specific line number</td></tr>
+      <tr><td><kbd>Alt+U</kbd></td><td>Undo</td></tr>
+      <tr><td><kbd>Alt+E</kbd></td><td>Redo</td></tr>
+      <tr><td><kbd>Ctrl+A</kbd></td><td>Go to beginning of line</td></tr>
+      <tr><td><kbd>Ctrl+E</kbd></td><td>Go to end of line</td></tr>
+      <tr><td><kbd>Alt+A</kbd></td><td>Start marking text (selection)</td></tr>
+      <tr><td><kbd>Alt+6</kbd></td><td>Copy marked text</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> nano notes.txt                # open or create notes.txt</code></pre>
+
+  <pre><code><span class="prompt">$</span> nano -l script.sh             # open with line numbers shown</code></pre>
+
+  <pre><code><span class="prompt">$</span> nano +50 config.conf          # open at line 50</code></pre>
+
+  <pre><code><span class="prompt">$</span> nano -B /etc/hosts            # auto-backup before saving</code></pre>
+
+  <pre><code><span class="prompt">$</span> nano -w /etc/fstab            # no line wrapping (essential for config files)</code></pre>
+
+  <pre><code><span class="prompt">$</span> nano -i -E script.py          # auto-indent + tabs to spaces</code></pre>
+
+  <pre><code><span class="prompt">$</span> nano -m README.md             # mouse support enabled</code></pre>
+
+  <pre><code><span class="prompt">$</span> sudo nano /etc/ssh/sshd_config   # edit system config (needs sudo)</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Nano workflow</div>
+    <p>1. Open: <code>nano myfile.txt</code>. 2. Type your text. 3. Save: <kbd>Ctrl+O</kbd>, then <kbd>Enter</kbd>. 4. Exit: <kbd>Ctrl+X</kbd>. That's it.</p>
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> nano /etc/nginx/nginx.conf    # permission denied!</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> sudo nano /etc/nginx/nginx.conf   # system files need sudo</code></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 7. VIM                                                         -->
+  <!-- ============================================================ -->
+  <h2 id="vim">7. <code>vim</code> &mdash; The Powerful Modal Editor</h2>
+
+  <p><code>vim</code> (Vi IMproved) is the most widely installed editor on Linux servers. It is <em>modal</em>, meaning keys do different things depending on which mode you are in. This makes it confusing at first but extremely fast once you learn it. This section covers the absolute basics to get you started.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>vim [OPTIONS] [FILE]</code></pre>
+
+  <!-- Vim modes concept box -->
+  <div class="concept-box">
+    <div class="concept-box__title">Vim Modes</div>
+    <div class="diagram">
+      <pre><code>
+    +----------------+       i, a, o       +----------------+
+    |                | -------------------&gt; |                |
+    |  NORMAL MODE   |                      |  INSERT MODE   |
+    |  (navigation,  | &lt;------------------- |  (typing text) |
+    |   commands)    |        Esc           |                |
+    +----------------+                      +----------------+
+           |
+           |  : (colon)
+           v
+    +----------------+
+    |  COMMAND MODE  |
+    |  (:w :q :wq    |
+    |   :q! etc.)    |
+    +----------------+
+      </code></pre>
+    </div>
+    <ul>
+      <li><strong>Normal mode</strong> (default): Keys move the cursor, delete text, copy/paste. You do NOT type text here.</li>
+      <li><strong>Insert mode</strong>: Keys insert text into the file (like a normal editor). Press <kbd>i</kbd> to enter, <kbd>Esc</kbd> to leave.</li>
+      <li><strong>Command mode</strong>: Type commands after <kbd>:</kbd> at the bottom of the screen. Press <kbd>Enter</kbd> to execute.</li>
+    </ul>
+  </div>
+
+  <h3>Essential Vim Keys</h3>
+  <table>
+    <thead><tr><th>Key</th><th>Mode</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>i</kbd></td><td>Normal &rarr; Insert</td><td>Insert text before cursor</td></tr>
+      <tr><td><kbd>a</kbd></td><td>Normal &rarr; Insert</td><td>Insert text after cursor</td></tr>
+      <tr><td><kbd>o</kbd></td><td>Normal &rarr; Insert</td><td>Open new line below and insert</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Insert &rarr; Normal</td><td>Return to Normal mode</td></tr>
+      <tr><td><kbd>:w</kbd></td><td>Command</td><td>Save the file</td></tr>
+      <tr><td><kbd>:q</kbd></td><td>Command</td><td>Quit (fails if unsaved changes)</td></tr>
+      <tr><td><kbd>:wq</kbd></td><td>Command</td><td>Save and quit</td></tr>
+      <tr><td><kbd>:q!</kbd></td><td>Command</td><td>Quit without saving (force)</td></tr>
+      <tr><td><kbd>dd</kbd></td><td>Normal</td><td>Delete (cut) current line</td></tr>
+      <tr><td><kbd>yy</kbd></td><td>Normal</td><td>Yank (copy) current line</td></tr>
+      <tr><td><kbd>p</kbd></td><td>Normal</td><td>Paste after cursor</td></tr>
+      <tr><td><kbd>u</kbd></td><td>Normal</td><td>Undo</td></tr>
+      <tr><td><kbd>Ctrl+R</kbd></td><td>Normal</td><td>Redo</td></tr>
+      <tr><td><kbd>/pattern</kbd></td><td>Normal</td><td>Search forward for <em>pattern</em></td></tr>
+      <tr><td><kbd>n</kbd></td><td>Normal</td><td>Next search match</td></tr>
+      <tr><td><kbd>N</kbd></td><td>Normal</td><td>Previous search match</td></tr>
+      <tr><td><kbd>h j k l</kbd></td><td>Normal</td><td>Move left, down, up, right</td></tr>
+      <tr><td><kbd>gg</kbd></td><td>Normal</td><td>Go to first line</td></tr>
+      <tr><td><kbd>G</kbd></td><td>Normal</td><td>Go to last line</td></tr>
+      <tr><td><kbd>:set number</kbd></td><td>Command</td><td>Show line numbers</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> vim myfile.txt                # open file in vim</code></pre>
+
+  <pre><code><span class="prompt">$</span> vim +10 myfile.txt            # open at line 10</code></pre>
+
+  <pre><code><span class="prompt">$</span> vim -R /etc/passwd            # open in read-only mode</code></pre>
+
+  <pre><code><span class="prompt">$</span> vim +/error logfile.txt       # open and jump to first "error"</code></pre>
+
+  <pre><code><span class="prompt">$</span> vim -O file1.txt file2.txt    # open two files side by side</code></pre>
+
+  <pre><code><span class="prompt">$</span> vim -o file1.txt file2.txt    # open two files stacked</code></pre>
+
+  <pre><code><span class="prompt">$</span> sudo vim /etc/fstab           # edit system files</code></pre>
+
+  <pre><code><span class="prompt">$</span> vim -d file1.txt file2.txt    # diff mode, show differences</code></pre>
+
+  <h3>Survival Guide: Your First Vim Session</h3>
+  <ol>
+    <li>Open: <code>vim myfile.txt</code></li>
+    <li>Press <kbd>i</kbd> to enter Insert mode</li>
+    <li>Type your text</li>
+    <li>Press <kbd>Esc</kbd> to go back to Normal mode</li>
+    <li>Type <kbd>:wq</kbd> and press <kbd>Enter</kbd> to save and quit</li>
+  </ol>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Stuck in vim?</div>
+    <p>Press <kbd>Esc</kbd> a few times to make sure you are in Normal mode, then type <code>:q!</code> and press <kbd>Enter</kbd> to quit without saving. This is the single most common question from beginners.</p>
+  </div>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code># Trying to type text in Normal mode
+# (you'll trigger random commands instead!)</code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code># Press i first to enter Insert mode
+# THEN type your text
+# Press Esc when done typing</code></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 8. WC                                                          -->
+  <!-- ============================================================ -->
+  <h2 id="wc">8. <code>wc</code> &mdash; Word, Line, and Character Count</h2>
+
+  <p><code>wc</code> (word count) counts lines, words, and characters in files. It is a small command but incredibly useful &mdash; especially when piped with other commands to count results.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>wc [OPTIONS] [FILE...]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-l</code></td><td>Count lines only</td></tr>
+      <tr><td><code>-w</code></td><td>Count words only</td></tr>
+      <tr><td><code>-c</code></td><td>Count bytes only</td></tr>
+      <tr><td><code>-m</code></td><td>Count characters only (differs from <code>-c</code> for multi-byte encodings like UTF-8)</td></tr>
+      <tr><td><code>-L</code></td><td>Print the length of the longest line</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> wc story.txt
+<span class="output">  42  318 1876 story.txt</span>
+<span class="output"># 42 lines, 318 words, 1876 bytes</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> wc -l story.txt
+<span class="output">42 story.txt</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> wc -w story.txt
+<span class="output">318 story.txt</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> wc -c story.txt
+<span class="output">1876 story.txt</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> wc -m utf8file.txt
+<span class="output">1650 utf8file.txt</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> wc -L story.txt
+<span class="output">78 story.txt</span>
+<span class="output"># longest line is 78 characters</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> wc -l file1.txt file2.txt file3.txt
+<span class="output">  10 file1.txt
+  25 file2.txt
+  42 file3.txt
+  77 total</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat /etc/passwd | wc -l       # count users on the system
+<span class="output">35</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> ls /usr/bin | wc -l           # how many programs in /usr/bin?
+<span class="output">1847</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> grep "ERROR" app.log | wc -l  # count error lines
+<span class="output">14</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> find . -name "*.py" | wc -l   # count Python files
+<span class="output">23</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p><code>wc -l</code> is one of the most common pipe endings. Whenever you need to count results from another command, pipe it into <code>wc -l</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 9. SORT                                                        -->
+  <!-- ============================================================ -->
+  <h2 id="sort">9. <code>sort</code> &mdash; Sort Lines of Text</h2>
+
+  <p><code>sort</code> reads lines from a file (or stdin) and outputs them in sorted order. By default it sorts alphabetically (lexicographically). You can sort numerically, in reverse, by a specific column, and more.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>sort [OPTIONS] [FILE...]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-n</code></td><td>Sort numerically (not alphabetically)</td></tr>
+      <tr><td><code>-r</code></td><td>Reverse the sort order</td></tr>
+      <tr><td><code>-k NUM</code></td><td>Sort by column NUM (fields separated by whitespace)</td></tr>
+      <tr><td><code>-t CHAR</code></td><td>Use CHAR as the field delimiter</td></tr>
+      <tr><td><code>-u</code></td><td>Remove duplicate lines (unique output)</td></tr>
+      <tr><td><code>-f</code></td><td>Case-insensitive sort</td></tr>
+      <tr><td><code>-h</code></td><td>Sort human-readable numbers (1K, 2M, 3G)</td></tr>
+      <tr><td><code>-o FILE</code></td><td>Write output to FILE (can be the same as input)</td></tr>
+      <tr><td><code>-c</code></td><td>Check if input is already sorted (no output if yes)</td></tr>
+      <tr><td><code>-s</code></td><td>Stable sort (preserve original order of equal elements)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> cat fruits.txt
+<span class="output">banana
+apple
+cherry
+apple
+date
+banana</span>
+
+<span class="prompt">$</span> sort fruits.txt
+<span class="output">apple
+apple
+banana
+banana
+cherry
+date</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort -r fruits.txt
+<span class="output">date
+cherry
+banana
+banana
+apple
+apple</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort -u fruits.txt            # sorted and unique
+<span class="output">apple
+banana
+cherry
+date</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat numbers.txt
+<span class="output">10
+2
+33
+5
+1
+100</span>
+
+<span class="prompt">$</span> sort numbers.txt              # alphabetic: 1, 10, 100, 2, 33, 5
+<span class="output">1
+10
+100
+2
+33
+5</span>
+
+<span class="prompt">$</span> sort -n numbers.txt           # numeric: correct order
+<span class="output">1
+2
+5
+10
+33
+100</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort -nr numbers.txt          # numeric descending
+<span class="output">100
+33
+10
+5
+2
+1</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat scores.txt
+<span class="output">Alice 95
+Bob 87
+Carol 92
+Dave 87
+Eve 99</span>
+
+<span class="prompt">$</span> sort -k2 -n scores.txt        # sort by second column, numeric
+<span class="output">Bob 87
+Dave 87
+Carol 92
+Alice 95
+Eve 99</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort -t: -k3 -n /etc/passwd   # sort passwd by UID (field 3, colon-delimited)
+<span class="output">root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+...</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> du -sh /var/log/* | sort -h   # sort by human-readable size
+<span class="output">4.0K    /var/log/alternatives.log
+12K     /var/log/bootstrap.log
+1.2M    /var/log/dpkg.log
+5.6M    /var/log/syslog
+22M     /var/log/journal</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort -f mixed_case.txt        # case-insensitive
+<span class="output">Alice
+alice
+Bob
+bob</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort -o sorted.txt unsorted.txt   # save to file
+<span class="prompt">$</span> sort -o data.txt data.txt          # sort a file in place (safe!)</code></pre>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> sort numbers.txt      # treats "10" as less than "2" (alphabetic)
+<span class="output">1
+10
+100
+2
+33
+5</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> sort -n numbers.txt   # use -n for numeric data
+<span class="output">1
+2
+5
+10
+33
+100</span></code></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 10. UNIQ                                                       -->
+  <!-- ============================================================ -->
+  <h2 id="uniq">10. <code>uniq</code> &mdash; Remove Duplicate Lines</h2>
+
+  <p><code>uniq</code> filters out <em>adjacent</em> duplicate lines. This is a crucial detail: it only removes duplicates that are next to each other, so you almost always need to <code>sort</code> the input first.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>uniq [OPTIONS] [INPUT [OUTPUT]]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-c</code></td><td>Prefix each line with the count of occurrences</td></tr>
+      <tr><td><code>-d</code></td><td>Only print duplicate lines (lines that appear more than once)</td></tr>
+      <tr><td><code>-u</code></td><td>Only print unique lines (lines that appear exactly once)</td></tr>
+      <tr><td><code>-i</code></td><td>Case-insensitive comparison</td></tr>
+      <tr><td><code>-f NUM</code></td><td>Skip the first NUM fields before comparing</td></tr>
+      <tr><td><code>-s NUM</code></td><td>Skip the first NUM characters before comparing</td></tr>
+      <tr><td><code>-w NUM</code></td><td>Compare only the first NUM characters</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> cat colors.txt
+<span class="output">red
+blue
+red
+green
+blue
+blue</span>
+
+<span class="prompt">$</span> uniq colors.txt               # WRONG: only removes ADJACENT duplicates
+<span class="output">red
+blue
+red
+green
+blue</span>
+
+<span class="prompt">$</span> sort colors.txt | uniq         # RIGHT: sort first, then remove duplicates
+<span class="output">blue
+green
+red</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort colors.txt | uniq -c      # count occurrences
+<span class="output">      3 blue
+      1 green
+      2 red</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort colors.txt | uniq -c | sort -rn   # most common first
+<span class="output">      3 blue
+      2 red
+      1 green</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort colors.txt | uniq -d      # only show duplicated lines
+<span class="output">blue
+red</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort colors.txt | uniq -u      # only show truly unique lines
+<span class="output">green</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> sort -f names.txt | uniq -i    # case-insensitive dedup
+<span class="output">Alice
+Bob
+carol</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Count unique IP addresses in an access log
+<span class="prompt">$</span> awk '{print $1}' access.log | sort | uniq -c | sort -rn | head -5
+<span class="output">    523 192.168.1.10
+    412 10.0.0.5
+    198 172.16.0.22
+     87 192.168.1.55
+     45 10.0.0.100</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Find duplicate lines in a file
+<span class="prompt">$</span> sort data.txt | uniq -d
+<span class="output">repeated_line_1
+repeated_line_2</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Count unique words in a file
+<span class="prompt">$</span> tr ' ' '\n' &lt; story.txt | sort | uniq | wc -l
+<span class="output">148</span></code></pre>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> uniq unsorted.txt     # misses non-adjacent duplicates!
+<span class="output">apple
+banana
+apple               &lt;-- still here because not adjacent</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> sort unsorted.txt | uniq   # sort first!
+<span class="output">apple
+banana</span></code></pre>
+    </div>
+  </div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Always sort before uniq</div>
+    <p><code>uniq</code> only compares <em>adjacent</em> lines. If your data is not sorted, <code>uniq</code> will miss duplicates that are separated by other lines. The pattern <code>sort | uniq</code> is so common it is practically one command. (You can also use <code>sort -u</code> as a shortcut for simple deduplication.)</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 11. CUT                                                        -->
+  <!-- ============================================================ -->
+  <h2 id="cut">11. <code>cut</code> &mdash; Extract Columns from Text</h2>
+
+  <p><code>cut</code> extracts specific columns (fields) or character ranges from each line of input. It is perfect for pulling data out of CSV files, log files, or any structured text.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>cut [OPTIONS] [FILE...]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-d CHAR</code></td><td>Use CHAR as the field delimiter (default is tab)</td></tr>
+      <tr><td><code>-f LIST</code></td><td>Select fields (columns) by number. E.g., <code>-f1</code>, <code>-f1,3</code>, <code>-f2-5</code></td></tr>
+      <tr><td><code>-c LIST</code></td><td>Select characters by position. E.g., <code>-c1-10</code></td></tr>
+      <tr><td><code>-b LIST</code></td><td>Select bytes by position</td></tr>
+      <tr><td><code>--complement</code></td><td>Show everything <em>except</em> the selected fields</td></tr>
+      <tr><td><code>-s</code></td><td>Only print lines that contain the delimiter</td></tr>
+      <tr><td><code>--output-delimiter=STR</code></td><td>Use STR as the output delimiter</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> cat data.csv
+<span class="output">name,age,city
+Alice,30,London
+Bob,25,Paris
+Carol,35,Tokyo</span>
+
+<span class="prompt">$</span> cut -d',' -f1 data.csv        # first field (name)
+<span class="output">name
+Alice
+Bob
+Carol</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cut -d',' -f1,3 data.csv      # fields 1 and 3
+<span class="output">name,city
+Alice,London
+Bob,Paris
+Carol,Tokyo</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cut -d',' -f2-3 data.csv      # fields 2 through 3
+<span class="output">age,city
+30,London
+25,Paris
+35,Tokyo</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cut -d: -f1 /etc/passwd        # extract usernames
+<span class="output">root
+daemon
+bin
+sys
+...</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cut -d: -f1,3 /etc/passwd     # username and UID
+<span class="output">root:0
+daemon:1
+bin:2
+...</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cut -c1-8 /etc/passwd          # first 8 characters of each line
+<span class="output">root:x:0
+daemon:x
+bin:x:2:
+...</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cut -d',' -f2 data.csv --complement   # everything except field 2
+<span class="output">name,city
+Alice,London
+Bob,Paris
+Carol,Tokyo</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cut -d',' -f1,3 --output-delimiter=' | ' data.csv
+<span class="output">name | city
+Alice | London
+Bob | Paris
+Carol | Tokyo</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Extract IP addresses from access log (space-delimited, field 1)
+<span class="prompt">$</span> cut -d' ' -f1 access.log | sort | uniq -c | sort -rn | head
+<span class="output">    523 192.168.1.10
+    412 10.0.0.5
+    198 172.16.0.22</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "Hello, World" | cut -c1-5
+<span class="output">Hello</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Extract the shell from /etc/passwd
+<span class="prompt">$</span> cut -d: -f1,7 /etc/passwd | head -3
+<span class="output">root:/bin/bash
+daemon:/usr/sbin/nologin
+bin:/usr/sbin/nologin</span></code></pre>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> cut -f1 data.csv          # forgets delimiter, default is TAB
+<span class="output">name,age,city              # entire line (no tabs found)</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> cut -d',' -f1 data.csv    # specify the comma delimiter
+<span class="output">name
+Alice
+Bob
+Carol</span></code></pre>
+    </div>
+  </div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Remember: <code>cut</code> defaults to <strong>tab</strong> as the delimiter. If your data uses commas, colons, spaces, or anything else, you must specify <code>-d</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 12. PASTE                                                      -->
+  <!-- ============================================================ -->
+  <h2 id="paste">12. <code>paste</code> &mdash; Merge Files Line by Line</h2>
+
+  <p><code>paste</code> joins lines from multiple files side by side. Where <code>cat</code> concatenates files vertically (one after another), <code>paste</code> merges them horizontally (column by column). It is the opposite of <code>cut</code>.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>paste [OPTIONS] [FILE...]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-d CHARS</code></td><td>Use CHARS as delimiters (default is tab). Can be a list of delimiters used in rotation.</td></tr>
+      <tr><td><code>-s</code></td><td>Paste serial: merge all lines of each file into one line</td></tr>
+      <tr><td><code>-z</code></td><td>Use NUL as line delimiter instead of newline</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> cat names.txt
+<span class="output">Alice
+Bob
+Carol</span>
+
+<span class="prompt">$</span> cat ages.txt
+<span class="output">30
+25
+35</span>
+
+<span class="prompt">$</span> paste names.txt ages.txt
+<span class="output">Alice	30
+Bob	25
+Carol	35</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> paste -d',' names.txt ages.txt
+<span class="output">Alice,30
+Bob,25
+Carol,35</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> cat cities.txt
+<span class="output">London
+Paris
+Tokyo</span>
+
+<span class="prompt">$</span> paste -d',' names.txt ages.txt cities.txt
+<span class="output">Alice,30,London
+Bob,25,Paris
+Carol,35,Tokyo</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> paste -s names.txt            # serial: all lines joined into one
+<span class="output">Alice	Bob	Carol</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> paste -s -d',' names.txt      # serial with comma delimiter
+<span class="output">Alice,Bob,Carol</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> paste -d'\n' names.txt ages.txt   # interleave lines
+<span class="output">Alice
+30
+Bob
+25
+Carol
+35</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Use - (stdin) to reshape a single column into multiple columns
+<span class="prompt">$</span> seq 1 8 | paste - - - -       # four columns
+<span class="output">1	2	3	4
+5	6	7	8</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> seq 1 6 | paste -d',' - -     # two columns, comma-separated
+<span class="output">1,2
+3,4
+5,6</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Combine cut and paste: swap columns
+<span class="prompt">$</span> cut -d',' -f2 data.csv &gt; /tmp/col2
+<span class="prompt">$</span> cut -d',' -f1 data.csv &gt; /tmp/col1
+<span class="prompt">$</span> paste -d',' /tmp/col2 /tmp/col1
+<span class="output">age,name
+30,Alice
+25,Bob
+35,Carol</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Number lines from two sources side by side
+<span class="prompt">$</span> paste -d': ' /dev/null names.txt ages.txt
+<span class="output"> Alice 30
+ Bob 25
+ Carol 35</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">The <code>-</code> trick</div>
+    <p>When you use <code>-</code> as a filename, <code>paste</code> reads from standard input. Multiple dashes split stdin into columns. <code>seq 1 8 | paste - - - -</code> turns 8 lines into 2 rows of 4.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 13. TR                                                         -->
+  <!-- ============================================================ -->
+  <h2 id="tr">13. <code>tr</code> &mdash; Translate or Delete Characters</h2>
+
+  <p><code>tr</code> (translate) replaces, deletes, or squeezes characters. It reads from standard input only (no filename argument), so you must pipe or redirect into it. It works on individual characters, not words or patterns.</p>
+
+  <h3>Syntax</h3>
+  <pre><code>tr [OPTIONS] SET1 [SET2]</code></pre>
+
+  <h3>Common Flags</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>-d</code></td><td>Delete characters in SET1</td></tr>
+      <tr><td><code>-s</code></td><td>Squeeze: replace consecutive repeated characters with one</td></tr>
+      <tr><td><code>-c</code></td><td>Complement: use the complement of SET1 (all chars NOT in SET1)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Character Classes</h3>
+  <table>
+    <thead><tr><th>Class</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>[:lower:]</code></td><td>Lowercase letters (a-z)</td></tr>
+      <tr><td><code>[:upper:]</code></td><td>Uppercase letters (A-Z)</td></tr>
+      <tr><td><code>[:alpha:]</code></td><td>All letters</td></tr>
+      <tr><td><code>[:digit:]</code></td><td>Digits (0-9)</td></tr>
+      <tr><td><code>[:alnum:]</code></td><td>Letters and digits</td></tr>
+      <tr><td><code>[:space:]</code></td><td>Whitespace characters</td></tr>
+      <tr><td><code>[:punct:]</code></td><td>Punctuation characters</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="prompt">$</span> echo "hello world" | tr 'a-z' 'A-Z'
+<span class="output">HELLO WORLD</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "HELLO WORLD" | tr '[:upper:]' '[:lower:]'
+<span class="output">hello world</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "hello world" | tr ' ' '_'
+<span class="output">hello_world</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "hello 123 world" | tr -d '[:digit:]'
+<span class="output">hello  world</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "hello 123 world" | tr -d ' '
+<span class="output">hello123world</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "aabbccdd" | tr -s 'a-z'
+<span class="output">abcd</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "hello     world" | tr -s ' '
+<span class="output">hello world</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "Hello, World! 123" | tr -cd '[:alpha:]'
+<span class="output">HelloWorld</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> echo "Hello, World! 123" | tr -cd '[:alnum:] \n'
+<span class="output">Hello World 123</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Replace newlines with spaces (join all lines)
+<span class="prompt">$</span> cat names.txt | tr '\n' ' '
+<span class="output">Alice Bob Carol </span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Split words to lines (replace spaces with newlines)
+<span class="prompt">$</span> echo "one two three" | tr ' ' '\n'
+<span class="output">one
+two
+three</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # ROT13 encoding
+<span class="prompt">$</span> echo "Hello" | tr 'A-Za-z' 'N-ZA-Mn-za-m'
+<span class="output">Uryyb</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Replace tabs with spaces
+<span class="prompt">$</span> cat Makefile | tr '\t' '    '
+<span class="output">(tabs replaced with spaces)</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> # Remove carriage returns from Windows files
+<span class="prompt">$</span> tr -d '\r' &lt; windows_file.txt &gt; unix_file.txt</code></pre>
+
+  <pre><code><span class="prompt">$</span> # Count unique words (split + sort + uniq + count)
+<span class="prompt">$</span> tr ' ' '\n' &lt; story.txt | sort | uniq -c | sort -rn | head -5
+<span class="output">     42 the
+     31 and
+     28 of
+     19 to
+     15 a</span></code></pre>
+
+  <h3>Common Mistakes</h3>
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="prompt">$</span> tr 'a-z' 'A-Z' myfile.txt    # tr does NOT take filenames!
+<span class="output">tr: extra operand 'myfile.txt'</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Right</div>
+      <pre><code><span class="prompt">$</span> tr 'a-z' 'A-Z' &lt; myfile.txt  # redirect from file
+<span class="output">CONTENTS OF MYFILE IN UPPERCASE</span></code></pre>
+    </div>
+  </div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">tr reads only from stdin</div>
+    <p><code>tr</code> never takes a filename argument. You must use <code>&lt; file</code> (redirection) or pipe into it. This trips up almost every beginner.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- EXERCISES                                                      -->
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: File Inspection Pipeline</div>
+    <p>Create a file called <code>animals.txt</code> with these lines (one per line): dog, cat, bird, cat, fish, dog, bird, bird, cat. Then:</p>
+    <ol>
+      <li>Count how many lines the file has.</li>
+      <li>Sort the file and remove duplicates. How many unique animals are there?</li>
+      <li>Find which animal appears most often and how many times.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> printf "dog\ncat\nbird\ncat\nfish\ndog\nbird\nbird\ncat\n" &gt; animals.txt
+
+<span class="prompt">$</span> wc -l animals.txt
+<span class="output">9 animals.txt</span>
+
+<span class="prompt">$</span> sort animals.txt | uniq
+<span class="output">bird
+cat
+dog
+fish</span>
+
+<span class="prompt">$</span> sort animals.txt | uniq | wc -l
+<span class="output">4</span>
+
+<span class="prompt">$</span> sort animals.txt | uniq -c | sort -rn | head -1
+<span class="output">      3 bird</span>
+<span class="output">      3 cat</span></code></pre>
+      <p>The file has 9 lines. There are 4 unique animals. "bird" and "cat" are tied at 3 each.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Text Transformation</div>
+    <p>Given this CSV data in a file called <code>people.csv</code>:</p>
+    <pre><code>Name,Age,City
+alice,30,london
+BOB,25,PARIS
+Carol,35,Tokyo</code></pre>
+    <ol>
+      <li>Extract just the names (first column).</li>
+      <li>Convert all names to uppercase.</li>
+      <li>Extract the ages and cities (columns 2 and 3).</li>
+      <li>Replace all commas with tabs.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> cut -d',' -f1 people.csv
+<span class="output">Name
+alice
+BOB
+Carol</span>
+
+<span class="prompt">$</span> cut -d',' -f1 people.csv | tr '[:lower:]' '[:upper:]'
+<span class="output">NAME
+ALICE
+BOB
+CAROL</span>
+
+<span class="prompt">$</span> cut -d',' -f2,3 people.csv
+<span class="output">Age,City
+30,london
+25,PARIS
+35,Tokyo</span>
+
+<span class="prompt">$</span> tr ',' '\t' &lt; people.csv
+<span class="output">Name	Age	City
+alice	30	london
+BOB	25	PARIS
+Carol	35	Tokyo</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Log Analysis</div>
+    <p>Imagine you have a web server log at <code>/var/log/access.log</code> where each line starts with an IP address followed by a space. Write a one-liner pipeline that:</p>
+    <ol>
+      <li>Extracts the IP addresses.</li>
+      <li>Sorts them.</li>
+      <li>Counts unique occurrences.</li>
+      <li>Shows the top 5 most frequent visitors.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> cut -d' ' -f1 /var/log/access.log | sort | uniq -c | sort -rn | head -5
+<span class="output">    523 192.168.1.10
+    412 10.0.0.5
+    198 172.16.0.22
+     87 192.168.1.55
+     45 10.0.0.100</span></code></pre>
+      <p>This pipeline: <code>cut</code> extracts field 1 (IP), <code>sort</code> puts identical IPs together, <code>uniq -c</code> counts them, <code>sort -rn</code> sorts by count descending, and <code>head -5</code> limits to the top 5.</p>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 4: Merge and Transform</div>
+    <p>Create two files:</p>
+    <pre><code>first_names.txt:    last_names.txt:
+Alice               Smith
+Bob                 Jones
+Carol               Williams</code></pre>
+    <p>Merge them into a single file with the format "LASTNAME, Firstname" (last name uppercase, first name as-is, comma separated).</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> paste -d',' last_names.txt first_names.txt | \
+    while IFS=',' read last first; do
+      echo "$(echo "$last" | tr '[:lower:]' '[:upper:]'), $first"
+    done
+<span class="output">SMITH, Alice
+JONES, Bob
+WILLIAMS, Carol</span></code></pre>
+      <p>Or a simpler approach using <code>awk</code>:</p>
+      <pre><code><span class="prompt">$</span> paste last_names.txt first_names.txt | awk '{printf "%s, %s\n", toupper($1), $2}'
+<span class="output">SMITH, Alice
+JONES, Bob
+WILLIAMS, Carol</span></code></pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- QUIZZES                                                        -->
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Quizzes</h2>
+
+  <div class="quiz">
+    <div class="quiz__question">
+      <strong>Quiz 1:</strong> You have a file called <code>data.txt</code> with 500 lines. Which command shows lines 20 through 30?
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+    <div class="quiz__answer" style="display:none">
+      <pre><code><span class="prompt">$</span> head -n 30 data.txt | tail -n 11</code></pre>
+      <p><code>head -n 30</code> gets lines 1-30, then <code>tail -n 11</code> gets the last 11 of those (lines 20-30). Another approach: <code>sed -n '20,30p' data.txt</code>.</p>
+    </div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">
+      <strong>Quiz 2:</strong> What is wrong with this command: <code>uniq names.txt</code>? When will it fail to remove all duplicates?
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+    <div class="quiz__answer" style="display:none">
+      <p><code>uniq</code> only removes <strong>adjacent</strong> duplicate lines. If the file contains:</p>
+      <pre><code>alice
+bob
+alice</code></pre>
+      <p>The two "alice" lines are not adjacent, so <code>uniq</code> keeps both. You must sort first: <code>sort names.txt | uniq</code>.</p>
+    </div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">
+      <strong>Quiz 3:</strong> You are stuck in vim and you have made changes you do NOT want to keep. How do you exit without saving?
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+    <div class="quiz__answer" style="display:none">
+      <p>Press <kbd>Esc</kbd> (to ensure you are in Normal mode), then type <code>:q!</code> and press <kbd>Enter</kbd>. The <code>!</code> forces vim to quit without saving. Without <code>!</code>, vim will refuse to quit if there are unsaved changes.</p>
+    </div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">
+      <strong>Quiz 4:</strong> What does this pipeline do: <code>tr ' ' '\n' &lt; essay.txt | sort | uniq -c | sort -rn | head -10</code>?
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.style.display='block'">Show Answer</button>
+    <div class="quiz__answer" style="display:none">
+      <p>It finds the <strong>10 most frequently used words</strong> in <code>essay.txt</code>. Step by step:</p>
+      <ol>
+        <li><code>tr ' ' '\n'</code> &mdash; splits words onto separate lines (replaces spaces with newlines)</li>
+        <li><code>sort</code> &mdash; puts identical words next to each other</li>
+        <li><code>uniq -c</code> &mdash; counts each word's occurrences</li>
+        <li><code>sort -rn</code> &mdash; sorts by count, highest first</li>
+        <li><code>head -10</code> &mdash; shows only the top 10</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- CHAPTER SUMMARY                                                -->
+  <!-- ============================================================ -->
+  <h2 id="summary">Chapter Summary</h2>
+
+  <table>
+    <thead><tr><th>Command</th><th>Purpose</th><th>Key Flags</th></tr></thead>
+    <tbody>
+      <tr><td><code>cat</code></td><td>Display/concatenate files</td><td><code>-n</code>, <code>-b</code>, <code>-A</code></td></tr>
+      <tr><td><code>less</code></td><td>Page through files</td><td><code>-N</code>, <code>-S</code>, <code>-i</code>, <code>+F</code></td></tr>
+      <tr><td><code>more</code></td><td>Older pager (prefer less)</td><td><code>-d</code>, <code>+NUM</code></td></tr>
+      <tr><td><code>head</code></td><td>First N lines</td><td><code>-n</code>, <code>-c</code></td></tr>
+      <tr><td><code>tail</code></td><td>Last N lines, follow live</td><td><code>-n</code>, <code>-f</code>, <code>-F</code></td></tr>
+      <tr><td><code>nano</code></td><td>Beginner text editor</td><td><code>-l</code>, <code>-B</code>, <code>-w</code></td></tr>
+      <tr><td><code>vim</code></td><td>Powerful modal editor</td><td><code>i</code>, <code>Esc</code>, <code>:wq</code>, <code>:q!</code></td></tr>
+      <tr><td><code>wc</code></td><td>Count lines/words/chars</td><td><code>-l</code>, <code>-w</code>, <code>-c</code>, <code>-m</code></td></tr>
+      <tr><td><code>sort</code></td><td>Sort lines</td><td><code>-n</code>, <code>-r</code>, <code>-k</code>, <code>-t</code>, <code>-u</code></td></tr>
+      <tr><td><code>uniq</code></td><td>Remove adjacent duplicates</td><td><code>-c</code>, <code>-d</code>, <code>-u</code></td></tr>
+      <tr><td><code>cut</code></td><td>Extract columns</td><td><code>-d</code>, <code>-f</code>, <code>-c</code></td></tr>
+      <tr><td><code>paste</code></td><td>Merge files side by side</td><td><code>-d</code>, <code>-s</code></td></tr>
+      <tr><td><code>tr</code></td><td>Translate/delete characters</td><td><code>-d</code>, <code>-s</code>, <code>-c</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Key takeaway</div>
+    <p>The real power of these commands is not in using them alone &mdash; it is in <strong>combining them with pipes</strong>. A pipeline like <code>cut -d',' -f3 data.csv | sort | uniq -c | sort -rn | head -5</code> can answer complex questions about your data in seconds. Practice building pipelines and these commands will become second nature.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- NAVIGATION                                                     -->
+  <!-- ============================================================ -->
+  <div class="chapter-nav">
+    <a class="chapter-nav__prev" href="../03-files-directories/index.html">&larr; 3. Files &amp; Directories</a>
+    <a class="chapter-nav__next" href="../05-search-filtering/index.html">5. Search &amp; Filtering &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

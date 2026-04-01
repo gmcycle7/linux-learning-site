@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 17: Git Basics — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link active" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &rsaquo;
+    <span>Chapter 17: Git Basics</span>
+  </nav>
+
+  <h1>Chapter 17: Git Basics</h1>
+
+  <p>Git is the most widely used version control system in the world. Whether you are writing shell scripts, managing configuration files, or contributing to open-source projects, Git lets you <strong>track every change</strong>, collaborate with others, and undo mistakes with confidence. This chapter teaches you everything you need to get productive with Git on the Linux command line.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Prerequisites</div>
+    <p>You should be comfortable navigating the terminal (Chapter 2), working with files and directories (Chapter 3), and using a text editor like <code>nano</code> or <code>vim</code> (Chapter 4). No prior Git experience is needed.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="what-is-git">1. What is Git?</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Git</strong> is a <em>distributed version control system</em> (DVCS). It records every change you make to files over time, so you can recall any previous version whenever you need it. Created by Linus Torvalds in 2005 to manage the Linux kernel source code, Git is now the industry standard for software development.</p>
+
+  <h3>Why Version Control Matters</h3>
+
+  <ul>
+    <li><strong>Undo mistakes</strong> &mdash; accidentally deleted a paragraph or broke a script? Roll back to a working version.</li>
+    <li><strong>Track history</strong> &mdash; see who changed what, when, and why.</li>
+    <li><strong>Collaborate safely</strong> &mdash; multiple people can work on the same project without overwriting each other.</li>
+    <li><strong>Branching</strong> &mdash; experiment with new features without affecting the stable version.</li>
+    <li><strong>Backup</strong> &mdash; pushing to a remote repository means your code lives in multiple places.</li>
+  </ul>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">The "Save Game" Analogy</div>
+    <p>Think of Git like a video game save system. Every time you <strong>commit</strong>, you create a save point. You can keep playing (making changes), and if something goes wrong you can load any previous save. You can even create parallel timelines (branches) to try different strategies without losing your main progress.</p>
+  </div>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: The Three Areas of Git</div>
+    <p>Git organizes your work into three areas:</p>
+    <ol>
+      <li><strong>Working Directory</strong> &mdash; the actual files on your disk that you edit.</li>
+      <li><strong>Staging Area (Index)</strong> &mdash; a holding area where you prepare changes before saving them. Think of it as a "loading dock."</li>
+      <li><strong>Repository (.git/)</strong> &mdash; the permanent history of all your committed snapshots.</li>
+    </ol>
+    <pre><code>  Working Directory    Staging Area    Repository
+  ┌──────────────┐    ┌───────────┐    ┌──────────┐
+  │  Edit files   │──&gt;│ git add    │──&gt;│ git commit│
+  │  (your work)  │    │ (prepare)  │    │ (save)    │
+  └──────────────┘    └───────────┘    └──────────┘
+         │                                    │
+         │&lt;───────────── git checkout ────────│</code></pre>
+    <p>Every Git command moves data between these three areas. Once you understand this flow, everything else clicks into place.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="installing-git">2. Installing Git</h2>
+  <!-- ============================================================ -->
+
+  <p>Most Linux distributions come with Git pre-installed. If not, installing it takes one command.</p>
+
+  <h3>Install on Debian/Ubuntu</h3>
+
+  <pre><code><span class="prompt">$</span> sudo apt update
+<span class="prompt">$</span> sudo apt install git</code></pre>
+
+  <h3>Install on Fedora/RHEL</h3>
+
+  <pre><code><span class="prompt">$</span> sudo dnf install git</code></pre>
+
+  <h3>Install on Arch</h3>
+
+  <pre><code><span class="prompt">$</span> sudo pacman -S git</code></pre>
+
+  <h3>Verify the Installation</h3>
+
+  <pre><code><span class="prompt">$</span> git --version
+<span class="output">git version 2.43.0</span></code></pre>
+
+  <h3>Initial Setup (Required)</h3>
+
+  <p>Git needs to know who you are before you can commit. These settings are stored in <code>~/.gitconfig</code>.</p>
+
+  <pre><code><span class="prompt">$</span> git config --global user.name "Your Name"
+<span class="prompt">$</span> git config --global user.email "you@example.com"
+
+<span class="comment"># Optionally set your default editor</span>
+<span class="prompt">$</span> git config --global core.editor nano
+
+<span class="comment"># Set the default branch name to "main" (modern convention)</span>
+<span class="prompt">$</span> git config --global init.defaultBranch main
+
+<span class="comment"># Verify your settings</span>
+<span class="prompt">$</span> git config --list
+<span class="output">user.name=Your Name
+user.email=you@example.com
+core.editor=nano
+init.defaultbranch=main</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="git-init">3. <code>git init</code> &mdash; Create a New Repository</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>git init</code> command creates a brand-new Git repository in the current directory. It adds a hidden <code>.git/</code> folder that stores all version-control metadata.</p>
+
+  <pre><code><span class="prompt">$</span> git init
+<span class="output">Initialized empty Git repository in /home/user/project/.git/</span></code></pre>
+
+  <h3>What is .git/?</h3>
+
+  <p>The <code>.git/</code> directory is where Git stores everything: commit history, branches, configuration, and objects. If you delete this folder, you lose all version history (but keep your files).</p>
+
+  <pre><code><span class="prompt">$</span> ls -la .git/
+<span class="output">total 40
+drwxr-xr-x  7 user user 4096 Jan 15 10:00 .
+drwxr-xr-x  3 user user 4096 Jan 15 10:00 ..
+-rw-r--r--  1 user user   23 Jan 15 10:00 HEAD
+drwxr-xr-x  2 user user 4096 Jan 15 10:00 branches
+-rw-r--r--  1 user user   92 Jan 15 10:00 config
+-rw-r--r--  1 user user   73 Jan 15 10:00 description
+drwxr-xr-x  2 user user 4096 Jan 15 10:00 hooks
+drwxr-xr-x  2 user user 4096 Jan 15 10:00 info
+drwxr-xr-x  4 user user 4096 Jan 15 10:00 objects
+drwxr-xr-x  4 user user 4096 Jan 15 10:00 refs</span></code></pre>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Create a project and initialize Git</span>
+<span class="prompt">$</span> mkdir my-project && cd my-project
+<span class="prompt">$</span> git init
+<span class="output">Initialized empty Git repository in /home/user/my-project/.git/</span>
+
+<span class="comment"># Initialize in a specific directory</span>
+<span class="prompt">$</span> git init /home/user/new-repo
+<span class="output">Initialized empty Git repository in /home/user/new-repo/.git/</span>
+
+<span class="comment"># Initialize with a custom default branch name</span>
+<span class="prompt">$</span> git init --initial-branch=main my-app
+<span class="output">Initialized empty Git repository in /home/user/my-app/.git/</span>
+
+<span class="comment"># Re-running git init on an existing repo is safe (does nothing harmful)</span>
+<span class="prompt">$</span> cd my-project
+<span class="prompt">$</span> git init
+<span class="output">Reinitialized existing Git repository in /home/user/my-project/.git/</span>
+
+<span class="comment"># Create a bare repository (for servers &mdash; no working directory)</span>
+<span class="prompt">$</span> git init --bare shared-repo.git
+<span class="output">Initialized empty Git repository in /home/user/shared-repo.git/</span></code></pre>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Warning</div>
+    <p>Never run <code>git init</code> inside your home directory (<code>~</code>) or root (<code>/</code>). This would try to track every file on your system. Always create a dedicated project directory first.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-clone">4. <code>git clone</code> &mdash; Clone an Existing Repository</h2>
+  <!-- ============================================================ -->
+
+  <p>Instead of starting from scratch, <code>git clone</code> copies an existing repository &mdash; including its entire history &mdash; to your machine.</p>
+
+  <pre><code><span class="prompt">$</span> git clone https://github.com/user/project.git
+<span class="output">Cloning into 'project'...
+remote: Enumerating objects: 234, done.
+remote: Counting objects: 100% (234/234), done.
+remote: Compressing objects: 100% (156/156), done.
+Receiving objects: 100% (234/234), 1.24 MiB | 3.40 MiB/s, done.</span></code></pre>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Clone via HTTPS</span>
+<span class="prompt">$</span> git clone https://github.com/torvalds/linux.git
+
+<span class="comment"># Clone via SSH (requires SSH key setup)</span>
+<span class="prompt">$</span> git clone git@github.com:user/project.git
+
+<span class="comment"># Clone into a specific directory name</span>
+<span class="prompt">$</span> git clone https://github.com/user/project.git my-local-name
+
+<span class="comment"># Shallow clone (only latest commit &mdash; faster for large repos)</span>
+<span class="prompt">$</span> git clone --depth 1 https://github.com/torvalds/linux.git
+
+<span class="comment"># Clone a specific branch</span>
+<span class="prompt">$</span> git clone --branch develop https://github.com/user/project.git
+
+<span class="comment"># Clone and also initialize submodules</span>
+<span class="prompt">$</span> git clone --recurse-submodules https://github.com/user/project.git</code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="git-status">5. <code>git status</code> &mdash; Check the Working Tree</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>git status</code> command shows the current state of your repository: which files are modified, which are staged, and which are untracked. Run it often &mdash; it is your GPS in Git.</p>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Clean working directory (nothing to commit)</span>
+<span class="prompt">$</span> git status
+<span class="output">On branch main
+nothing to commit, working tree clean</span>
+
+<span class="comment"># Untracked file (new file Git does not know about yet)</span>
+<span class="prompt">$</span> touch newfile.txt
+<span class="prompt">$</span> git status
+<span class="output">On branch main
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+        newfile.txt
+
+nothing added to commit but untracked files present (use "git add" to track)</span>
+
+<span class="comment"># Modified file (tracked file changed but not staged)</span>
+<span class="prompt">$</span> echo "update" >> README.md
+<span class="prompt">$</span> git status
+<span class="output">On branch main
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+        modified:   README.md</span>
+
+<span class="comment"># Staged file (ready to be committed)</span>
+<span class="prompt">$</span> git add README.md
+<span class="prompt">$</span> git status
+<span class="output">On branch main
+Changes to be committed:
+  (use "git restore --staged &lt;file&gt;..." to unstage)
+        modified:   README.md</span>
+
+<span class="comment"># Mix of staged, modified, and untracked files</span>
+<span class="prompt">$</span> git status
+<span class="output">On branch main
+Changes to be committed:
+        modified:   README.md
+Changes not staged for commit:
+        modified:   app.py
+Untracked files:
+        notes.txt</span>
+
+<span class="comment"># Short format for quick glances</span>
+<span class="prompt">$</span> git status -s
+<span class="output">M  README.md
+ M app.py
+?? notes.txt</span>
+
+<span class="comment"># Show branch info in short format</span>
+<span class="prompt">$</span> git status -sb
+<span class="output">## main...origin/main
+M  README.md
+ M app.py
+?? notes.txt</span>
+
+<span class="comment"># Check status of a specific path</span>
+<span class="prompt">$</span> git status src/
+<span class="output">On branch main
+Changes not staged for commit:
+        modified:   src/index.js</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: Read the Status Codes</div>
+    <p>In <code>git status -s</code>, the left column is the staging area and the right column is the working directory. <code>M</code> = modified, <code>A</code> = added, <code>D</code> = deleted, <code>??</code> = untracked, <code>R</code> = renamed.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-add">6. <code>git add</code> &mdash; Stage Files</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>git add</code> command moves changes from the working directory into the staging area. Only staged changes are included in the next commit.</p>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Stage a specific file</span>
+<span class="prompt">$</span> git add README.md
+
+<span class="comment"># Stage multiple specific files</span>
+<span class="prompt">$</span> git add file1.txt file2.txt file3.txt
+
+<span class="comment"># Stage all changes in the current directory (new, modified, deleted)</span>
+<span class="prompt">$</span> git add .
+
+<span class="comment"># Stage all changes in the entire repository</span>
+<span class="prompt">$</span> git add -A
+
+<span class="comment"># Stage only modified and deleted files (not new/untracked)</span>
+<span class="prompt">$</span> git add -u
+
+<span class="comment"># Stage files matching a pattern</span>
+<span class="prompt">$</span> git add *.py
+<span class="prompt">$</span> git add src/
+
+<span class="comment"># Interactive staging &mdash; choose chunks of changes to stage</span>
+<span class="prompt">$</span> git add -p
+<span class="output">diff --git a/app.py b/app.py
+@@ -1,3 +1,5 @@
++import os
++
+ def main():
+     print("hello")
+Stage this hunk [y,n,q,a,d,/,e,?]?</span>
+
+<span class="comment"># Verify what you staged</span>
+<span class="prompt">$</span> git add README.md
+<span class="prompt">$</span> git status
+<span class="output">Changes to be committed:
+        modified:   README.md</span></code></pre>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Why Does the Staging Area Exist?</div>
+    <p>The staging area gives you fine-grained control over commits. Instead of committing every change at once, you can stage and commit related changes together. For example, you might fix a bug in one file and add a feature in another &mdash; you can commit the bug fix first, then the feature separately. This keeps your history clean and meaningful.</p>
+  </div>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Be Careful with <code>git add .</code></div>
+    <p>Running <code>git add .</code> stages <em>everything</em>, including files you may not want to commit (log files, build artifacts, secrets). Always check <code>git status</code> before committing, and use a <code>.gitignore</code> file to exclude unwanted files.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-commit">7. <code>git commit</code> &mdash; Save Snapshots</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>git commit</code> command takes everything in the staging area and saves it as a permanent snapshot in the repository. Each commit has a unique SHA-1 hash, an author, a timestamp, and a message describing the change.</p>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Basic commit with a message</span>
+<span class="prompt">$</span> git commit -m "Add user login feature"
+<span class="output">[main 3a7f2e1] Add user login feature
+ 2 files changed, 45 insertions(+), 3 deletions(-)</span>
+
+<span class="comment"># Commit with a multi-line message (opens your editor)</span>
+<span class="prompt">$</span> git commit
+
+<span class="comment"># Stage and commit all tracked (modified/deleted) files in one step</span>
+<span class="prompt">$</span> git commit -am "Fix typo in README"
+
+<span class="comment"># Amend the most recent commit (fix message or add forgotten files)</span>
+<span class="prompt">$</span> git add forgotten-file.txt
+<span class="prompt">$</span> git commit --amend -m "Add user login feature (with validation)"
+
+<span class="comment"># Commit with a detailed multi-line message inline</span>
+<span class="prompt">$</span> git commit -m "Add search feature" -m "Implements full-text search using grep. Includes unit tests and updated documentation."
+
+<span class="comment"># Commit only specific staged files</span>
+<span class="prompt">$</span> git add src/login.py tests/test_login.py
+<span class="prompt">$</span> git commit -m "Add login module with tests"
+
+<span class="comment"># Create an empty commit (useful for triggering CI/CD)</span>
+<span class="prompt">$</span> git commit --allow-empty -m "Trigger rebuild"
+
+<span class="comment"># See what would be committed (dry run)</span>
+<span class="prompt">$</span> git diff --cached --stat
+<span class="output"> README.md  | 5 +++--
+ app.py     | 12 ++++++++++++
+ 2 files changed, 15 insertions(+), 2 deletions(-)</span></code></pre>
+
+  <h3>Writing Good Commit Messages</h3>
+
+  <table>
+    <thead>
+      <tr><th>Rule</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Use the imperative mood ("Add", not "Added")</td><td><code>Add user authentication</code></td></tr>
+      <tr><td>Keep the subject line under 50 characters</td><td><code>Fix null pointer in login handler</code></td></tr>
+      <tr><td>Separate subject from body with a blank line</td><td>(Use your editor for multi-line)</td></tr>
+      <tr><td>Explain <em>why</em>, not just <em>what</em></td><td>Body: "Users reported crashes when..."</td></tr>
+      <tr><td>Reference issue numbers when relevant</td><td><code>Fix login crash (closes #42)</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>A good commit message answers: "If I apply this commit, it will..." followed by your subject line. For example: "If I apply this commit, it will <em>fix the null pointer in the login handler</em>."</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-log">8. <code>git log</code> &mdash; View History</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>git log</code> command displays the commit history of your repository. It has many formatting options.</p>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Basic log (full details)</span>
+<span class="prompt">$</span> git log
+<span class="output">commit 3a7f2e1b9c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f (HEAD -> main)
+Author: Your Name &lt;you@example.com&gt;
+Date:   Mon Jan 15 14:30:00 2025 +0000
+
+    Add user login feature
+
+commit 1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c
+Author: Your Name &lt;you@example.com&gt;
+Date:   Mon Jan 15 10:00:00 2025 +0000
+
+    Initial commit</span>
+
+<span class="comment"># Compact one-line format</span>
+<span class="prompt">$</span> git log --oneline
+<span class="output">3a7f2e1 Add user login feature
+1b2c3d4 Initial commit</span>
+
+<span class="comment"># Show branch graph</span>
+<span class="prompt">$</span> git log --oneline --graph --all
+<span class="output">* 9f8e7d6 (HEAD -> main) Merge branch 'feature'
+|\
+| * 5c4d3e2 (feature) Add search bar
+| * 2a1b0c9 Style updates
+|/
+* 3a7f2e1 Add user login feature
+* 1b2c3d4 Initial commit</span>
+
+<span class="comment"># Limit to last N commits</span>
+<span class="prompt">$</span> git log -n 3
+<span class="prompt">$</span> git log -3          <span class="comment"># shorthand</span>
+
+<span class="comment"># Filter by author</span>
+<span class="prompt">$</span> git log --author="Your Name"
+<span class="prompt">$</span> git log --author="alice"    <span class="comment"># partial match works</span>
+
+<span class="comment"># Filter by date</span>
+<span class="prompt">$</span> git log --since="2025-01-01"
+<span class="prompt">$</span> git log --since="2 weeks ago"
+<span class="prompt">$</span> git log --after="2025-01-01" --before="2025-02-01"
+
+<span class="comment"># Search commit messages</span>
+<span class="prompt">$</span> git log --grep="login"
+<span class="output">commit 3a7f2e1... Add user login feature</span>
+
+<span class="comment"># Show which files changed in each commit</span>
+<span class="prompt">$</span> git log --stat
+<span class="output">commit 3a7f2e1...
+    Add user login feature
+
+ src/login.py       | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ tests/test_login.py| 23 +++++++++++++++++++++++
+ 2 files changed, 68 insertions(+)</span>
+
+<span class="comment"># Custom format</span>
+<span class="prompt">$</span> git log --pretty=format:"%h %an %ar - %s"
+<span class="output">3a7f2e1 Your Name 2 hours ago - Add user login feature
+1b2c3d4 Your Name 5 hours ago - Initial commit</span>
+
+<span class="comment"># Show log for a specific file</span>
+<span class="prompt">$</span> git log -- README.md
+<span class="prompt">$</span> git log --follow -- old-name.py    <span class="comment"># follow renames</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="git-diff">9. <code>git diff</code> &mdash; See Changes</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>git diff</code> command shows exactly what changed, line by line. It is essential for reviewing your work before committing.</p>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Show unstaged changes (working directory vs staging area)</span>
+<span class="prompt">$</span> git diff
+<span class="output">diff --git a/app.py b/app.py
+index 1234567..abcdefg 100644
+--- a/app.py
++++ b/app.py
+@@ -1,3 +1,5 @@
++import os
++import sys
+
+ def main():
+-    print("hello")
++    print("hello world")</span>
+
+<span class="comment"># Show staged changes (staging area vs last commit)</span>
+<span class="prompt">$</span> git diff --cached
+<span class="prompt">$</span> git diff --staged      <span class="comment"># same thing</span>
+
+<span class="comment"># Show ALL changes (both staged and unstaged vs last commit)</span>
+<span class="prompt">$</span> git diff HEAD
+
+<span class="comment"># Diff between two commits</span>
+<span class="prompt">$</span> git diff 3a7f2e1 1b2c3d4
+
+<span class="comment"># Diff between branches</span>
+<span class="prompt">$</span> git diff main feature
+
+<span class="comment"># Diff for a specific file only</span>
+<span class="prompt">$</span> git diff -- README.md
+
+<span class="comment"># Show only names of changed files</span>
+<span class="prompt">$</span> git diff --name-only
+<span class="output">app.py
+README.md</span>
+
+<span class="comment"># Show a summary of changes (insertions/deletions)</span>
+<span class="prompt">$</span> git diff --stat
+<span class="output"> app.py    | 4 ++--
+ README.md | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Reading Diff Output</div>
+    <p>Lines starting with <code>+</code> (green) are additions. Lines starting with <code>-</code> (red) are deletions. Lines with no prefix are context (unchanged). The <code>@@</code> header tells you the line numbers affected.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-push-pull">10. <code>git push</code> / <code>git pull</code> &mdash; Sync with Remote</h2>
+  <!-- ============================================================ -->
+
+  <p>Git repositories can live on remote servers (GitHub, GitLab, etc.). <code>git push</code> uploads your commits, and <code>git pull</code> downloads commits from others.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">What is a Remote?</div>
+    <p>A <strong>remote</strong> is a copy of your repository hosted somewhere else. When you <code>git clone</code>, Git automatically names the source <code>origin</code>. You can add multiple remotes (e.g., <code>upstream</code> for the original project you forked from).</p>
+  </div>
+
+  <h3><code>git push</code> Examples</h3>
+
+  <pre><code><span class="comment"># Push to origin (after clone, this is the default remote)</span>
+<span class="prompt">$</span> git push origin main
+
+<span class="comment"># Set upstream tracking and push (first time pushing a new branch)</span>
+<span class="prompt">$</span> git push -u origin feature-login
+<span class="output">Branch 'feature-login' set up to track remote branch 'feature-login' from 'origin'.</span>
+
+<span class="comment"># After -u is set, just use:</span>
+<span class="prompt">$</span> git push
+
+<span class="comment"># Push all branches</span>
+<span class="prompt">$</span> git push --all origin
+
+<span class="comment"># Push tags</span>
+<span class="prompt">$</span> git push origin --tags</code></pre>
+
+  <h3><code>git pull</code> Examples</h3>
+
+  <pre><code><span class="comment"># Pull latest changes from the tracked remote branch</span>
+<span class="prompt">$</span> git pull
+<span class="output">remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+Updating 3a7f2e1..9b8c7d6
+Fast-forward
+ README.md | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)</span>
+
+<span class="comment"># Pull from a specific remote and branch</span>
+<span class="prompt">$</span> git pull origin main
+
+<span class="comment"># Pull with rebase instead of merge (cleaner history)</span>
+<span class="prompt">$</span> git pull --rebase origin main
+
+<span class="comment"># See what would be pulled without actually pulling</span>
+<span class="prompt">$</span> git fetch origin
+<span class="prompt">$</span> git log HEAD..origin/main --oneline
+<span class="output">9b8c7d6 Update API docs
+5e4f3a2 Fix login bug</span></code></pre>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Always Pull Before You Push</div>
+    <p>If someone else has pushed changes since your last pull, your push will be rejected. Always <code>git pull</code> first to incorporate their changes, resolve any conflicts, then push.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-branch">11. <code>git branch</code> &mdash; Manage Branches</h2>
+  <!-- ============================================================ -->
+
+  <p>Branches let you work on different features or fixes in isolation. The default branch is usually called <code>main</code> (or <code>master</code> in older repos).</p>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># List local branches (current branch marked with *)</span>
+<span class="prompt">$</span> git branch
+<span class="output">* main
+  feature-login
+  bugfix-header</span>
+
+<span class="comment"># List all branches (local + remote)</span>
+<span class="prompt">$</span> git branch -a
+<span class="output">* main
+  feature-login
+  remotes/origin/main
+  remotes/origin/develop</span>
+
+<span class="comment"># List remote branches only</span>
+<span class="prompt">$</span> git branch -r
+
+<span class="comment"># Create a new branch (does not switch to it)</span>
+<span class="prompt">$</span> git branch feature-search
+
+<span class="comment"># Create a branch from a specific commit</span>
+<span class="prompt">$</span> git branch hotfix 3a7f2e1
+
+<span class="comment"># Rename a branch</span>
+<span class="prompt">$</span> git branch -m old-name new-name
+
+<span class="comment"># Delete a branch (only if fully merged)</span>
+<span class="prompt">$</span> git branch -d feature-login
+<span class="output">Deleted branch feature-login (was 5c4d3e2).</span>
+
+<span class="comment"># Force-delete a branch (even if not merged &mdash; use with caution)</span>
+<span class="prompt">$</span> git branch -D abandoned-experiment
+
+<span class="comment"># Show which branches are merged into current branch</span>
+<span class="prompt">$</span> git branch --merged
+
+<span class="comment"># Show which branches are NOT merged</span>
+<span class="prompt">$</span> git branch --no-merged</code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="git-checkout-switch">12. <code>git checkout</code> / <code>git switch</code> &mdash; Switch Branches</h2>
+  <!-- ============================================================ -->
+
+  <p>To work on a branch, you need to switch to it. The modern command is <code>git switch</code> (introduced in Git 2.23). The older <code>git checkout</code> still works and is more widely known.</p>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Switch to an existing branch (modern)</span>
+<span class="prompt">$</span> git switch feature-login
+
+<span class="comment"># Switch to an existing branch (classic)</span>
+<span class="prompt">$</span> git checkout feature-login
+
+<span class="comment"># Create a new branch and switch to it (modern)</span>
+<span class="prompt">$</span> git switch -c feature-search
+<span class="output">Switched to a new branch 'feature-search'</span>
+
+<span class="comment"># Create a new branch and switch to it (classic)</span>
+<span class="prompt">$</span> git checkout -b feature-search
+
+<span class="comment"># Switch back to the previous branch</span>
+<span class="prompt">$</span> git switch -
+<span class="prompt">$</span> git checkout -     <span class="comment"># same thing</span>
+
+<span class="comment"># Discard changes to a specific file (classic checkout)</span>
+<span class="prompt">$</span> git checkout -- app.py    <span class="comment"># revert app.py to last committed version</span>
+
+<span class="comment"># Modern equivalent for discarding changes</span>
+<span class="prompt">$</span> git restore app.py</code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">checkout vs switch vs restore</div>
+    <p><code>git checkout</code> does two things: switches branches <em>and</em> restores files. This was confusing, so Git 2.23 split it into <code>git switch</code> (branches) and <code>git restore</code> (files). Use the newer commands when possible.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-merge">13. <code>git merge</code> &mdash; Merge Branches</h2>
+  <!-- ============================================================ -->
+
+  <p>Merging integrates changes from one branch into another. This is how feature work gets incorporated into the main branch.</p>
+
+  <h3>Fast-Forward vs Three-Way Merge</h3>
+
+  <table>
+    <thead>
+      <tr><th>Type</th><th>When It Happens</th><th>Result</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Fast-forward</td><td>Main has no new commits since the branch was created</td><td>Git just moves the pointer forward; no merge commit</td></tr>
+      <tr><td>Three-way merge</td><td>Both branches have new commits</td><td>Git creates a merge commit that combines both histories</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Merge feature branch into main</span>
+<span class="prompt">$</span> git switch main
+<span class="prompt">$</span> git merge feature-login
+<span class="output">Updating 3a7f2e1..5c4d3e2
+Fast-forward
+ src/login.py | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)</span>
+
+<span class="comment"># Force a merge commit even for fast-forward</span>
+<span class="prompt">$</span> git merge --no-ff feature-login
+<span class="output">Merge made by the 'ort' strategy.</span>
+
+<span class="comment"># Merge with a custom commit message</span>
+<span class="prompt">$</span> git merge feature-search -m "Merge search feature into main"
+
+<span class="comment"># Abort a merge in progress (if something went wrong)</span>
+<span class="prompt">$</span> git merge --abort
+
+<span class="comment"># Preview what a merge would change (without actually merging)</span>
+<span class="prompt">$</span> git diff main...feature-login
+
+<span class="comment"># Merge a specific commit (cherry-pick is better for this)</span>
+<span class="prompt">$</span> git merge 5c4d3e2</code></pre>
+
+  <h3>Handling Merge Conflicts (Step by Step)</h3>
+
+  <p>A conflict happens when both branches changed the same lines in the same file. Git cannot decide which version to keep, so it asks you to resolve it manually.</p>
+
+  <pre><code><span class="comment"># Step 1: Attempt the merge</span>
+<span class="prompt">$</span> git merge feature-login
+<span class="output">Auto-merging src/app.py
+CONFLICT (content): Merge conflict in src/app.py
+Automatic merge failed; fix conflicts and then commit the result.</span>
+
+<span class="comment"># Step 2: See which files have conflicts</span>
+<span class="prompt">$</span> git status
+<span class="output">Unmerged paths:
+  both modified:   src/app.py</span>
+
+<span class="comment"># Step 3: Open the conflicted file &mdash; look for conflict markers</span>
+<span class="prompt">$</span> cat src/app.py
+<span class="output">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+    print("Welcome, user!")
+=======
+    print("Hello, user! Welcome back.")
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-login</span>
+
+<span class="comment"># Step 4: Edit the file &mdash; keep what you want, remove the markers</span>
+<span class="prompt">$</span> nano src/app.py
+<span class="comment"># (You decide: keep one version, combine both, or write something new)</span>
+
+<span class="comment"># Step 5: Mark the conflict as resolved by staging the file</span>
+<span class="prompt">$</span> git add src/app.py
+
+<span class="comment"># Step 6: Complete the merge with a commit</span>
+<span class="prompt">$</span> git commit -m "Merge feature-login, resolve greeting conflict"</code></pre>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Conflict Markers Must Be Removed</div>
+    <p>Never commit files that still contain <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code>, or <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> markers. These are not valid code and will cause errors.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-stash">14. <code>git stash</code> &mdash; Temporarily Shelve Changes</h2>
+  <!-- ============================================================ -->
+
+  <p>Sometimes you need to switch branches but have uncommitted work. <code>git stash</code> saves your changes temporarily and gives you a clean working directory.</p>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Save current changes to the stash</span>
+<span class="prompt">$</span> git stash
+<span class="output">Saved working directory and index state WIP on main: 3a7f2e1 Add login feature</span>
+
+<span class="comment"># Stash with a descriptive message</span>
+<span class="prompt">$</span> git stash push -m "halfway through search feature"
+<span class="output">Saved working directory and index state On main: halfway through search feature</span>
+
+<span class="comment"># List all stashes</span>
+<span class="prompt">$</span> git stash list
+<span class="output">stash@{0}: On main: halfway through search feature
+stash@{1}: WIP on main: 3a7f2e1 Add login feature</span>
+
+<span class="comment"># Restore the most recent stash (and remove it from the stash list)</span>
+<span class="prompt">$</span> git stash pop
+<span class="output">On branch main
+Changes not staged for commit:
+        modified:   src/search.py
+Dropped refs/stash@{0}</span>
+
+<span class="comment"># Restore a stash but keep it in the list (in case you need it again)</span>
+<span class="prompt">$</span> git stash apply
+
+<span class="comment"># Restore a specific stash by index</span>
+<span class="prompt">$</span> git stash apply stash@{1}
+
+<span class="comment"># Show what a stash contains (without applying it)</span>
+<span class="prompt">$</span> git stash show
+<span class="output"> src/search.py | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)</span>
+
+<span class="comment"># Show the full diff of a stash</span>
+<span class="prompt">$</span> git stash show -p
+
+<span class="comment"># Delete a specific stash</span>
+<span class="prompt">$</span> git stash drop stash@{1}
+<span class="output">Dropped stash@{1}</span>
+
+<span class="comment"># Delete ALL stashes</span>
+<span class="prompt">$</span> git stash clear
+
+<span class="comment"># Stash including untracked files</span>
+<span class="prompt">$</span> git stash -u</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Stash Workflow</div>
+    <p>A common pattern: you are working on feature A, but need to fix an urgent bug. Stash your feature A changes, switch to main, fix the bug, commit, switch back, and pop your stash to resume where you left off.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="gitignore">15. <code>.gitignore</code> &mdash; Excluding Files from Git</h2>
+  <!-- ============================================================ -->
+
+  <p>A <code>.gitignore</code> file tells Git which files and directories to ignore. Ignored files will not show up in <code>git status</code> and will not be staged by <code>git add .</code>.</p>
+
+  <h3>How It Works</h3>
+
+  <p>Create a file called <code>.gitignore</code> in your project root. Each line is a pattern matching files to exclude.</p>
+
+  <pre><code><span class="comment"># .gitignore example for a Python project</span>
+
+# Byte-compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.env/
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment variables (secrets!)
+.env
+.env.local
+
+# Build output
+dist/
+build/
+*.egg-info/
+
+# Dependency directories
+node_modules/</code></pre>
+
+  <h3>Pattern Rules</h3>
+
+  <table>
+    <thead>
+      <tr><th>Pattern</th><th>What It Matches</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>*.log</code></td><td>All files ending in <code>.log</code></td></tr>
+      <tr><td><code>logs/</code></td><td>The entire <code>logs</code> directory</td></tr>
+      <tr><td><code>/debug.log</code></td><td>Only <code>debug.log</code> in the root (not <code>src/debug.log</code>)</td></tr>
+      <tr><td><code>doc/**/*.pdf</code></td><td>All PDFs inside <code>doc/</code> at any depth</td></tr>
+      <tr><td><code>!important.log</code></td><td>Exception: do NOT ignore <code>important.log</code></td></tr>
+      <tr><td><code>#</code></td><td>Comment (ignored by Git)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Common Commands</h3>
+
+  <pre><code><span class="comment"># Check if a file is ignored</span>
+<span class="prompt">$</span> git check-ignore -v debug.log
+<span class="output">.gitignore:5:*.log    debug.log</span>
+
+<span class="comment"># List all ignored files</span>
+<span class="prompt">$</span> git status --ignored
+
+<span class="comment"># Stop tracking a file that was already committed (but keep the file)</span>
+<span class="prompt">$</span> git rm --cached secret.env
+<span class="prompt">$</span> echo "secret.env" >> .gitignore
+<span class="prompt">$</span> git commit -m "Remove secret.env from tracking"
+
+<span class="comment"># Global gitignore for your machine (applies to all repos)</span>
+<span class="prompt">$</span> git config --global core.excludesFile ~/.gitignore_global</code></pre>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Secrets and .gitignore</div>
+    <p>Always add <code>.env</code>, credentials files, and API keys to <code>.gitignore</code> <strong>before your first commit</strong>. If you accidentally commit a secret, it stays in the Git history even after you delete the file. You would need to rewrite history to fully remove it.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="git-workflow">Git Workflow Diagram</h2>
+  <!-- ============================================================ -->
+
+  <div class="concept-box">
+    <div class="concept-box__title">A Typical Git Workflow</div>
+    <p>Here is a step-by-step workflow you will repeat hundreds of times:</p>
+    <pre><code>  1. Pull latest changes        git pull origin main
+  2. Create a feature branch     git switch -c feature-xyz
+  3. Make changes                (edit files)
+  4. Check what changed          git status / git diff
+  5. Stage changes               git add file1.py file2.py
+  6. Commit                      git commit -m "Add feature xyz"
+  7. Push the branch             git push -u origin feature-xyz
+  8. Create a Pull Request       (on GitHub/GitLab)
+  9. After review, merge         git switch main && git pull
+ 10. Delete feature branch       git branch -d feature-xyz</code></pre>
+    <p>This is called the <strong>feature branch workflow</strong> and is the most common pattern in professional development.</p>
+  </div>
+
+  <div class="concept-box">
+    <div class="concept-box__title">The Complete Git Data Flow</div>
+    <pre><code>  Remote Repository (GitHub, GitLab, etc.)
+         |            ^
+    git pull/     git push
+    git fetch        |
+         |            |
+         v            |
+  Local Repository (.git/)
+         |            ^
+    git checkout/ git commit
+    git restore      |
+         |            |
+         v            |
+     Staging Area (Index)
+         ^            ^
+         |        git add
+    git restore      |
+    --staged         |
+         |            |
+         v            |
+     Working Directory (your files)</code></pre>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="common-mistakes">Common Mistakes &amp; How to Fix Them</h2>
+  <!-- ============================================================ -->
+
+  <h3>Mistake 1: Committed to the Wrong Branch</h3>
+
+  <p>You made a commit on <code>main</code> but meant to commit on a feature branch.</p>
+
+  <pre><code><span class="comment"># Undo the commit (keep changes in working directory)</span>
+<span class="prompt">$</span> git reset --soft HEAD~1
+
+<span class="comment"># Create the correct branch and switch to it</span>
+<span class="prompt">$</span> git switch -c feature-xyz
+
+<span class="comment"># Your changes are still staged &mdash; just commit again</span>
+<span class="prompt">$</span> git commit -m "Add feature xyz"</code></pre>
+
+  <h3>Mistake 2: Forgot to Pull Before Working</h3>
+
+  <p>You made local commits, then <code>git push</code> is rejected because the remote has new commits.</p>
+
+  <pre><code><span class="comment"># Option A: Pull with rebase (puts your commits on top)</span>
+<span class="prompt">$</span> git pull --rebase origin main
+
+<span class="comment"># Option B: Regular pull (creates a merge commit)</span>
+<span class="prompt">$</span> git pull origin main</code></pre>
+
+  <h3>Mistake 3: Accidentally Staged a File</h3>
+
+  <pre><code><span class="comment"># Unstage a file (keep changes in working directory)</span>
+<span class="prompt">$</span> git restore --staged secret.env
+
+<span class="comment"># Older syntax</span>
+<span class="prompt">$</span> git reset HEAD secret.env</code></pre>
+
+  <h3>Mistake 4: Need to Undo the Last Commit</h3>
+
+  <pre><code><span class="comment"># Undo commit, keep changes staged</span>
+<span class="prompt">$</span> git reset --soft HEAD~1
+
+<span class="comment"># Undo commit, keep changes in working directory (unstaged)</span>
+<span class="prompt">$</span> git reset --mixed HEAD~1
+
+<span class="comment"># Undo commit AND discard all changes (DANGEROUS)</span>
+<span class="prompt">$</span> git reset --hard HEAD~1</code></pre>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Warning: <code>git reset --hard</code> Is Destructive</div>
+    <p>Using <code>--hard</code> permanently discards uncommitted changes. There is no undo. Only use it when you are certain you want to throw away your work.</p>
+  </div>
+
+  <h3>Mistake 5: Committed a Secret (Password, API Key)</h3>
+
+  <pre><code><span class="comment"># If it was the very last commit and you haven't pushed yet:</span>
+<span class="prompt">$</span> git reset --soft HEAD~1
+<span class="prompt">$</span> git rm --cached secret.env
+<span class="prompt">$</span> echo "secret.env" >> .gitignore
+<span class="prompt">$</span> git add .gitignore
+<span class="prompt">$</span> git commit -m "Remove secret, update gitignore"
+
+<span class="comment"># If already pushed, you need to rotate the secret immediately</span>
+<span class="comment"># and use tools like git-filter-repo to rewrite history</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+  <!-- ============================================================ -->
+
+  <div class="exercise">
+    <h3>Exercise 1: Your First Repository</h3>
+    <p>Practice the full Git workflow from scratch:</p>
+    <ol>
+      <li>Create a new directory called <code>git-practice</code> and initialize a Git repo inside it.</li>
+      <li>Create a file called <code>hello.sh</code> with the content <code>echo "Hello, Git!"</code>.</li>
+      <li>Check the status, stage the file, and make your first commit.</li>
+      <li>Modify <code>hello.sh</code> to say <code>echo "Hello, Git! Version 2"</code>.</li>
+      <li>View the diff, stage, and commit again with a good message.</li>
+      <li>View the log to see both commits.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> mkdir git-practice && cd git-practice
+<span class="prompt">$</span> git init
+<span class="prompt">$</span> echo 'echo "Hello, Git!"' > hello.sh
+<span class="prompt">$</span> git status
+<span class="prompt">$</span> git add hello.sh
+<span class="prompt">$</span> git commit -m "Add hello script"
+
+<span class="prompt">$</span> sed -i 's/Hello, Git!/Hello, Git! Version 2/' hello.sh
+<span class="prompt">$</span> git diff
+<span class="prompt">$</span> git add hello.sh
+<span class="prompt">$</span> git commit -m "Update greeting to version 2"
+<span class="prompt">$</span> git log --oneline
+<span class="output">a1b2c3d Update greeting to version 2
+e4f5a6b Add hello script</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Branching and Merging</h3>
+    <p>Practice creating branches and merging them:</p>
+    <ol>
+      <li>Starting from the repo in Exercise 1, create a branch called <code>add-goodbye</code>.</li>
+      <li>Switch to the new branch and add a file <code>goodbye.sh</code> with <code>echo "Goodbye!"</code>.</li>
+      <li>Commit the new file on the <code>add-goodbye</code> branch.</li>
+      <li>Switch back to <code>main</code> and verify <code>goodbye.sh</code> does not exist there.</li>
+      <li>Merge <code>add-goodbye</code> into <code>main</code>.</li>
+      <li>Verify <code>goodbye.sh</code> now exists on <code>main</code>, then delete the feature branch.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> git switch -c add-goodbye
+<span class="prompt">$</span> echo 'echo "Goodbye!"' > goodbye.sh
+<span class="prompt">$</span> git add goodbye.sh
+<span class="prompt">$</span> git commit -m "Add goodbye script"
+
+<span class="prompt">$</span> git switch main
+<span class="prompt">$</span> ls goodbye.sh
+<span class="output">ls: cannot access 'goodbye.sh': No such file or directory</span>
+
+<span class="prompt">$</span> git merge add-goodbye
+<span class="output">Updating a1b2c3d..f7e8d9c
+Fast-forward
+ goodbye.sh | 1 +
+ 1 file changed, 1 insertion(+)</span>
+
+<span class="prompt">$</span> ls goodbye.sh
+<span class="output">goodbye.sh</span>
+<span class="prompt">$</span> git branch -d add-goodbye
+<span class="output">Deleted branch add-goodbye (was f7e8d9c).</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: Resolving a Merge Conflict</h3>
+    <p>Deliberately create and resolve a merge conflict:</p>
+    <ol>
+      <li>On <code>main</code>, edit <code>hello.sh</code> to say <code>echo "Hello from main!"</code> and commit.</li>
+      <li>Create a branch called <code>feature</code> from the commit <em>before</em> your main change (use <code>git log</code> to find the hash).</li>
+      <li>On <code>feature</code>, edit <code>hello.sh</code> to say <code>echo "Hello from feature!"</code> and commit.</li>
+      <li>Switch to <code>main</code> and try to merge <code>feature</code>.</li>
+      <li>Resolve the conflict by combining both greetings, then complete the merge.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="comment"># On main, make a change</span>
+<span class="prompt">$</span> echo 'echo "Hello from main!"' > hello.sh
+<span class="prompt">$</span> git add hello.sh
+<span class="prompt">$</span> git commit -m "Update greeting on main"
+
+<span class="comment"># Find the commit before this one</span>
+<span class="prompt">$</span> git log --oneline -3
+<span class="output">c1d2e3f Update greeting on main
+a1b2c3d Update greeting to version 2
+e4f5a6b Add hello script</span>
+
+<span class="comment"># Create feature branch from the previous commit</span>
+<span class="prompt">$</span> git branch feature a1b2c3d
+<span class="prompt">$</span> git switch feature
+<span class="prompt">$</span> echo 'echo "Hello from feature!"' > hello.sh
+<span class="prompt">$</span> git add hello.sh
+<span class="prompt">$</span> git commit -m "Update greeting on feature"
+
+<span class="comment"># Merge and get a conflict</span>
+<span class="prompt">$</span> git switch main
+<span class="prompt">$</span> git merge feature
+<span class="output">CONFLICT (content): Merge conflict in hello.sh</span>
+
+<span class="comment"># Resolve: combine both greetings</span>
+<span class="prompt">$</span> cat > hello.sh &lt;&lt;'EOF'
+echo "Hello from main!"
+echo "Hello from feature!"
+EOF
+<span class="prompt">$</span> git add hello.sh
+<span class="prompt">$</span> git commit -m "Merge feature: combine greetings"</code></pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Quizzes</h2>
+  <!-- ============================================================ -->
+
+  <div class="quiz">
+    <div class="quiz__question">Quick Quiz: What is the difference between <code>git add .</code> and <code>git add -u</code>?</div>
+    <button class="quiz__check">Show Answer</button>
+    <div class="quiz__answer"><code>git add .</code> stages all changes in the current directory: new (untracked) files, modified files, and deleted files. <code>git add -u</code> stages only modified and deleted files that are already tracked &mdash; it ignores untracked (new) files. Use <code>git add -u</code> when you want to avoid accidentally staging new files you have not reviewed.</div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">Quick Quiz: You are on the <code>main</code> branch and realize your last commit should have been on a feature branch. What commands fix this without losing your work?</div>
+    <button class="quiz__check">Show Answer</button>
+    <div class="quiz__answer">Run <code>git reset --soft HEAD~1</code> to undo the commit while keeping all changes staged. Then run <code>git switch -c feature-branch</code> to create and switch to a new branch. Finally, run <code>git commit -m "your message"</code> to recommit the changes on the correct branch. The <code>--soft</code> flag is key: it undoes the commit but preserves your work in the staging area.</div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="prev-next">
+    <a class="prev-next__link prev-next__prev" href="../16-cron-systemd/index.html">&larr; 16. Cron &amp; Systemd</a>
+    <a class="prev-next__link prev-next__next" href="../18-docker-basics/index.html">18. Docker Basics &rarr;</a>
+  </nav>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

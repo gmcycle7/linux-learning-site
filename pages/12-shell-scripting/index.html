@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 12: Shell &amp; Scripting Basics — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link active" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+  <div class="breadcrumb">
+    <a href="../../index.html">Home</a><span class="sep">/</span><span>Chapter 12: Shell &amp; Scripting Basics</span>
+  </div>
+
+  <h1>Chapter 12: Shell &amp; Scripting Basics</h1>
+
+  <p>Everything you have typed in the terminal so far has been interpreted by a <strong>shell</strong>. This chapter teaches you how the shell works, how to customize it, and how to start writing your own scripts to automate tasks.</p>
+
+  <!-- ============================== -->
+  <!-- 1. What is Bash?                -->
+  <!-- ============================== -->
+  <h2>1. What is Bash?</h2>
+
+  <p>A <strong>shell</strong> is a program that takes the commands you type and translates them into instructions for the operating system. There are several shells available on Linux:</p>
+
+  <table>
+    <tr><th>Shell</th><th>Path</th><th>Notes</th></tr>
+    <tr><td><strong>bash</strong></td><td><code>/bin/bash</code></td><td>Bourne Again Shell. The default on most Linux systems.</td></tr>
+    <tr><td><strong>sh</strong></td><td><code>/bin/sh</code></td><td>The original Bourne Shell (or a symlink to bash/dash).</td></tr>
+    <tr><td><strong>zsh</strong></td><td><code>/bin/zsh</code></td><td>Z Shell. Default on macOS. Popular with plugins (Oh My Zsh).</td></tr>
+    <tr><td><strong>fish</strong></td><td><code>/usr/bin/fish</code></td><td>Friendly Interactive Shell. Great autocompletion, not POSIX.</td></tr>
+    <tr><td><strong>dash</strong></td><td><code>/bin/dash</code></td><td>Debian Almquist Shell. Fast, minimal, used for system scripts.</td></tr>
+  </table>
+
+  <pre><code><span class="comment"># Check your current shell</span>
+<span class="prompt">$</span> echo $SHELL
+<span class="output">/bin/bash</span>
+
+<span class="comment"># See all available shells on the system</span>
+<span class="prompt">$</span> cat /etc/shells
+<span class="output">/bin/sh
+/bin/bash
+/usr/bin/bash
+/bin/zsh
+/usr/bin/zsh</span>
+
+<span class="comment"># Check the bash version</span>
+<span class="prompt">$</span> bash --version
+<span class="output">GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)</span></code></pre>
+
+  <p>This chapter focuses on <strong>bash</strong> because it is the most common shell you will encounter on Linux servers and desktops.</p>
+
+  <!-- ============================== -->
+  <!-- 2. .bashrc and .profile         -->
+  <!-- ============================== -->
+  <h2>2. .bashrc and .profile</h2>
+
+  <p>When bash starts, it reads configuration files to set up your environment. Which files it reads depends on <strong>how</strong> the shell was started:</p>
+
+  <table>
+    <tr><th>Shell Type</th><th>How It Starts</th><th>Files Read</th></tr>
+    <tr><td><strong>Login shell</strong></td><td>SSH login, <code>su - user</code>, console login</td><td><code>~/.profile</code> (or <code>~/.bash_profile</code>)</td></tr>
+    <tr><td><strong>Non-login interactive</strong></td><td>Opening a new terminal window</td><td><code>~/.bashrc</code></td></tr>
+    <tr><td><strong>Non-interactive</strong></td><td>Running a script</td><td>None by default (uses <code>$BASH_ENV</code> if set)</td></tr>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Practical tip</div>
+    <p>Most people put their customizations in <code>~/.bashrc</code> and then add this to <code>~/.profile</code>:<br>
+    <code>if [ -f ~/.bashrc ]; then source ~/.bashrc; fi</code><br>
+    This way, your settings load in both login and non-login shells.</p>
+  </div>
+
+  <h3>Common things to put in .bashrc</h3>
+  <pre><code><span class="comment"># Custom prompt (shows user@host and current directory in color)</span>
+PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+
+<span class="comment"># Aliases</span>
+alias ll='ls -alF'
+alias la='ls -A'
+alias gs='git status'
+
+<span class="comment"># Environment variables</span>
+export EDITOR=vim
+export PATH="$HOME/bin:$PATH"
+
+<span class="comment"># History settings</span>
+HISTSIZE=10000
+HISTFILESIZE=20000
+HISTCONTROL=ignoredups:erasedups</code></pre>
+
+  <pre><code><span class="comment"># After editing .bashrc, reload it without logging out:</span>
+<span class="prompt">$</span> source ~/.bashrc
+<span class="comment"># or equivalently:</span>
+<span class="prompt">$</span> . ~/.bashrc</code></pre>
+
+  <!-- ============================== -->
+  <!-- 3. Aliases                      -->
+  <!-- ============================== -->
+  <h2>3. Aliases</h2>
+
+  <p>An alias is a custom shortcut for a longer command. It saves typing and reduces mistakes.</p>
+
+  <h3>Creating aliases</h3>
+  <pre><code><span class="comment"># Temporary alias (lasts until you close the terminal)</span>
+<span class="prompt">$</span> alias ll='ls -alF'
+<span class="prompt">$</span> alias gs='git status'
+<span class="prompt">$</span> alias update='sudo apt update && sudo apt upgrade -y'
+
+<span class="comment"># View all current aliases</span>
+<span class="prompt">$</span> alias
+<span class="output">alias ll='ls -alF'
+alias gs='git status'
+alias update='sudo apt update && sudo apt upgrade -y'</span>
+
+<span class="comment"># Remove an alias</span>
+<span class="prompt">$</span> unalias ll</code></pre>
+
+  <h3>Useful aliases to add to .bashrc</h3>
+  <pre><code><span class="comment"># Navigation</span>
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ~='cd ~'
+
+<span class="comment"># Listing</span>
+alias ll='ls -alF --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+
+<span class="comment"># Safety nets</span>
+alias rm='rm -i'          <span class="comment"># ask before deleting</span>
+alias cp='cp -i'          <span class="comment"># ask before overwriting</span>
+alias mv='mv -i'          <span class="comment"># ask before overwriting</span>
+
+<span class="comment"># Grep with color</span>
+alias grep='grep --color=auto'
+
+<span class="comment"># Disk usage (human readable)</span>
+alias df='df -h'
+alias du='du -h'
+
+<span class="comment"># Git shortcuts</span>
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git log --oneline -10'</code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Making aliases permanent</div>
+    <p>Aliases set at the command line disappear when you close the terminal. To make them permanent, add them to <code>~/.bashrc</code> and run <code>source ~/.bashrc</code>.</p>
+  </div>
+
+  <!-- ============================== -->
+  <!-- 4. Pipes                        -->
+  <!-- ============================== -->
+  <h2>4. Pipes</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Pipes</div>
+    <p>Imagine water flowing through a series of connected pipes. Each pipe section does one thing to the water (filters it, heats it, adds color). In Linux, the <code>|</code> (pipe) character connects commands the same way. The output of one command flows into the input of the next.</p>
+  </div>
+
+  <div class="diagram">
+  Command A  ------>  Command B  ------>  Command C  ------> Result
+   (output)    |       (output)    |       (output)
+               |                   |
+          pipe ( | )          pipe ( | )
+
+  Example:   cat log.txt  |  grep "ERROR"  |  wc -l
+
+  Step 1: cat outputs the entire file
+  Step 2: grep filters to only lines containing "ERROR"
+  Step 3: wc -l counts how many lines remain
+  </div>
+
+  <h3>Pipe examples</h3>
+  <pre><code><span class="comment"># Count how many files are in a directory</span>
+<span class="prompt">$</span> ls | wc -l
+<span class="output">42</span>
+
+<span class="comment"># Find lines containing "error" in a log, case-insensitive</span>
+<span class="prompt">$</span> cat /var/log/syslog | grep -i error
+
+<span class="comment"># Sort a file and remove duplicates</span>
+<span class="prompt">$</span> cat names.txt | sort | uniq
+
+<span class="comment"># Show the 5 largest files in current directory</span>
+<span class="prompt">$</span> ls -lS | head -6               <span class="comment"># head -6: header line + 5 files</span>
+
+<span class="comment"># List all users on the system, sorted</span>
+<span class="prompt">$</span> cut -d: -f1 /etc/passwd | sort
+
+<span class="comment"># Count unique IP addresses in an access log</span>
+<span class="prompt">$</span> awk '{print $1}' access.log | sort | uniq | wc -l
+
+<span class="comment"># Find the 10 most common words in a file</span>
+<span class="prompt">$</span> cat book.txt | tr ' ' '\n' | sort | uniq -c | sort -rn | head -10
+
+<span class="comment"># Show disk usage sorted by size</span>
+<span class="prompt">$</span> du -sh /var/* 2>/dev/null | sort -hr | head -10
+
+<span class="comment"># List running processes and search for nginx</span>
+<span class="prompt">$</span> ps aux | grep nginx
+
+<span class="comment"># Chain 4 commands: find .log files, count lines, sort by count</span>
+<span class="prompt">$</span> find /var/log -name "*.log" | xargs wc -l | sort -n | tail -5
+
+<span class="comment"># Show unique shells used by users</span>
+<span class="prompt">$</span> cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
+
+<span class="comment"># Get HTTP status codes from an access log and count them</span>
+<span class="prompt">$</span> awk '{print $9}' access.log | sort | uniq -c | sort -rn</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">The Unix philosophy</div>
+    <p>Each command does one thing well. Pipes let you combine simple tools into powerful workflows. This is the core of the Unix philosophy.</p>
+  </div>
+
+  <!-- ============================== -->
+  <!-- 5. Redirection                  -->
+  <!-- ============================== -->
+  <h2>5. Redirection</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Redirection</div>
+    <p>Normally, command output goes to your screen (stdout) and errors go to your screen (stderr). Redirection changes where these streams go &mdash; you can send output to a file, or pull input from a file, instead of the keyboard/screen.</p>
+  </div>
+
+  <div class="diagram">
+           +-------------------+
+           |     Command       |
+           +-------------------+
+  Input -->| stdin  (fd 0)  <--|-- Keyboard (default) or &lt; file
+           |                   |
+           | stdout (fd 1)  -->|-- Screen (default) or > file
+           |                   |
+           | stderr (fd 2)  -->|-- Screen (default) or 2> file
+           +-------------------+
+  </div>
+
+  <h3>Output redirection</h3>
+  <pre><code><span class="comment"># Write output to a file (overwrites if file exists!)</span>
+<span class="prompt">$</span> echo "Hello" > greeting.txt
+<span class="prompt">$</span> ls -la > filelist.txt
+
+<span class="comment"># Append output to a file (does NOT overwrite)</span>
+<span class="prompt">$</span> echo "World" >> greeting.txt
+<span class="prompt">$</span> date >> log.txt                     <span class="comment"># add timestamp to log</span>
+
+<span class="comment"># Redirect stderr to a file</span>
+<span class="prompt">$</span> find / -name "*.conf" 2> errors.txt <span class="comment"># only errors go to file, output to screen</span>
+
+<span class="comment"># Redirect both stdout and stderr to the same file</span>
+<span class="prompt">$</span> command > output.txt 2>&amp;1           <span class="comment"># traditional syntax</span>
+<span class="prompt">$</span> command &amp;> output.txt               <span class="comment"># bash shorthand (same result)</span>
+
+<span class="comment"># Redirect stdout to one file and stderr to another</span>
+<span class="prompt">$</span> command > output.txt 2> errors.txt
+
+<span class="comment"># Discard output completely (send to /dev/null)</span>
+<span class="prompt">$</span> command > /dev/null                  <span class="comment"># discard stdout</span>
+<span class="prompt">$</span> command 2> /dev/null                 <span class="comment"># discard stderr</span>
+<span class="prompt">$</span> command &amp;> /dev/null                 <span class="comment"># discard everything</span></code></pre>
+
+  <h3>Input redirection</h3>
+  <pre><code><span class="comment"># Feed a file as input to a command</span>
+<span class="prompt">$</span> sort < unsorted.txt                  <span class="comment"># sort reads from the file</span>
+<span class="prompt">$</span> wc -l < myfile.txt                   <span class="comment"># count lines in the file</span>
+
+<span class="comment"># Here-document: pass multiple lines of input</span>
+<span class="prompt">$</span> cat &lt;&lt;EOF
+This is line 1
+This is line 2
+EOF
+
+<span class="comment"># Here-string: pass a single string as input</span>
+<span class="prompt">$</span> wc -w &lt;&lt;&lt; "count the words in this string"
+<span class="output">7</span></code></pre>
+
+  <h3>Wrong vs correct examples</h3>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="comment"># Trying to read and write the same file</span>
+<span class="prompt">$</span> sort < names.txt > names.txt
+<span class="comment"># This EMPTIES the file! The shell</span>
+<span class="comment"># truncates names.txt before sort</span>
+<span class="comment"># can read it.</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct</div>
+      <pre><code><span class="comment"># Use a temporary file instead</span>
+<span class="prompt">$</span> sort < names.txt > names_sorted.txt
+<span class="prompt">$</span> mv names_sorted.txt names.txt
+
+<span class="comment"># Or use sponge (from moreutils)</span>
+<span class="prompt">$</span> sort names.txt | sponge names.txt</code></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="comment"># Accidentally overwriting a file</span>
+<span class="prompt">$</span> echo "new data" > important.log
+<span class="comment"># Oops! Used > instead of >></span>
+<span class="comment"># The old data is gone forever.</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct</div>
+      <pre><code><span class="comment"># Use >> to append</span>
+<span class="prompt">$</span> echo "new data" >> important.log
+
+<span class="comment"># Or protect yourself with noclobber</span>
+<span class="prompt">$</span> set -o noclobber
+<span class="comment"># Now > on existing files gives an error</span></code></pre>
+    </div>
+  </div>
+
+  <!-- ============================== -->
+  <!-- 6. stdin / stdout / stderr      -->
+  <!-- ============================== -->
+  <h2>6. stdin, stdout, and stderr</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">The Three Standard Streams</div>
+    <p>Every Linux process has three default communication channels, called <strong>file descriptors</strong>:</p>
+    <ul>
+      <li><strong>stdin (fd 0)</strong> &mdash; Standard Input. Where the command reads data from. Default: your keyboard.</li>
+      <li><strong>stdout (fd 1)</strong> &mdash; Standard Output. Where the command sends its normal results. Default: your screen.</li>
+      <li><strong>stderr (fd 2)</strong> &mdash; Standard Error. Where the command sends error messages. Default: your screen (same as stdout, but a separate stream).</li>
+    </ul>
+  </div>
+
+  <div class="diagram">
+                     +---------------------+
+  Keyboard -------->|  stdin   (fd 0)      |
+                     |                     |
+                     |     YOUR COMMAND    |
+                     |                     |
+                     |  stdout  (fd 1) ----|------> Screen (normal output)
+                     |                     |
+                     |  stderr  (fd 2) ----|------> Screen (error messages)
+                     +---------------------+
+  </div>
+
+  <p>Even though both stdout and stderr appear on your screen, they are <strong>separate streams</strong>. This is why you can redirect them independently:</p>
+
+  <pre><code><span class="comment"># This command produces both stdout and stderr</span>
+<span class="prompt">$</span> find / -name "*.conf" > found.txt 2> errors.txt
+<span class="comment"># found.txt gets the file paths (stdout)</span>
+<span class="comment"># errors.txt gets "Permission denied" messages (stderr)</span>
+
+<span class="comment"># Prove they are separate: only redirect stderr</span>
+<span class="prompt">$</span> ls /real-dir /fake-dir 2> /dev/null
+<span class="output">/real-dir:
+file1.txt  file2.txt</span>
+<span class="comment"># The error about /fake-dir was silenced, but stdout still shows</span>
+
+<span class="comment"># Only redirect stdout</span>
+<span class="prompt">$</span> ls /real-dir /fake-dir > /dev/null
+<span class="output">ls: cannot access '/fake-dir': No such file or directory</span>
+<span class="comment"># stdout was silenced, but the error still shows</span></code></pre>
+
+  <!-- ============================== -->
+  <!-- 7. Command Substitution         -->
+  <!-- ============================== -->
+  <h2>7. Command Substitution</h2>
+
+  <p>Command substitution lets you use the <strong>output of one command</strong> as part of another command. The shell runs the inner command first, captures its output, and inserts it in place.</p>
+
+  <h3>Syntax: $( ) vs backticks</h3>
+  <pre><code><span class="comment"># Modern syntax (recommended) — use $(...)</span>
+<span class="prompt">$</span> echo "Today is $(date +%A)"
+<span class="output">Today is Wednesday</span>
+
+<span class="comment"># Old syntax (avoid) — backticks `...`</span>
+<span class="prompt">$</span> echo "Today is `date +%A`"
+<span class="output">Today is Wednesday</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Always use $( ) instead of backticks</div>
+    <p>Backticks work but are harder to read, cannot be nested, and are considered outdated. Use <code>$(command)</code> in all new scripts.</p>
+  </div>
+
+  <h3>Practical examples</h3>
+  <pre><code><span class="comment"># Create a file with today's date in the name</span>
+<span class="prompt">$</span> touch "backup-$(date +%Y-%m-%d).tar.gz"
+<span class="prompt">$</span> ls
+<span class="output">backup-2026-03-31.tar.gz</span>
+
+<span class="comment"># Store the result in a variable</span>
+<span class="prompt">$</span> CURRENT_USER=$(whoami)
+<span class="prompt">$</span> echo "Logged in as: $CURRENT_USER"
+<span class="output">Logged in as: alice</span>
+
+<span class="comment"># Use command output as an argument</span>
+<span class="prompt">$</span> echo "There are $(ls | wc -l) files here"
+<span class="output">There are 42 files here</span>
+
+<span class="comment"># Create a directory named with the hostname</span>
+<span class="prompt">$</span> mkdir "logs-$(hostname)"
+
+<span class="comment"># Kill all processes matching a name</span>
+<span class="prompt">$</span> kill $(pgrep firefox)
+
+<span class="comment"># Nested command substitution (only works with $(), not backticks)</span>
+<span class="prompt">$</span> echo "Kernel: $(uname -r) on $(uname -s)"
+<span class="output">Kernel: 5.15.0-56-generic on Linux</span>
+
+<span class="comment"># Use in a for loop</span>
+<span class="prompt">$</span> for file in $(find . -name "*.log"); do echo "Found: $file"; done
+
+<span class="comment"># Get the parent directory name</span>
+<span class="prompt">$</span> echo "Project: $(basename $(pwd))"
+<span class="output">Project: my-project</span></code></pre>
+
+  <!-- ============================== -->
+  <!-- 8. Variables                    -->
+  <!-- ============================== -->
+  <h2>8. Variables</h2>
+
+  <p>Variables let you store and reuse values. In bash, there are <strong>no spaces</strong> around the <code>=</code> sign when setting a variable.</p>
+
+  <h3>Setting and using variables</h3>
+  <pre><code><span class="comment"># Set a variable (NO spaces around =)</span>
+<span class="prompt">$</span> NAME="Alice"
+<span class="prompt">$</span> AGE=30
+<span class="prompt">$</span> GREETING="Hello, $NAME"
+
+<span class="comment"># Use a variable with $</span>
+<span class="prompt">$</span> echo $NAME
+<span class="output">Alice</span>
+<span class="prompt">$</span> echo "My name is $NAME and I am $AGE"
+<span class="output">My name is Alice and I am 30</span>
+
+<span class="comment"># Use ${VAR} when variable is next to other text</span>
+<span class="prompt">$</span> echo "${NAME}'s age is $AGE"
+<span class="output">Alice's age is 30</span>
+<span class="prompt">$</span> echo "File: ${NAME}_report.txt"
+<span class="output">File: Alice_report.txt</span></code></pre>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="comment"># Spaces around = cause errors!</span>
+<span class="prompt">$</span> NAME = "Alice"
+<span class="output">bash: NAME: command not found</span>
+
+<span class="prompt">$</span> NAME ="Alice"
+<span class="output">bash: NAME: command not found</span>
+
+<span class="prompt">$</span> NAME= "Alice"
+<span class="output">bash: Alice: command not found</span></code></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct</div>
+      <pre><code><span class="comment"># No spaces around =</span>
+<span class="prompt">$</span> NAME="Alice"
+
+<span class="comment"># Numbers work the same way</span>
+<span class="prompt">$</span> COUNT=42
+
+<span class="comment"># Command output in a variable</span>
+<span class="prompt">$</span> TODAY=$(date +%Y-%m-%d)</code></pre>
+    </div>
+  </div>
+
+  <h3>export and readonly</h3>
+  <pre><code><span class="comment"># Regular variables are only available in the current shell</span>
+<span class="prompt">$</span> FRUIT="apple"
+<span class="prompt">$</span> bash -c 'echo $FRUIT'            <span class="comment"># empty! child shell cannot see it</span>
+<span class="output"></span>
+
+<span class="comment"># export makes a variable available to child processes</span>
+<span class="prompt">$</span> export FRUIT="apple"
+<span class="prompt">$</span> bash -c 'echo $FRUIT'
+<span class="output">apple</span>
+
+<span class="comment"># readonly makes a variable unchangeable</span>
+<span class="prompt">$</span> readonly PI=3.14159
+<span class="prompt">$</span> PI=3.0
+<span class="output">bash: PI: readonly variable</span></code></pre>
+
+  <h3>Common environment variables</h3>
+  <pre><code><span class="prompt">$</span> echo $HOME                          <span class="comment"># your home directory</span>
+<span class="output">/home/alice</span>
+<span class="prompt">$</span> echo $USER                          <span class="comment"># current username</span>
+<span class="output">alice</span>
+<span class="prompt">$</span> echo $PATH                          <span class="comment"># directories searched for commands</span>
+<span class="output">/usr/local/bin:/usr/bin:/bin</span>
+<span class="prompt">$</span> echo $PWD                           <span class="comment"># current working directory</span>
+<span class="output">/home/alice/projects</span>
+<span class="prompt">$</span> echo $SHELL                         <span class="comment"># your default shell</span>
+<span class="output">/bin/bash</span>
+<span class="prompt">$</span> echo $?                             <span class="comment"># exit code of the last command</span>
+<span class="output">0</span></code></pre>
+
+  <!-- ============================== -->
+  <!-- 9. Simple Bash Scripts          -->
+  <!-- ============================== -->
+  <h2>9. Simple Bash Scripts</h2>
+
+  <p>A bash script is a text file containing a series of commands. Instead of typing each command one at a time, you write them in a file and run them all at once.</p>
+
+  <h3>Your first script</h3>
+  <pre><code><span class="comment"># Step 1: Create the script file</span>
+<span class="prompt">$</span> nano hello.sh</code></pre>
+
+  <pre><code><span class="comment">#!/bin/bash</span>
+<span class="comment"># This is my first script</span>
+
+echo "Hello, $(whoami)!"
+echo "Today is $(date +%A), $(date +%B) $(date +%d), $(date +%Y)"
+echo "You are in: $(pwd)"
+echo "Your system has been up for: $(uptime -p)"</code></pre>
+
+  <pre><code><span class="comment"># Step 2: Make it executable</span>
+<span class="prompt">$</span> chmod +x hello.sh
+
+<span class="comment"># Step 3: Run it</span>
+<span class="prompt">$</span> ./hello.sh
+<span class="output">Hello, alice!
+Today is Tuesday, March 31, 2026
+You are in: /home/alice
+Your system has been up for: up 3 days, 7 hours, 12 minutes</span>
+
+<span class="comment"># Alternative: run with bash explicitly (no chmod needed)</span>
+<span class="prompt">$</span> bash hello.sh</code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">The shebang line: #!/bin/bash</div>
+    <p>The first line <code>#!/bin/bash</code> is called the <strong>shebang</strong>. It tells the system which interpreter to use when you run the script with <code>./script.sh</code>. Without it, the system may use a different shell. Always include it.</p>
+  </div>
+
+  <h3>Script 2: if / else</h3>
+  <pre><code><span class="comment">#!/bin/bash</span>
+<span class="comment"># Check if a file exists</span>
+
+FILE="$1"       <span class="comment"># $1 = first argument passed to the script</span>
+
+if [ -z "$FILE" ]; then
+    echo "Usage: ./check_file.sh &lt;filename&gt;"
+    exit 1
+fi
+
+if [ -f "$FILE" ]; then
+    echo "'$FILE' exists and is a regular file."
+    echo "Size: $(wc -c < "$FILE") bytes"
+    echo "Lines: $(wc -l < "$FILE")"
+elif [ -d "$FILE" ]; then
+    echo "'$FILE' exists and is a directory."
+    echo "Contains: $(ls "$FILE" | wc -l) items"
+else
+    echo "'$FILE' does not exist."
+    exit 1
+fi</code></pre>
+
+  <pre><code><span class="prompt">$</span> chmod +x check_file.sh
+<span class="prompt">$</span> ./check_file.sh /etc/passwd
+<span class="output">'/etc/passwd' exists and is a regular file.
+Size: 2775 bytes
+Lines: 48</span>
+
+<span class="prompt">$</span> ./check_file.sh /tmp
+<span class="output">'/tmp' exists and is a directory.
+Contains: 12 items</span>
+
+<span class="prompt">$</span> ./check_file.sh nonexistent
+<span class="output">'nonexistent' does not exist.</span></code></pre>
+
+  <h3>Common test conditions</h3>
+  <table>
+    <tr><th>Test</th><th>Meaning</th></tr>
+    <tr><td><code>-f FILE</code></td><td>FILE exists and is a regular file</td></tr>
+    <tr><td><code>-d FILE</code></td><td>FILE exists and is a directory</td></tr>
+    <tr><td><code>-e FILE</code></td><td>FILE exists (any type)</td></tr>
+    <tr><td><code>-r FILE</code></td><td>FILE is readable</td></tr>
+    <tr><td><code>-w FILE</code></td><td>FILE is writable</td></tr>
+    <tr><td><code>-x FILE</code></td><td>FILE is executable</td></tr>
+    <tr><td><code>-z STRING</code></td><td>STRING is empty (zero length)</td></tr>
+    <tr><td><code>-n STRING</code></td><td>STRING is not empty</td></tr>
+    <tr><td><code>STR1 = STR2</code></td><td>Strings are equal</td></tr>
+    <tr><td><code>NUM1 -eq NUM2</code></td><td>Numbers are equal</td></tr>
+    <tr><td><code>NUM1 -lt NUM2</code></td><td>NUM1 is less than NUM2</td></tr>
+    <tr><td><code>NUM1 -gt NUM2</code></td><td>NUM1 is greater than NUM2</td></tr>
+  </table>
+
+  <h3>Script 3: for loop</h3>
+  <pre><code><span class="comment">#!/bin/bash</span>
+<span class="comment"># Rename all .txt files to .bak</span>
+
+for file in *.txt; do
+    if [ -f "$file" ]; then
+        newname="${file%.txt}.bak"
+        mv "$file" "$newname"
+        echo "Renamed: $file -> $newname"
+    fi
+done</code></pre>
+
+  <pre><code><span class="prompt">$</span> ls
+<span class="output">notes.txt  report.txt  data.txt</span>
+<span class="prompt">$</span> ./rename_bak.sh
+<span class="output">Renamed: data.txt -> data.bak
+Renamed: notes.txt -> notes.bak
+Renamed: report.txt -> report.bak</span></code></pre>
+
+  <h3>Script 4: while loop with read</h3>
+  <pre><code><span class="comment">#!/bin/bash</span>
+<span class="comment"># Simple number guessing game</span>
+
+SECRET=42
+GUESS=0
+
+echo "Guess a number between 1 and 100:"
+
+while [ "$GUESS" -ne "$SECRET" ]; do
+    read -p "> " GUESS
+
+    if [ "$GUESS" -lt "$SECRET" ]; then
+        echo "Too low! Try again."
+    elif [ "$GUESS" -gt "$SECRET" ]; then
+        echo "Too high! Try again."
+    fi
+done
+
+echo "Correct! The number was $SECRET."</code></pre>
+
+  <h3>Script 5: System info report</h3>
+  <pre><code><span class="comment">#!/bin/bash</span>
+<span class="comment"># Generate a system information report</span>
+
+REPORT="system_report_$(date +%Y%m%d).txt"
+
+{
+    echo "===== System Report ====="
+    echo "Date: $(date)"
+    echo "Hostname: $(hostname)"
+    echo "User: $(whoami)"
+    echo ""
+    echo "--- OS Info ---"
+    uname -a
+    echo ""
+    echo "--- Uptime ---"
+    uptime
+    echo ""
+    echo "--- Memory ---"
+    free -h
+    echo ""
+    echo "--- Disk Usage ---"
+    df -h /
+    echo ""
+    echo "--- Top 5 Processes by Memory ---"
+    ps aux --sort=-%mem | head -6
+    echo ""
+    echo "===== End of Report ====="
+} > "$REPORT"
+
+echo "Report saved to $REPORT"
+echo "Size: $(wc -c < "$REPORT") bytes"</code></pre>
+
+  <pre><code><span class="prompt">$</span> chmod +x sysreport.sh
+<span class="prompt">$</span> ./sysreport.sh
+<span class="output">Report saved to system_report_20260331.txt
+Size: 1247 bytes</span></code></pre>
+
+  <h3>Exit codes</h3>
+  <pre><code><span class="comment"># Every command returns an exit code: 0 = success, non-zero = failure</span>
+<span class="prompt">$</span> ls /etc/passwd
+<span class="prompt">$</span> echo $?
+<span class="output">0</span>              <span class="comment"># success</span>
+
+<span class="prompt">$</span> ls /nonexistent
+<span class="output">ls: cannot access '/nonexistent': No such file or directory</span>
+<span class="prompt">$</span> echo $?
+<span class="output">2</span>              <span class="comment"># failure</span>
+
+<span class="comment"># Use exit codes in your scripts</span>
+<span class="comment">#!/bin/bash</span>
+if [ $# -eq 0 ]; then
+    echo "Error: no arguments provided" >&amp;2
+    exit 1          <span class="comment"># exit with error code 1</span>
+fi
+echo "Processing: $1"
+exit 0              <span class="comment"># exit with success code 0</span></code></pre>
+
+  <!-- ============================== -->
+  <!-- Exercises                       -->
+  <!-- ============================== -->
+  <h2>Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Pipes practice</div>
+    <p>Using only pipes and common commands, accomplish the following:</p>
+    <ol>
+      <li>Count how many lines in <code>/etc/passwd</code> contain the word <code>bash</code>.</li>
+      <li>List all unique shells used by users in <code>/etc/passwd</code>, sorted by frequency.</li>
+      <li>Find the 5 largest directories under <code>/var</code>.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="comment"># 1. Count lines containing "bash"</span>
+<span class="prompt">$</span> grep bash /etc/passwd | wc -l
+
+<span class="comment"># 2. Unique shells sorted by frequency</span>
+<span class="prompt">$</span> cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
+
+<span class="comment"># 3. Five largest directories under /var</span>
+<span class="prompt">$</span> sudo du -sh /var/*/ 2>/dev/null | sort -hr | head -5</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Redirection practice</div>
+    <p>Try the following:</p>
+    <ol>
+      <li>Redirect the output of <code>ls -la /etc</code> to a file called <code>etc_files.txt</code>.</li>
+      <li>Append the current date to <code>etc_files.txt</code>.</li>
+      <li>Run <code>find / -name "*.log"</code> and send errors to <code>/dev/null</code> while saving results to <code>logs_found.txt</code>.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> ls -la /etc > etc_files.txt
+<span class="prompt">$</span> date >> etc_files.txt
+<span class="prompt">$</span> find / -name "*.log" > logs_found.txt 2>/dev/null</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Write a script</div>
+    <p>Write a bash script called <code>greet.sh</code> that:</p>
+    <ol>
+      <li>Accepts a name as the first argument (<code>$1</code>).</li>
+      <li>If no name is given, prints "Usage: ./greet.sh &lt;name&gt;" and exits with code 1.</li>
+      <li>If a name is given, prints "Good morning, &lt;name&gt;! Today is &lt;day of week&gt;."</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="comment">#!/bin/bash</span>
+
+if [ -z "$1" ]; then
+    echo "Usage: ./greet.sh &lt;name&gt;"
+    exit 1
+fi
+
+echo "Good morning, $1! Today is $(date +%A)."
+exit 0</code></pre>
+      <pre><code><span class="prompt">$</span> chmod +x greet.sh
+<span class="prompt">$</span> ./greet.sh Alice
+<span class="output">Good morning, Alice! Today is Tuesday.</span>
+<span class="prompt">$</span> ./greet.sh
+<span class="output">Usage: ./greet.sh &lt;name&gt;</span></code></pre>
+    </details>
+  </div>
+
+  <!-- ============================== -->
+  <!-- Quizzes                         -->
+  <!-- ============================== -->
+  <h2>Knowledge Check</h2>
+
+  <div class="quiz">
+    <div class="quiz__question">1. What does the command <code>ls | wc -l</code> do?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q1" value="a"> Lists files and counts their total size</label>
+      <label><input type="radio" name="q1" value="b"> Counts the number of items output by ls</label>
+      <label><input type="radio" name="q1" value="c"> Lists files that contain the letter "l"</label>
+      <label><input type="radio" name="q1" value="d"> Writes the file list to a file called "l"</label>
+    </div>
+    <button class="quiz__check" onclick="document.getElementById('a1').classList.toggle('show')">Check Answer</button>
+    <div class="quiz__answer" id="a1"><strong>Answer: b)</strong> The pipe (<code>|</code>) sends the output of <code>ls</code> into <code>wc -l</code>, which counts the number of lines. Each item <code>ls</code> prints appears on its own line, so this counts the number of files and directories.</div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">2. What is wrong with this variable assignment? <code>NAME = "Bob"</code></div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q2" value="a"> You cannot use quotes around the value</label>
+      <label><input type="radio" name="q2" value="b"> Variable names must be lowercase</label>
+      <label><input type="radio" name="q2" value="c"> There should be no spaces around the <code>=</code> sign</label>
+      <label><input type="radio" name="q2" value="d"> You need to use the <code>let</code> keyword</label>
+    </div>
+    <button class="quiz__check" onclick="document.getElementById('a2').classList.toggle('show')">Check Answer</button>
+    <div class="quiz__answer" id="a2"><strong>Answer: c)</strong> In bash, variable assignment must have <strong>no spaces</strong> around the <code>=</code>. The correct form is <code>NAME="Bob"</code>. With spaces, bash interprets <code>NAME</code> as a command name and <code>=</code> and <code>"Bob"</code> as arguments to it.</div>
+  </div>
+
+  <!-- Prev / Next navigation -->
+  <div class="page-nav">
+    <a href="../11-packages/index.html">&larr; 11. Package Management</a>
+    <a href="../13-workflows/index.html">13. Workflows &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

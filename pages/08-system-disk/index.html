@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 8: System &amp; Disk Information — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing Files</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions &amp; Ownership</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link active" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking Basics</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives &amp; Compression</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Real-World Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Command Comparisons</a>
+  </div>
+
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index (A-Z)</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Practice Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <div class="breadcrumb">
+    <a href="../../index.html">Home</a>
+    <span class="sep">/</span>
+    <span>Chapter 8: System &amp; Disk Information</span>
+  </div>
+
+  <h1>Chapter 8: System &amp; Disk Information</h1>
+
+  <p>Understanding your system is fundamental to administering Linux. This chapter covers commands that answer critical questions: How much disk space is left? How much memory is available? What hardware is installed? How long has the system been running? Whether you are troubleshooting a slow server, planning storage, or just getting oriented on an unfamiliar machine, these commands are essential.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">What You Will Learn</div>
+    <p>By the end of this chapter you will be able to check disk space, memory usage, CPU information, system uptime, block devices, mounted filesystems, and user identity &mdash; all from the command line.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="df">df &mdash; Disk Free Space</h2>
+
+  <p><strong>What it does:</strong> <code>df</code> (disk free) reports how much disk space is used and available on each mounted filesystem. It reads from the kernel's mount table, so it shows the perspective of the <em>filesystem</em> (not individual files).</p>
+
+  <p><strong>Why it matters:</strong> When a disk fills up, services crash, logs stop writing, and databases corrupt. Checking <code>df</code> regularly is one of the most basic sysadmin habits.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>-h</code></td><td>Human-readable sizes (K, M, G)</td></tr>
+      <tr><td><code>-H</code></td><td>Human-readable using powers of 1000 (not 1024)</td></tr>
+      <tr><td><code>-T</code></td><td>Show filesystem type (ext4, xfs, tmpfs, etc.)</td></tr>
+      <tr><td><code>-i</code></td><td>Show inode usage instead of block usage</td></tr>
+      <tr><td><code>-a</code></td><td>Include pseudo-filesystems (proc, sysfs, etc.)</td></tr>
+      <tr><td><code>-x TYPE</code></td><td>Exclude a filesystem type</td></tr>
+      <tr><td><code>--total</code></td><td>Add a grand total row at the bottom</td></tr>
+      <tr><td><code>--output</code></td><td>Choose specific columns to display</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> df
+<span class="output">Filesystem     1K-blocks    Used Available Use% Mounted on
+/dev/sda1      51474912 12345678  36491234  26% /
+tmpfs           4045312        0   4045312   0% /dev/shm</span></pre>
+
+  <pre><span class="prompt">$</span> df -h
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   12G   35G  26% /
+tmpfs           3.9G     0  3.9G   0% /dev/shm</span></pre>
+
+  <pre><span class="prompt">$</span> df -hT
+<span class="output">Filesystem     Type      Size  Used Avail Use% Mounted on
+/dev/sda1      ext4       50G   12G   35G  26% /
+/dev/sdb1      xfs       100G   45G   55G  45% /data
+tmpfs          tmpfs     3.9G     0  3.9G   0% /dev/shm</span></pre>
+
+  <pre><span class="prompt">$</span> df -i
+<span class="output">Filesystem      Inodes  IUsed   IFree IUse% Mounted on
+/dev/sda1      3276800 234567 3042233    8% /
+/dev/sdb1      6553600  12345 6541255    1% /data</span></pre>
+
+  <pre><span class="prompt">$</span> df -h /home
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   12G   35G  26% /</span></pre>
+
+  <pre><span class="prompt">$</span> df -h --total
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   12G   35G  26% /
+/dev/sdb1       100G   45G   55G  45% /data
+total           150G   57G   90G  39% -</span></pre>
+
+  <pre><span class="prompt">$</span> df -hT -x tmpfs -x devtmpfs
+<span class="output">Filesystem     Type  Size  Used Avail Use% Mounted on
+/dev/sda1      ext4   50G   12G   35G  26% /
+/dev/sdb1      xfs   100G   45G   55G  45% /data</span></pre>
+
+  <pre><span class="prompt">$</span> df --output=source,fstype,size,used,avail,pcent,target -h
+<span class="output">Filesystem     Type   Size  Used Avail Use% Mounted on
+/dev/sda1      ext4    50G   12G   35G  26% /</span></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Common Mistake</div>
+    <p><code>df</code> shows space from the filesystem's perspective. If you delete a large file but a process still has it open, <code>df</code> will not show the freed space until that process closes the file handle. Use <code>lsof +L1</code> to find such deleted-but-open files.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="du">du &mdash; Disk Usage</h2>
+
+  <p><strong>What it does:</strong> <code>du</code> (disk usage) calculates how much space files and directories actually consume. Unlike <code>df</code> which looks at the whole filesystem, <code>du</code> walks a directory tree and sums up individual file sizes.</p>
+
+  <p><strong>Why it matters:</strong> When <code>df</code> says you are low on space, <code>du</code> is how you find <em>which</em> directories are the culprits.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>-h</code></td><td>Human-readable sizes</td></tr>
+      <tr><td><code>-s</code></td><td>Summary (total only, do not list subdirectories)</td></tr>
+      <tr><td><code>-c</code></td><td>Produce a grand total at the end</td></tr>
+      <tr><td><code>--max-depth=N</code></td><td>Only descend N levels deep</td></tr>
+      <tr><td><code>-a</code></td><td>Show sizes for files too, not just directories</td></tr>
+      <tr><td><code>--exclude=PATTERN</code></td><td>Skip files matching a pattern</td></tr>
+      <tr><td><code>-S</code></td><td>Do not include subdirectory sizes in parent totals</td></tr>
+      <tr><td><code>--apparent-size</code></td><td>Show apparent size instead of disk usage</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> du -h /var/log
+<span class="output">4.0K    /var/log/apt
+12M     /var/log/journal/abc123
+12M     /var/log/journal
+256K    /var/log/nginx
+15M     /var/log</span></pre>
+
+  <pre><span class="prompt">$</span> du -sh /var/log
+<span class="output">15M     /var/log</span></pre>
+
+  <pre><span class="prompt">$</span> du -sh /home/*
+<span class="output">2.3G    /home/alice
+450M    /home/bob
+12G     /home/charlie</span></pre>
+
+  <pre><span class="prompt">$</span> du -h --max-depth=1 /var
+<span class="output">15M     /var/log
+120M    /var/cache
+4.0K    /var/tmp
+200M    /var/lib
+335M    /var</span></pre>
+
+  <pre><span class="prompt">$</span> du -sh /home/* | sort -hr
+<span class="output">12G     /home/charlie
+2.3G    /home/alice
+450M    /home/bob</span></pre>
+
+  <pre><span class="prompt">$</span> du -ch /var/log/*.log
+<span class="output">5.2M    /var/log/syslog
+1.1M    /var/log/auth.log
+320K    /var/log/kern.log
+6.6M    total</span></pre>
+
+  <pre><span class="prompt">$</span> du -h --max-depth=1 --exclude='*.log' /var
+<span class="output">120M    /var/cache
+200M    /var/lib
+320M    /var</span></pre>
+
+  <pre><span class="prompt">$</span> du -sh --apparent-size largefile.iso
+<span class="output">4.7G    largefile.iso</span></pre>
+
+  <!-- df vs du comparison -->
+  <div class="concept-box">
+    <div class="concept-box__title">df vs du &mdash; Why They Show Different Numbers</div>
+    <p><code>df</code> and <code>du</code> often report different totals for the same filesystem. This is normal and expected:</p>
+    <table>
+      <thead><tr><th>Aspect</th><th>df</th><th>du</th></tr></thead>
+      <tbody>
+        <tr><td>Data source</td><td>Filesystem metadata (superblock)</td><td>Walks directory tree, sums files</td></tr>
+        <tr><td>Deleted-but-open files</td><td>Still counted as used</td><td>Not counted (no directory entry)</td></tr>
+        <tr><td>Reserved blocks</td><td>Included in the total</td><td>Not visible</td></tr>
+        <tr><td>Sparse files</td><td>Reports actual disk blocks</td><td>Can show apparent size with <code>--apparent-size</code></td></tr>
+        <tr><td>Speed</td><td>Instant (reads metadata)</td><td>Slow on large trees (walks every file)</td></tr>
+        <tr><td>Best for</td><td>"How full is the disk?"</td><td>"Which directory is eating space?"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="disk-vs-inodes">Mental Model: Disk Space vs Inodes</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Disk Space vs Inodes</div>
+    <p>Think of a filesystem like a library. <strong>Disk space</strong> is the shelf space &mdash; how many pages of books you can physically store. <strong>Inodes</strong> are the catalog cards &mdash; each file gets one card regardless of how big the book is.</p>
+    <p>You can run out of either one independently:</p>
+    <ul>
+      <li><strong>Out of disk space:</strong> You have millions of large files filling the shelves. <code>df -h</code> shows 100% used.</li>
+      <li><strong>Out of inodes:</strong> You have millions of tiny files (like a mail server creating one file per email). <code>df -i</code> shows 100% IUse%. There is plenty of shelf space, but no more catalog cards.</li>
+    </ul>
+    <p>When you see "No space left on device" but <code>df -h</code> shows free space, check <code>df -i</code> &mdash; you may have run out of inodes.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="free">free &mdash; Memory Usage</h2>
+
+  <p><strong>What it does:</strong> <code>free</code> displays the total amount of physical memory (RAM) and swap space, showing how much is used, free, and available.</p>
+
+  <p><strong>Why it matters:</strong> Understanding memory usage is essential for diagnosing performance issues. A common misconception is that high "used" memory means you are running out &mdash; Linux intentionally uses free RAM for caching.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>-h</code></td><td>Human-readable (auto-selects K, M, G)</td></tr>
+      <tr><td><code>-m</code></td><td>Display in megabytes</td></tr>
+      <tr><td><code>-g</code></td><td>Display in gigabytes</td></tr>
+      <tr><td><code>-b</code></td><td>Display in bytes</td></tr>
+      <tr><td><code>-s N</code></td><td>Repeat every N seconds</td></tr>
+      <tr><td><code>-c N</code></td><td>Repeat N times (use with -s)</td></tr>
+      <tr><td><code>-t</code></td><td>Show a total line (RAM + swap)</td></tr>
+      <tr><td><code>-w</code></td><td>Wide output (separate buffers and cache columns)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Understanding the Output</h3>
+  <pre><span class="prompt">$</span> free -h
+<span class="output">              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.2Gi       1.8Gi       256Mi       8.4Gi        9.5Gi
+Swap:         2.0Gi       100Mi       1.9Gi</span></pre>
+
+  <table>
+    <thead><tr><th>Column</th><th>What It Means</th></tr></thead>
+    <tbody>
+      <tr><td><strong>total</strong></td><td>Total installed RAM</td></tr>
+      <tr><td><strong>used</strong></td><td>Memory actively used by processes</td></tr>
+      <tr><td><strong>free</strong></td><td>Completely unused memory (not even cache)</td></tr>
+      <tr><td><strong>shared</strong></td><td>Memory used by tmpfs and shared between processes</td></tr>
+      <tr><td><strong>buff/cache</strong></td><td>Memory used for disk caching (reclaimable!)</td></tr>
+      <tr><td><strong>available</strong></td><td>Memory available for new processes (free + reclaimable cache). <strong>This is the number you should look at.</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> free -m
+<span class="output">              total        used        free      shared  buff/cache   available
+Mem:          15884        5324        1843         256        8717        9742
+Swap:          2047         102        1945</span></pre>
+
+  <pre><span class="prompt">$</span> free -g
+<span class="output">              total        used        free      shared  buff/cache   available
+Mem:             15           5           1           0           8           9
+Swap:             2           0           1</span></pre>
+
+  <pre><span class="prompt">$</span> free -h -t
+<span class="output">              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.2Gi       1.8Gi       256Mi       8.4Gi        9.5Gi
+Swap:         2.0Gi       100Mi       1.9Gi
+Total:         17Gi       5.3Gi       3.7Gi</span></pre>
+
+  <pre><span class="prompt">$</span> free -h -w
+<span class="output">              total        used        free      shared     buffers       cache   available
+Mem:           15Gi       5.2Gi       1.8Gi       256Mi       512Mi       7.9Gi        9.5Gi
+Swap:         2.0Gi       100Mi       1.9Gi</span></pre>
+
+  <pre><span class="prompt">$</span> free -h -s 2 -c 3
+<span class="output">              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.2Gi       1.8Gi       256Mi       8.4Gi        9.5Gi
+Swap:         2.0Gi       100Mi       1.9Gi
+
+              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.3Gi       1.7Gi       256Mi       8.4Gi        9.4Gi
+Swap:         2.0Gi       100Mi       1.9Gi
+
+              total        used        free      shared  buff/cache   available
+Mem:           15Gi       5.1Gi       1.9Gi       256Mi       8.4Gi        9.6Gi
+Swap:         2.0Gi       100Mi       1.9Gi</span></pre>
+
+  <pre><span class="prompt">$</span> free -h | awk '/Mem:/ {print "Available: " $7}'
+<span class="output">Available: 9.5Gi</span></pre>
+
+  <pre><span class="prompt">$</span> free -b
+<span class="output">              total           used           free         shared    buff/cache      available
+Mem:    16658997248     5583691776     1932279808      268435456     9143025664    10473398272
+Swap:    2147483648      106954752     2040528896</span></pre>
+
+  <pre><span class="prompt">$</span> watch -n 1 free -h
+<span class="comment"># Updates every second in your terminal</span></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Key Insight</div>
+    <p>On a healthy Linux system, "free" memory is often very low because Linux uses unused RAM as disk cache. Look at the <strong>available</strong> column, not "free". If "available" is very low, <em>then</em> you should worry.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="uptime">uptime &mdash; System Uptime &amp; Load Averages</h2>
+
+  <p><strong>What it does:</strong> <code>uptime</code> shows how long the system has been running, how many users are logged in, and the system load averages.</p>
+
+  <p><strong>Why it matters:</strong> Load averages are a quick health check for system performance. A sudden spike may indicate runaway processes or unexpected traffic.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> uptime
+<span class="output"> 14:32:07 up 45 days,  3:22,  2 users,  load average: 0.52, 0.78, 0.65</span></pre>
+
+  <pre><span class="prompt">$</span> uptime -p
+<span class="output">up 45 days, 3 hours, 22 minutes</span></pre>
+
+  <pre><span class="prompt">$</span> uptime -s
+<span class="output">2026-02-14 11:10:05</span></pre>
+
+  <p>The three load average numbers represent the average number of processes waiting for CPU time over the last <strong>1 minute</strong>, <strong>5 minutes</strong>, and <strong>15 minutes</strong>.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Understanding Load Averages</div>
+    <p>Load average represents the average number of processes in a runnable or uninterruptible state. Think of it like a queue at a checkout counter:</p>
+    <ul>
+      <li>On a <strong>single-core</strong> machine, load 1.0 means the CPU is fully utilized with no queue. Load 2.0 means one process is running and one is waiting.</li>
+      <li>On a <strong>4-core</strong> machine, load 4.0 means all cores are busy. Load 2.0 means you still have headroom.</li>
+    </ul>
+    <p><strong>Rule of thumb:</strong> Divide load average by number of CPU cores. If the result is consistently above 1.0, the system is overloaded.</p>
+    <pre><span class="comment"># Check number of cores to interpret load</span>
+<span class="prompt">$</span> nproc
+<span class="output">4</span>
+<span class="comment"># Load of 3.5 on 4 cores = 3.5/4 = 0.875 — healthy</span>
+<span class="comment"># Load of 8.0 on 4 cores = 8.0/4 = 2.0 — overloaded!</span></pre>
+    <p>The three numbers (1, 5, 15 minute averages) show the trend. If 1-minute is much higher than 15-minute, load is spiking <em>right now</em>. If 15-minute is high but 1-minute is low, a spike just ended.</p>
+  </div>
+
+  <pre><span class="prompt">$</span> cat /proc/uptime
+<span class="output">3897732.45 15423897.22</span>
+<span class="comment"># First number: seconds since boot. Second: cumulative idle seconds across all cores.</span></pre>
+
+  <pre><span class="prompt">$</span> cat /proc/loadavg
+<span class="output">0.52 0.78 0.65 2/345 12456</span>
+<span class="comment"># load1 load5 load15 running/total last_pid</span></pre>
+
+  <pre><span class="prompt">$</span> w
+<span class="output"> 14:32:07 up 45 days,  3:22,  2 users,  load average: 0.52, 0.78, 0.65
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+alice    pts/0    192.168.1.10     10:05    3:22m  0.12s  0.04s vim app.py
+bob      pts/1    192.168.1.20     14:30    0.00s  0.02s  0.00s w</span></pre>
+
+  <pre><span class="prompt">$</span> uptime | awk -F'load average:' '{print $2}'
+<span class="output"> 0.52, 0.78, 0.65</span></pre>
+
+  <pre><span class="prompt">$</span> uptime | awk '{print $3, $4}'
+<span class="output">45 days,</span></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="top">top &mdash; Process &amp; System Monitor (Brief Recap)</h2>
+
+  <p><strong>What it does:</strong> <code>top</code> provides a real-time, dynamic view of running processes including CPU usage, memory usage, load averages, and uptime &mdash; all in one screen.</p>
+
+  <p>We covered <code>top</code> in detail in <a href="../07-processes/index.html">Chapter 7: Processes &amp; Jobs</a>. Here is a quick summary of system-info related usage:</p>
+
+  <pre><span class="prompt">$</span> top -bn1 | head -5
+<span class="output">top - 14:32:10 up 45 days,  3:22,  2 users,  load average: 0.52, 0.78, 0.65
+Tasks: 245 total,   1 running, 244 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  5.2 us,  2.1 sy,  0.0 ni, 92.1 id,  0.3 wa,  0.0 hi,  0.3 si,  0.0 st
+MiB Mem :  15512.7 total,   1843.2 free,   5324.1 used,   8345.4 buff/cache
+MiB Swap:   2048.0 total,   1945.1 free,    102.9 used.   9742.8 avail Mem</span></pre>
+
+  <p>The header lines of <code>top</code> summarize: uptime, load averages, CPU breakdown, memory and swap. Use <code>top -bn1</code> for a single non-interactive snapshot useful in scripts.</p>
+
+  <pre><span class="prompt">$</span> top -bn1 | grep "Cpu(s)"
+<span class="output">%Cpu(s):  5.2 us,  2.1 sy,  0.0 ni, 92.1 id,  0.3 wa,  0.0 hi,  0.3 si,  0.0 st</span></pre>
+
+  <pre><span class="prompt">$</span> top -bn1 | grep "MiB Mem"
+<span class="output">MiB Mem :  15512.7 total,   1843.2 free,   5324.1 used,   8345.4 buff/cache</span></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">See Also</div>
+    <p>For interactive <code>top</code> usage, keybindings, sorting, and alternatives like <code>htop</code>, see <a href="../07-processes/index.html">Chapter 7</a>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="vmstat">vmstat &mdash; Virtual Memory Statistics</h2>
+
+  <p><strong>What it does:</strong> <code>vmstat</code> reports information about processes, memory, paging, block I/O, traps, and CPU activity. It gives a broad overview of system performance in a compact format.</p>
+
+  <p><strong>Why it matters:</strong> When diagnosing performance problems, <code>vmstat</code> helps you quickly determine whether the bottleneck is CPU, memory, or I/O.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> vmstat
+<span class="output">procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 1  0 102400 1887744 524288 8093696    0    0    12    45  234  567  5  2 92  1  0</span></pre>
+
+  <pre><span class="prompt">$</span> vmstat 2 5
+<span class="comment"># Report every 2 seconds, 5 times</span>
+<span class="output">procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 1  0 102400 1887744 524288 8093696    0    0    12    45  234  567  5  2 92  1  0
+ 0  0 102400 1885432 524320 8093824    0    0     0    32  198  445  3  1 95  1  0
+ 2  0 102400 1882100 524320 8094080    0    0     0    18  245  512  8  3 88  1  0
+ 0  0 102400 1884200 524352 8094080    0    0     0    64  210  478  4  2 93  1  0
+ 1  0 102400 1883900 524352 8094336    0    0     4    28  223  490  5  2 92  1  0</span></pre>
+
+  <table>
+    <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>r</code></td><td>Processes waiting for CPU (run queue)</td></tr>
+      <tr><td><code>b</code></td><td>Processes in uninterruptible sleep (usually I/O wait)</td></tr>
+      <tr><td><code>swpd</code></td><td>Virtual memory used (swap)</td></tr>
+      <tr><td><code>free</code></td><td>Idle memory</td></tr>
+      <tr><td><code>si / so</code></td><td>Swap in / swap out (pages per second). High values indicate memory pressure.</td></tr>
+      <tr><td><code>bi / bo</code></td><td>Block in / block out (blocks read/written per second from disk)</td></tr>
+      <tr><td><code>us</code></td><td>CPU time spent in user code</td></tr>
+      <tr><td><code>sy</code></td><td>CPU time spent in kernel code</td></tr>
+      <tr><td><code>id</code></td><td>CPU idle time</td></tr>
+      <tr><td><code>wa</code></td><td>CPU time waiting for I/O</td></tr>
+    </tbody>
+  </table>
+
+  <pre><span class="prompt">$</span> vmstat -s
+<span class="output">     16285696 K total memory
+      5456384 K used memory
+      9345024 K active memory
+      5432128 K inactive memory
+      1887744 K free memory
+       524288 K buffer memory
+      8093696 K swap cache
+      2097152 K total swap
+       102400 K used swap
+      1994752 K free swap
+     ...</span></pre>
+
+  <pre><span class="prompt">$</span> vmstat -d
+<span class="comment"># Disk statistics</span>
+<span class="output">disk- ------------reads------------ ------------writes----------- -----IO------
+       total merged sectors      ms  total merged sectors      ms    cur    sec
+sda   125432   4523 5012864  234567  98234  12456 3921536  456789      0    234</span></pre>
+
+  <pre><span class="prompt">$</span> vmstat -w 1 3
+<span class="comment"># Wide output format, every 1 second, 3 times</span></pre>
+
+  <pre><span class="prompt">$</span> vmstat -t 2 3
+<span class="comment"># Include timestamp</span>
+<span class="output">procs ---------memory---------- ---swap-- -----io---- -system-- ------cpu----- -----timestamp-----
+ r  b  swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st                 UTC
+ 1  0 102400 1887744 524288 8093696  0    0    12    45  234  567  5  2 92  1  0 2026-03-31 14:32:10</span></pre>
+
+  <pre><span class="prompt">$</span> vmstat -S M
+<span class="comment"># Display in megabytes instead of kilobytes</span></pre>
+
+  <pre><span class="prompt">$</span> vmstat -a
+<span class="comment"># Show active/inactive memory instead of buff/cache</span></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Reading vmstat</div>
+    <p>The first line of <code>vmstat</code> output is always an average since boot &mdash; ignore it. The subsequent lines are the real-time values. High <code>wa</code> (I/O wait) with low <code>id</code> (idle) means the disk is the bottleneck. High <code>si/so</code> (swap) means you need more RAM.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="iostat">iostat &mdash; I/O Statistics</h2>
+
+  <p><strong>What it does:</strong> <code>iostat</code> reports CPU usage and I/O statistics for block devices. It is part of the <code>sysstat</code> package.</p>
+
+  <p><strong>Why it matters:</strong> When disk I/O is the bottleneck, <code>iostat</code> shows you which devices are saturated and how much throughput they handle.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> iostat
+<span class="output">Linux 5.15.0-91-generic (webserver)    03/31/2026      _x86_64_
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           5.23    0.00    2.11    0.31    0.00   92.35
+
+Device             tps    kB_read/s    kB_wrtn/s    kB_dscd/s    kB_read    kB_wrtn    kB_dscd
+sda              25.12        48.23        95.67         0.00  187654321  372345678          0
+sdb               8.45        12.10        45.32         0.00   47123456  176345678          0</span></pre>
+
+  <pre><span class="prompt">$</span> iostat -x
+<span class="comment"># Extended statistics showing utilization, await, etc.</span>
+<span class="output">Device  r/s     rkB/s   w/s     wkB/s   await  svctm  %util
+sda     12.34   48.23   12.78   95.67   4.52   1.23   3.12
+sdb      4.56   12.10    3.89   45.32   8.91   2.34   1.45</span></pre>
+
+  <pre><span class="prompt">$</span> iostat -xz 2 5
+<span class="comment"># Extended stats, skip idle devices, every 2 sec, 5 times</span></pre>
+
+  <pre><span class="prompt">$</span> iostat -d sda
+<span class="comment"># Show only device sda</span></pre>
+
+  <pre><span class="prompt">$</span> iostat -h
+<span class="comment"># Human-readable output</span></pre>
+
+  <pre><span class="prompt">$</span> iostat -p sda
+<span class="comment"># Include partitions of sda (sda1, sda2, etc.)</span></pre>
+
+  <pre><span class="prompt">$</span> iostat -m
+<span class="comment"># Display in megabytes per second</span></pre>
+
+  <pre><span class="prompt">$</span> iostat -c
+<span class="comment"># CPU stats only (no device stats)</span></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Installation Required</div>
+    <p><code>iostat</code> is not installed by default on many distributions. Install it with: <code>sudo apt install sysstat</code> (Debian/Ubuntu) or <code>sudo yum install sysstat</code> (RHEL/CentOS).</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="lsblk">lsblk &mdash; List Block Devices</h2>
+
+  <p><strong>What it does:</strong> <code>lsblk</code> lists all block devices (disks, partitions, loop devices) in a tree format, showing their relationships, sizes, and mount points.</p>
+
+  <p><strong>Why it matters:</strong> Before partitioning, mounting, or troubleshooting disk issues, you need to understand the disk layout. <code>lsblk</code> gives you an instant overview.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> lsblk
+<span class="output">NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
+sda      8:0    0    50G  0 disk
+├─sda1   8:1    0   512M  0 part /boot
+├─sda2   8:2    0    48G  0 part /
+└─sda3   8:3    0   1.5G  0 part [SWAP]
+sdb      8:16   0   100G  0 disk
+└─sdb1   8:17   0   100G  0 part /data
+sr0     11:0    1  1024M  0 rom</span></pre>
+
+  <pre><span class="prompt">$</span> lsblk -f
+<span class="output">NAME   FSTYPE LABEL UUID                                 MOUNTPOINT
+sda
+├─sda1 ext4   boot  a1b2c3d4-e5f6-7890-abcd-ef1234567890 /boot
+├─sda2 ext4   root  b2c3d4e5-f6a7-8901-bcde-f12345678901 /
+└─sda3 swap   swap  c3d4e5f6-a7b8-9012-cdef-123456789012 [SWAP]
+sdb
+└─sdb1 xfs    data  d4e5f6a7-b8c9-0123-defa-234567890123 /data</span></pre>
+
+  <pre><span class="prompt">$</span> lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT
+<span class="output">NAME   SIZE TYPE FSTYPE MOUNTPOINT
+sda     50G disk
+├─sda1 512M part ext4   /boot
+├─sda2  48G part ext4   /
+└─sda3 1.5G part swap   [SWAP]
+sdb    100G disk
+└─sdb1 100G part xfs    /data</span></pre>
+
+  <pre><span class="prompt">$</span> lsblk -d
+<span class="comment"># Show only top-level devices (no partitions)</span>
+<span class="output">NAME MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda    8:0    0   50G  0 disk
+sdb    8:16   0  100G  0 disk
+sr0   11:0    1 1024M  0 rom</span></pre>
+
+  <pre><span class="prompt">$</span> lsblk -b
+<span class="comment"># Show sizes in bytes</span></pre>
+
+  <pre><span class="prompt">$</span> lsblk -J
+<span class="comment"># JSON output (useful for scripting)</span></pre>
+
+  <pre><span class="prompt">$</span> lsblk -p
+<span class="comment"># Show full device paths (/dev/sda1 instead of sda1)</span></pre>
+
+  <pre><span class="prompt">$</span> lsblk -o NAME,SIZE,ROTA,DISC-MAX
+<span class="comment"># ROTA=1 means rotational (HDD), ROTA=0 means SSD</span>
+<span class="output">NAME   SIZE ROTA DISC-MAX
+sda     50G    0       2G
+sdb    100G    1        0</span></pre>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Understanding Partitions and Mount Points</div>
+    <p>A <strong>disk</strong> (like <code>sda</code>) is the physical device. It is divided into <strong>partitions</strong> (like <code>sda1</code>, <code>sda2</code>). Each partition can contain a <strong>filesystem</strong> (ext4, xfs, etc.) and be <strong>mounted</strong> at a directory in the file tree.</p>
+    <div class="diagram">
+      <pre>Physical Disk (sda, 50G)
+├── Partition 1 (sda1, 512M) → ext4 → mounted at /boot
+├── Partition 2 (sda2, 48G)  → ext4 → mounted at /
+└── Partition 3 (sda3, 1.5G) → swap → [SWAP]
+
+Physical Disk (sdb, 100G)
+└── Partition 1 (sdb1, 100G) → xfs  → mounted at /data</pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="mount">mount &mdash; Mount Filesystems</h2>
+
+  <p><strong>What it does:</strong> <code>mount</code> attaches a filesystem to a directory in the file tree. Without arguments, it lists all currently mounted filesystems.</p>
+
+  <p><strong>Why it matters:</strong> Accessing USB drives, network shares, disk images, and additional partitions all require mounting. Understanding mounts is fundamental to Linux disk management.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> mount
+<span class="comment"># List all mounted filesystems (very long output)</span>
+<span class="output">sysfs on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)
+proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)
+/dev/sda2 on / type ext4 (rw,relatime)
+/dev/sda1 on /boot type ext4 (rw,relatime)
+/dev/sdb1 on /data type xfs (rw,relatime,attr2,inode64)
+tmpfs on /run type tmpfs (rw,nosuid,nodev,size=3197456k,mode=755)</span></pre>
+
+  <pre><span class="prompt">$</span> mount | grep "^/dev"
+<span class="comment"># Show only real devices (filter out pseudo-filesystems)</span>
+<span class="output">/dev/sda2 on / type ext4 (rw,relatime)
+/dev/sda1 on /boot type ext4 (rw,relatime)
+/dev/sdb1 on /data type xfs (rw,relatime,attr2,inode64)</span></pre>
+
+  <pre><span class="prompt">$</span> mount -t ext4
+<span class="comment"># Show only ext4 filesystems</span>
+<span class="output">/dev/sda2 on / type ext4 (rw,relatime)
+/dev/sda1 on /boot type ext4 (rw,relatime)</span></pre>
+
+  <pre><span class="prompt">$</span> sudo mount /dev/sdb1 /mnt/data
+<span class="comment"># Mount a partition to a directory</span></pre>
+
+  <pre><span class="prompt">$</span> sudo mount -o ro /dev/sdb1 /mnt/data
+<span class="comment"># Mount as read-only</span></pre>
+
+  <pre><span class="prompt">$</span> sudo umount /mnt/data
+<span class="comment"># Unmount (note: umount, not unmount)</span></pre>
+
+  <pre><span class="prompt">$</span> sudo mount -o loop disk.iso /mnt/iso
+<span class="comment"># Mount an ISO file</span></pre>
+
+  <pre><span class="prompt">$</span> findmnt
+<span class="comment"># Tree view of all mounts (cleaner than mount)</span>
+<span class="output">TARGET        SOURCE    FSTYPE OPTIONS
+/             /dev/sda2 ext4   rw,relatime
+├─/boot       /dev/sda1 ext4   rw,relatime
+├─/data       /dev/sdb1 xfs    rw,relatime
+├─/proc       proc      proc   rw,nosuid,nodev
+└─/sys        sysfs     sysfs  rw,nosuid,nodev</span></pre>
+
+  <pre><span class="prompt">$</span> findmnt -t ext4
+<span class="comment"># Filter by filesystem type</span></pre>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Understanding /etc/fstab</div>
+    <p><code>/etc/fstab</code> (file system table) defines which filesystems are mounted automatically at boot. Each line specifies a device, mount point, filesystem type, options, dump flag, and fsck order:</p>
+    <pre><span class="comment"># /etc/fstab — device  mountpoint  type  options        dump  fsck</span>
+<span class="output">/dev/sda2       /           ext4  defaults           0     1
+/dev/sda1       /boot       ext4  defaults           0     2
+/dev/sdb1       /data       xfs   defaults,noatime   0     2
+/dev/sda3       none        swap  sw                 0     0
+UUID=a1b2c3d4   /backup     ext4  defaults,nofail    0     2</span></pre>
+    <p>Using <code>UUID=</code> instead of <code>/dev/sdX</code> is safer because device names can change between boots, but UUIDs are permanent. Find UUIDs with <code>lsblk -f</code> or <code>blkid</code>.</p>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Caution</div>
+    <p>Editing <code>/etc/fstab</code> incorrectly can make your system unbootable. Always test entries with <code>sudo mount -a</code> before rebooting. Use the <code>nofail</code> option for non-critical mounts so the system still boots if that device is absent.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="uname">uname -a &mdash; Full System Information</h2>
+
+  <p><strong>What it does:</strong> <code>uname</code> prints system information &mdash; kernel name, hostname, kernel version, architecture, and more.</p>
+
+  <p><strong>Why it matters:</strong> When asking for help online, filing bug reports, or checking compatibility, you need to know exactly what kernel and architecture you are running.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Output</th></tr></thead>
+    <tbody>
+      <tr><td><code>-a</code></td><td>All information</td></tr>
+      <tr><td><code>-s</code></td><td>Kernel name (e.g., Linux)</td></tr>
+      <tr><td><code>-n</code></td><td>Hostname</td></tr>
+      <tr><td><code>-r</code></td><td>Kernel release (e.g., 5.15.0-91-generic)</td></tr>
+      <tr><td><code>-v</code></td><td>Kernel version (build date)</td></tr>
+      <tr><td><code>-m</code></td><td>Machine architecture (e.g., x86_64)</td></tr>
+      <tr><td><code>-p</code></td><td>Processor type</td></tr>
+      <tr><td><code>-o</code></td><td>Operating system (e.g., GNU/Linux)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> uname -a
+<span class="output">Linux webserver 5.15.0-91-generic #101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux</span></pre>
+
+  <pre><span class="prompt">$</span> uname -r
+<span class="output">5.15.0-91-generic</span></pre>
+
+  <pre><span class="prompt">$</span> uname -m
+<span class="output">x86_64</span></pre>
+
+  <pre><span class="prompt">$</span> uname -n
+<span class="output">webserver</span></pre>
+
+  <pre><span class="prompt">$</span> uname -o
+<span class="output">GNU/Linux</span></pre>
+
+  <pre><span class="prompt">$</span> uname -s -r -m
+<span class="output">Linux 5.15.0-91-generic x86_64</span></pre>
+
+  <pre><span class="prompt">$</span> cat /etc/os-release
+<span class="output">NAME="Ubuntu"
+VERSION="22.04.3 LTS (Jammy Jellyfish)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 22.04.3 LTS"
+VERSION_ID="22.04"</span></pre>
+
+  <pre><span class="prompt">$</span> hostnamectl
+<span class="output">   Static hostname: webserver
+         Icon name: computer-vm
+           Chassis: vm
+  Operating System: Ubuntu 22.04.3 LTS
+            Kernel: Linux 5.15.0-91-generic
+      Architecture: x86-64</span></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="lscpu">lscpu &mdash; CPU Information</h2>
+
+  <p><strong>What it does:</strong> <code>lscpu</code> displays detailed information about the CPU architecture &mdash; number of cores, threads, model name, cache sizes, and virtualization support.</p>
+
+  <p><strong>Why it matters:</strong> Knowing your CPU specs helps you understand performance limits, plan parallel workloads, and configure applications that depend on core counts.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> lscpu
+<span class="output">Architecture:          x86_64
+CPU op-mode(s):        32-bit, 64-bit
+Byte Order:            Little Endian
+CPU(s):                4
+On-line CPU(s) list:   0-3
+Thread(s) per core:    2
+Core(s) per socket:    2
+Socket(s):             1
+NUMA node(s):          1
+Vendor ID:             GenuineIntel
+CPU family:            6
+Model:                 142
+Model name:            Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz
+Stepping:              10
+CPU MHz:               1800.000
+CPU max MHz:           3400.0000
+CPU min MHz:           400.0000
+BogoMIPS:              3600.00
+Virtualization:        VT-x
+L1d cache:             64 KiB
+L1i cache:             64 KiB
+L2 cache:              512 KiB
+L3 cache:              6 MiB</span></pre>
+
+  <pre><span class="prompt">$</span> lscpu | grep "Model name"
+<span class="output">Model name:            Intel(R) Core(TM) i5-8250U CPU @ 1.60GHz</span></pre>
+
+  <pre><span class="prompt">$</span> lscpu | grep "^CPU(s):"
+<span class="output">CPU(s):                4</span></pre>
+
+  <pre><span class="prompt">$</span> nproc
+<span class="output">4</span></pre>
+
+  <pre><span class="prompt">$</span> lscpu --json
+<span class="comment"># JSON output for scripting</span></pre>
+
+  <pre><span class="prompt">$</span> lscpu -e
+<span class="comment"># Extended readable format showing each CPU</span>
+<span class="output">CPU NODE SOCKET CORE L1d:L1i:L2:L3 ONLINE
+0   0    0      0    0:0:0:0        yes
+1   0    0      1    1:1:1:0        yes
+2   0    0      0    0:0:0:0        yes
+3   0    0      1    1:1:1:0        yes</span></pre>
+
+  <pre><span class="prompt">$</span> cat /proc/cpuinfo | head -20
+<span class="comment"># Alternative: raw CPU info from the kernel</span></pre>
+
+  <pre><span class="prompt">$</span> lscpu | grep -i virtual
+<span class="output">Virtualization:        VT-x
+Hypervisor vendor:     KVM
+Virtualization type:   full</span></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="whoami">whoami &mdash; Current User</h2>
+
+  <p><strong>What it does:</strong> <code>whoami</code> prints the username of the current effective user. That is it &mdash; one word, no flags (well, almost).</p>
+
+  <p><strong>Why it matters:</strong> When you are in a script, when you have used <code>su</code> or <code>sudo</code>, or when you are ssh'ed into multiple machines, <code>whoami</code> quickly confirms who the system thinks you are.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> whoami
+<span class="output">alice</span></pre>
+
+  <pre><span class="prompt">$</span> sudo whoami
+<span class="output">root</span></pre>
+
+  <pre><span class="prompt">$</span> su - bob -c "whoami"
+<span class="output">bob</span></pre>
+
+  <pre><span class="prompt">$</span> echo "Logged in as: $(whoami)"
+<span class="output">Logged in as: alice</span></pre>
+
+  <pre><span class="prompt">$</span> if [ "$(whoami)" != "root" ]; then echo "Run as root!"; fi
+<span class="output">Run as root!</span></pre>
+
+  <pre><span class="prompt">$</span> echo $USER
+<span class="output">alice</span>
+<span class="comment"># $USER is the login user. whoami is the effective user (may differ after sudo).</span></pre>
+
+  <pre><span class="prompt">$</span> logname
+<span class="output">alice</span>
+<span class="comment"># logname shows the login name, even after su/sudo</span></pre>
+
+  <pre><span class="prompt">$</span> who am i
+<span class="output">alice    pts/0        2026-03-31 10:05 (192.168.1.10)</span>
+<span class="comment"># Shows login user with terminal and source IP</span></pre>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Common Confusion</div>
+      <pre><span class="prompt">$</span> sudo su
+<span class="prompt">#</span> echo $USER
+<span class="output">alice</span>    <span class="comment"># $USER still shows original login user!</span>
+<span class="prompt">#</span> whoami
+<span class="output">root</span>     <span class="comment"># whoami correctly shows effective user</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Best Practice</div>
+      <pre><span class="comment"># In scripts, use whoami or id for the effective user:</span>
+<span class="prompt">$</span> if [ "$(id -u)" -eq 0 ]; then
+    echo "Running as root"
+fi</pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="id">id &mdash; User Identity</h2>
+
+  <p><strong>What it does:</strong> <code>id</code> prints the real and effective user ID (UID), group ID (GID), and all group memberships. It tells you everything about who you are from the system's perspective.</p>
+
+  <p><strong>Why it matters:</strong> Permission errors often come down to UID/GID. When troubleshooting "permission denied" errors, <code>id</code> shows you exactly what groups you belong to and whether you have the access you need.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Output</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>Full info: uid, gid, groups</td></tr>
+      <tr><td><code>-u</code></td><td>Print only the effective UID</td></tr>
+      <tr><td><code>-g</code></td><td>Print only the effective GID</td></tr>
+      <tr><td><code>-G</code></td><td>Print all group IDs</td></tr>
+      <tr><td><code>-n</code></td><td>Print names instead of numbers (use with -u, -g, -G)</td></tr>
+      <tr><td><code>-r</code></td><td>Print real ID instead of effective ID</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> id
+<span class="output">uid=1000(alice) gid=1000(alice) groups=1000(alice),4(adm),27(sudo),33(www-data),999(docker)</span></pre>
+
+  <pre><span class="prompt">$</span> id -u
+<span class="output">1000</span></pre>
+
+  <pre><span class="prompt">$</span> id -un
+<span class="output">alice</span></pre>
+
+  <pre><span class="prompt">$</span> id -g
+<span class="output">1000</span></pre>
+
+  <pre><span class="prompt">$</span> id -gn
+<span class="output">alice</span></pre>
+
+  <pre><span class="prompt">$</span> id -Gn
+<span class="output">alice adm sudo www-data docker</span></pre>
+
+  <pre><span class="prompt">$</span> id bob
+<span class="output">uid=1001(bob) gid=1001(bob) groups=1001(bob),27(sudo)</span></pre>
+
+  <pre><span class="prompt">$</span> id root
+<span class="output">uid=0(root) gid=0(root) groups=0(root)</span></pre>
+
+  <pre><span class="prompt">$</span> groups
+<span class="output">alice adm sudo www-data docker</span>
+<span class="comment"># Shortcut for id -Gn</span></pre>
+
+  <pre><span class="prompt">$</span> id -u bob
+<span class="output">1001</span></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">UID 0 = Root</div>
+    <p>The root user always has UID 0. In scripts, checking <code>id -u</code> is more reliable than checking <code>whoami</code> because the root account could be renamed (though that is extremely rare).</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Practice Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Disk Detective</div>
+    <p>Perform the following tasks and answer the questions:</p>
+    <ol>
+      <li>Run <code>df -hT</code> and identify which filesystem your home directory is on. What type is it?</li>
+      <li>Run <code>du -sh ~</code> to find the total size of your home directory.</li>
+      <li>Find the top 5 largest directories in <code>/var</code> using <code>du</code> and <code>sort</code>.</li>
+      <li>Check the inode usage on your root filesystem. What percentage is used?</li>
+      <li>Use <code>lsblk -f</code> to find the UUID of your root partition.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="comment"># 1. Filesystem type for home</span>
+<span class="prompt">$</span> df -hT /home
+
+<span class="comment"># 2. Home directory size</span>
+<span class="prompt">$</span> du -sh ~
+
+<span class="comment"># 3. Top 5 largest directories in /var</span>
+<span class="prompt">$</span> sudo du -h --max-depth=1 /var | sort -hr | head -5
+
+<span class="comment"># 4. Inode usage on root</span>
+<span class="prompt">$</span> df -i /
+
+<span class="comment"># 5. UUID of root partition</span>
+<span class="prompt">$</span> lsblk -f | grep -E "/$"
+<span class="comment"># or</span>
+<span class="prompt">$</span> sudo blkid</pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: System Snapshot</div>
+    <p>Write a one-liner (or short script) that produces a quick system report including:</p>
+    <ul>
+      <li>Hostname and kernel version</li>
+      <li>CPU model and core count</li>
+      <li>Total and available memory</li>
+      <li>Uptime and load average</li>
+      <li>Disk usage summary</li>
+    </ul>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="prompt">$</span> echo "=== System Report ===" &amp;&amp; \
+  echo "Host: $(hostname) | Kernel: $(uname -r)" &amp;&amp; \
+  echo "CPU: $(lscpu | grep 'Model name' | sed 's/.*: *//')" &amp;&amp; \
+  echo "Cores: $(nproc)" &amp;&amp; \
+  echo "Memory: $(free -h | awk '/Mem:/ {print "Total: "$2" | Available: "$7}')" &amp;&amp; \
+  echo "Uptime: $(uptime -p)" &amp;&amp; \
+  echo "Load: $(cat /proc/loadavg | awk '{print $1, $2, $3}')" &amp;&amp; \
+  echo "=== Disk ===" &amp;&amp; \
+  df -h --total | grep -E '(Filesystem|total)'</pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Knowledge Check</h2>
+
+  <div class="quiz">
+    <div class="quiz__question">1. Your server shows "No space left on device" but <code>df -h</code> shows 30% used. What should you check next?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q1" value="a"> Run <code>du -sh /</code> to verify the total</label>
+      <label><input type="radio" name="q1" value="b"> Check inode usage with <code>df -i</code></label>
+      <label><input type="radio" name="q1" value="c"> Reboot the server</label>
+      <label><input type="radio" name="q1" value="d"> Run <code>free -h</code> to check memory</label>
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.classList.toggle('show')">Show Answer</button>
+    <div class="quiz__answer"><strong>B.</strong> Check inode usage with <code>df -i</code>. If the filesystem has run out of inodes (even though there is free space), no new files can be created. This happens when millions of tiny files consume all available inodes.</div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">2. A 4-core server shows <code>load average: 6.00, 4.50, 2.00</code>. What does this tell you?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q2" value="a"> The system is healthy with room to spare</label>
+      <label><input type="radio" name="q2" value="b"> Load is decreasing &mdash; the spike is over</label>
+      <label><input type="radio" name="q2" value="c"> Load is increasing &mdash; the 1-minute average (6.0) exceeds the core count (4), and it is getting worse</label>
+      <label><input type="radio" name="q2" value="d"> Memory is full</label>
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.classList.toggle('show')">Show Answer</button>
+    <div class="quiz__answer"><strong>C.</strong> The load averages go 2.00 (15 min) &rarr; 4.50 (5 min) &rarr; 6.00 (1 min), which means load is increasing. The 1-minute average of 6.00 divided by 4 cores = 1.5, meaning processes are queuing up. Something recent is causing a spike and it has not stopped yet.</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="page-nav">
+    <a href="../07-processes/index.html">&larr; Chapter 7: Processes &amp; Jobs</a>
+    <a href="../09-networking/index.html">Chapter 9: Networking Basics &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; Chapter 8: System &amp; Disk Information
+  </div>
+
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

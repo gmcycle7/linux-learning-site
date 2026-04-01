@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Index (A-Z) — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../pages/06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../pages/09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../pages/10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../pages/13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../pages/15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link active" href="command-index.html">Command Index</a>
+    <a class="sidebar__link" href="glossary.html">Glossary</a>
+    <a class="sidebar__link" href="top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="exercises.html">Exercises</a>
+    <a class="sidebar__link" href="daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a><span class="sep">/</span>Reference<span class="sep">/</span>Command Index
+  </div>
+
+  <h1>Command Index (A-Z)</h1>
+
+  <p>Every command covered in this guide, listed alphabetically. Use the filter box to quickly find any command.</p>
+
+  <input type="text" id="cmd-filter" placeholder="Type to filter commands..." aria-label="Filter commands" style="width:100%;max-width:480px;padding:.6rem 1rem;font-size:1rem;border:2px solid #dee2e6;border-radius:6px;margin-bottom:1.5rem;font-family:inherit;">
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Chapter</th></tr>
+    </thead>
+    <tbody>
+      <tr class="cmd-row"><td><code>alias</code></td><td>Create a shortcut name for a command or command sequence.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>apt</code></td><td>High-level package manager for Debian/Ubuntu systems.</td><td><a href="../pages/11-packages/index.html">11. Package Management</a></td></tr>
+      <tr class="cmd-row"><td><code>apt-get</code></td><td>Lower-level package manager for Debian/Ubuntu (predecessor to apt).</td><td><a href="../pages/11-packages/index.html">11. Package Management</a></td></tr>
+      <tr class="cmd-row"><td><code>awk</code></td><td>Pattern-scanning and text-processing language for columnar data.</td><td><a href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a></td></tr>
+      <tr class="cmd-row"><td><code>base64</code></td><td>Encode or decode data in Base64 format.</td><td><a href="../pages/13-workflows/index.html">13. Workflows</a></td></tr>
+      <tr class="cmd-row"><td><code>basename</code></td><td>Strip directory path and return only the filename.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>bg</code></td><td>Resume a stopped job in the background.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>bunzip2</code></td><td>Decompress .bz2 files.</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>bzip2</code></td><td>Compress files using the bzip2 algorithm (.bz2).</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>cal</code></td><td>Display a calendar in the terminal.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>cat</code></td><td>Concatenate and print file contents to the terminal.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>cd</code></td><td>Change the current working directory.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>chgrp</code></td><td>Change the group ownership of a file.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>chmod</code></td><td>Change file access permissions (read, write, execute).</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>chown</code></td><td>Change file owner and group.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>clear</code></td><td>Clear the terminal screen.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>cp</code></td><td>Copy files and directories.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>cron</code></td><td>Daemon that runs scheduled tasks (cron jobs).</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>crontab</code></td><td>Edit the cron job schedule for the current user.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>curl</code></td><td>Transfer data from or to a server using URLs.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>cut</code></td><td>Extract sections (columns/fields) from each line of input.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>date</code></td><td>Display or set the system date and time.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>dd</code></td><td>Copy and convert raw data (disk images, block devices).</td><td><a href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a></td></tr>
+      <tr class="cmd-row"><td><code>df</code></td><td>Report filesystem disk space usage.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>diff</code></td><td>Compare two files line by line.</td><td><a href="../pages/15-comparisons/index.html">15. Comparisons</a></td></tr>
+      <tr class="cmd-row"><td><code>dig</code></td><td>DNS lookup utility for querying name servers.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>dirname</code></td><td>Strip the filename and return only the directory path.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>dmesg</code></td><td>Print kernel ring buffer messages (hardware, boot, driver info).</td><td><a href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a></td></tr>
+      <tr class="cmd-row"><td><code>dnf</code></td><td>Package manager for Fedora/RHEL 8+ systems.</td><td><a href="../pages/11-packages/index.html">11. Package Management</a></td></tr>
+      <tr class="cmd-row"><td><code>dpkg</code></td><td>Low-level Debian package manager for .deb files.</td><td><a href="../pages/11-packages/index.html">11. Package Management</a></td></tr>
+      <tr class="cmd-row"><td><code>du</code></td><td>Estimate file and directory space usage.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>echo</code></td><td>Display a line of text or variable value.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>env</code></td><td>Display all environment variables or run a command in a modified environment.</td><td><a href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a></td></tr>
+      <tr class="cmd-row"><td><code>exit</code></td><td>Close the current shell session.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>export</code></td><td>Set an environment variable for the current session and child processes.</td><td><a href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a></td></tr>
+      <tr class="cmd-row"><td><code>fg</code></td><td>Bring a background job to the foreground.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>file</code></td><td>Determine a file's type (text, binary, image, etc.).</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>find</code></td><td>Search for files and directories by name, type, size, and other criteria.</td><td><a href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a></td></tr>
+      <tr class="cmd-row"><td><code>free</code></td><td>Display the amount of free and used memory (RAM and swap).</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>grep</code></td><td>Search for text patterns in files or command output.</td><td><a href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a></td></tr>
+      <tr class="cmd-row"><td><code>groupadd</code></td><td>Create a new user group.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>groupdel</code></td><td>Delete a user group.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>groups</code></td><td>Show which groups a user belongs to.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>gunzip</code></td><td>Decompress .gz files (same as gzip -d).</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>gzip</code></td><td>Compress files using the gzip algorithm (.gz).</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>head</code></td><td>Output the first N lines of a file.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>history</code></td><td>Show the list of previously executed commands.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>hostname</code></td><td>Show or set the system hostname.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>htop</code></td><td>Interactive process viewer (enhanced version of top).</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>id</code></td><td>Display user and group IDs for the current user.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>ifconfig</code></td><td>Configure or display network interfaces (legacy; use ip instead).</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>ip</code></td><td>Show and manage network interfaces, routes, and addresses.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>jobs</code></td><td>List active background and stopped jobs in the current shell.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>journalctl</code></td><td>Query and view systemd journal logs.</td><td><a href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a></td></tr>
+      <tr class="cmd-row"><td><code>kill</code></td><td>Send a signal to a process (typically to terminate it).</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>killall</code></td><td>Kill all processes matching a given name.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>less</code></td><td>View file contents page by page with scrolling and search.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>ln</code></td><td>Create hard or symbolic (soft) links to files.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>locate</code></td><td>Find files quickly using a pre-built filename database.</td><td><a href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a></td></tr>
+      <tr class="cmd-row"><td><code>logger</code></td><td>Write a message to the system log.</td><td><a href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a></td></tr>
+      <tr class="cmd-row"><td><code>ls</code></td><td>List directory contents.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>lsblk</code></td><td>List information about block devices (disks, partitions).</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>lscpu</code></td><td>Display information about the CPU architecture.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>lsof</code></td><td>List open files and the processes using them.</td><td><a href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a></td></tr>
+      <tr class="cmd-row"><td><code>lsusb</code></td><td>List USB devices connected to the system.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>man</code></td><td>Display the manual page for a command.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>mkdir</code></td><td>Create new directories.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>mount</code></td><td>Mount a filesystem (attach a disk or partition to a directory).</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>mv</code></td><td>Move or rename files and directories.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>nano</code></td><td>Simple terminal-based text editor.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>netstat</code></td><td>Display network connections and listening ports (legacy; use ss instead).</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>nice</code></td><td>Run a command with a modified scheduling priority.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>nohup</code></td><td>Run a command that keeps running after you log out.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>nslookup</code></td><td>Query DNS to find the IP address of a domain name.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>pacman</code></td><td>Package manager for Arch Linux.</td><td><a href="../pages/11-packages/index.html">11. Package Management</a></td></tr>
+      <tr class="cmd-row"><td><code>passwd</code></td><td>Change a user's password.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>paste</code></td><td>Merge lines of files side by side.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>pgrep</code></td><td>Search for a process by name and return its PID.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>ping</code></td><td>Send ICMP echo requests to test network connectivity.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>pkill</code></td><td>Send a signal to processes matching a pattern.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>printenv</code></td><td>Print all or specific environment variables.</td><td><a href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a></td></tr>
+      <tr class="cmd-row"><td><code>ps</code></td><td>Show a snapshot of currently running processes.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>pwd</code></td><td>Print the current working directory.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>read</code></td><td>Read a line of input into a variable (used in scripts).</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>renice</code></td><td>Change the priority of a running process.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>rm</code></td><td>Remove files or directories.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>rmdir</code></td><td>Remove empty directories.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>rpm</code></td><td>Low-level Red Hat package manager for .rpm files.</td><td><a href="../pages/11-packages/index.html">11. Package Management</a></td></tr>
+      <tr class="cmd-row"><td><code>rsync</code></td><td>Efficiently synchronize files and directories (local or remote).</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>scp</code></td><td>Securely copy files between machines over SSH.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>screen</code></td><td>Terminal multiplexer that lets sessions persist after disconnect.</td><td><a href="../pages/13-workflows/index.html">13. Workflows</a></td></tr>
+      <tr class="cmd-row"><td><code>sed</code></td><td>Stream editor for find-and-replace and text transformation.</td><td><a href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a></td></tr>
+      <tr class="cmd-row"><td><code>seq</code></td><td>Print a sequence of numbers.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>service</code></td><td>Manage system services (start, stop, restart).</td><td><a href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a></td></tr>
+      <tr class="cmd-row"><td><code>shutdown</code></td><td>Schedule or perform a system shutdown or reboot.</td><td><a href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a></td></tr>
+      <tr class="cmd-row"><td><code>sleep</code></td><td>Pause execution for a specified number of seconds.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>sort</code></td><td>Sort lines of text files or input.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>source</code></td><td>Execute a script in the current shell environment (same as dot <code>.</code>).</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>split</code></td><td>Split a file into smaller pieces.</td><td><a href="../pages/13-workflows/index.html">13. Workflows</a></td></tr>
+      <tr class="cmd-row"><td><code>ss</code></td><td>Display socket and network connection information.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>ssh</code></td><td>Securely connect to a remote machine over the network.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>ssh-keygen</code></td><td>Generate SSH key pairs for passwordless authentication.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>stat</code></td><td>Display detailed file or filesystem information.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>sudo</code></td><td>Execute a command as the superuser (root).</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>systemctl</code></td><td>Control systemd services and the system manager.</td><td><a href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a></td></tr>
+      <tr class="cmd-row"><td><code>tac</code></td><td>Print a file in reverse (last line first).</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>tail</code></td><td>Output the last N lines of a file (supports live following).</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>tar</code></td><td>Create, list, or extract archive files (.tar, .tar.gz, .tar.xz).</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>tee</code></td><td>Read from stdin and write to both stdout and a file.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>test</code></td><td>Evaluate a conditional expression (used in scripts as <code>[ ]</code>).</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>top</code></td><td>Real-time view of running processes and system resource usage.</td><td><a href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a></td></tr>
+      <tr class="cmd-row"><td><code>tmux</code></td><td>Terminal multiplexer for managing multiple shell sessions in one window.</td><td><a href="../pages/13-workflows/index.html">13. Workflows</a></td></tr>
+      <tr class="cmd-row"><td><code>touch</code></td><td>Create an empty file or update a file's timestamp.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>tr</code></td><td>Translate, squeeze, or delete characters from input.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>traceroute</code></td><td>Trace the route packets take to a network host.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>tree</code></td><td>Display directory structure as a tree.</td><td><a href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a></td></tr>
+      <tr class="cmd-row"><td><code>type</code></td><td>Show whether a command is a built-in, alias, or external program.</td><td><a href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a></td></tr>
+      <tr class="cmd-row"><td><code>umask</code></td><td>Set default permissions for newly created files.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>umount</code></td><td>Unmount a mounted filesystem.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>unalias</code></td><td>Remove a previously defined alias.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>uname</code></td><td>Print system information (kernel, hostname, architecture).</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>uniq</code></td><td>Filter out adjacent duplicate lines (usually used with sort).</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>unzip</code></td><td>Extract files from a .zip archive.</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>uptime</code></td><td>Show how long the system has been running and load averages.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>useradd</code></td><td>Create a new user account.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>usermod</code></td><td>Modify an existing user account.</td><td><a href="../pages/06-permissions/index.html">6. Permissions</a></td></tr>
+      <tr class="cmd-row"><td><code>vim</code></td><td>Powerful terminal-based text editor.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>watch</code></td><td>Execute a command repeatedly and display the output.</td><td><a href="../pages/13-workflows/index.html">13. Workflows</a></td></tr>
+      <tr class="cmd-row"><td><code>wc</code></td><td>Count lines, words, and bytes in files.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>vi</code></td><td>The original Unix visual editor (usually symlinked to vim).</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>wait</code></td><td>Wait for background processes to complete before continuing.</td><td><a href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a></td></tr>
+      <tr class="cmd-row"><td><code>wall</code></td><td>Broadcast a message to all logged-in users.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>watch</code></td><td>Execute a command repeatedly and display the output.</td><td><a href="../pages/13-workflows/index.html">13. Workflows</a></td></tr>
+      <tr class="cmd-row"><td><code>wc</code></td><td>Count lines, words, and bytes in files.</td><td><a href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a></td></tr>
+      <tr class="cmd-row"><td><code>wget</code></td><td>Download files from the web via HTTP/HTTPS/FTP.</td><td><a href="../pages/09-networking/index.html">9. Networking</a></td></tr>
+      <tr class="cmd-row"><td><code>which</code></td><td>Show the full path of a command found in PATH.</td><td><a href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a></td></tr>
+      <tr class="cmd-row"><td><code>who</code></td><td>Show who is currently logged in.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>whoami</code></td><td>Print the current username.</td><td><a href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a></td></tr>
+      <tr class="cmd-row"><td><code>xargs</code></td><td>Build and execute commands from standard input.</td><td><a href="../pages/13-workflows/index.html">13. Workflows</a></td></tr>
+      <tr class="cmd-row"><td><code>xz</code></td><td>Compress files using the xz/LZMA algorithm (.xz).</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>yum</code></td><td>Package manager for older Red Hat/CentOS systems.</td><td><a href="../pages/11-packages/index.html">11. Package Management</a></td></tr>
+      <tr class="cmd-row"><td><code>zip</code></td><td>Create .zip archives (cross-platform compatible).</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>zcat</code></td><td>View the contents of a gzip-compressed file without extracting.</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>zgrep</code></td><td>Search for patterns inside gzip-compressed files.</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+      <tr class="cmd-row"><td><code>zless</code></td><td>View gzip-compressed files page by page.</td><td><a href="../pages/10-archives/index.html">10. Archives</a></td></tr>
+    </tbody>
+  </table>
+
+  <p id="cmd-count" style="margin-top:1rem;color:#6c757d;font-size:.9rem;"></p>
+
+  <h2>Commands by Category</h2>
+  <p>Looking for a command by what it does rather than its name? Here is a quick breakdown by category:</p>
+
+  <table>
+    <thead>
+      <tr><th>Category</th><th>Commands</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Navigation</strong></td>
+        <td><code>cd</code>, <code>ls</code>, <code>pwd</code>, <code>tree</code></td>
+      </tr>
+      <tr>
+        <td><strong>File Management</strong></td>
+        <td><code>cp</code>, <code>mv</code>, <code>rm</code>, <code>rmdir</code>, <code>mkdir</code>, <code>touch</code>, <code>ln</code>, <code>file</code>, <code>stat</code></td>
+      </tr>
+      <tr>
+        <td><strong>Viewing &amp; Editing</strong></td>
+        <td><code>cat</code>, <code>less</code>, <code>head</code>, <code>tail</code>, <code>tac</code>, <code>nano</code>, <code>vim</code>, <code>vi</code></td>
+      </tr>
+      <tr>
+        <td><strong>Text Processing</strong></td>
+        <td><code>grep</code>, <code>sed</code>, <code>awk</code>, <code>sort</code>, <code>uniq</code>, <code>cut</code>, <code>tr</code>, <code>wc</code>, <code>paste</code>, <code>diff</code></td>
+      </tr>
+      <tr>
+        <td><strong>Search</strong></td>
+        <td><code>find</code>, <code>locate</code>, <code>which</code>, <code>type</code></td>
+      </tr>
+      <tr>
+        <td><strong>Permissions &amp; Users</strong></td>
+        <td><code>chmod</code>, <code>chown</code>, <code>chgrp</code>, <code>sudo</code>, <code>id</code>, <code>whoami</code>, <code>useradd</code>, <code>usermod</code>, <code>passwd</code>, <code>groupadd</code>, <code>groups</code>, <code>umask</code></td>
+      </tr>
+      <tr>
+        <td><strong>Processes</strong></td>
+        <td><code>ps</code>, <code>top</code>, <code>htop</code>, <code>kill</code>, <code>killall</code>, <code>pkill</code>, <code>pgrep</code>, <code>bg</code>, <code>fg</code>, <code>jobs</code>, <code>nice</code>, <code>renice</code>, <code>nohup</code></td>
+      </tr>
+      <tr>
+        <td><strong>System Info</strong></td>
+        <td><code>df</code>, <code>du</code>, <code>free</code>, <code>uptime</code>, <code>uname</code>, <code>hostname</code>, <code>date</code>, <code>lsblk</code>, <code>lscpu</code>, <code>lsusb</code>, <code>who</code>, <code>cal</code></td>
+      </tr>
+      <tr>
+        <td><strong>Networking</strong></td>
+        <td><code>ping</code>, <code>curl</code>, <code>wget</code>, <code>ssh</code>, <code>scp</code>, <code>rsync</code>, <code>ip</code>, <code>ss</code>, <code>dig</code>, <code>nslookup</code>, <code>traceroute</code>, <code>netstat</code>, <code>ifconfig</code>, <code>ssh-keygen</code></td>
+      </tr>
+      <tr>
+        <td><strong>Archives</strong></td>
+        <td><code>tar</code>, <code>gzip</code>, <code>gunzip</code>, <code>zip</code>, <code>unzip</code>, <code>bzip2</code>, <code>bunzip2</code>, <code>xz</code>, <code>zcat</code>, <code>zless</code>, <code>zgrep</code></td>
+      </tr>
+      <tr>
+        <td><strong>Package Management</strong></td>
+        <td><code>apt</code>, <code>apt-get</code>, <code>dpkg</code>, <code>dnf</code>, <code>yum</code>, <code>rpm</code>, <code>pacman</code></td>
+      </tr>
+      <tr>
+        <td><strong>Shell &amp; Scripting</strong></td>
+        <td><code>alias</code>, <code>unalias</code>, <code>export</code>, <code>source</code>, <code>echo</code>, <code>read</code>, <code>test</code>, <code>tee</code>, <code>xargs</code>, <code>seq</code>, <code>basename</code>, <code>dirname</code>, <code>sleep</code>, <code>wait</code>, <code>crontab</code></td>
+      </tr>
+      <tr>
+        <td><strong>Troubleshooting</strong></td>
+        <td><code>dmesg</code>, <code>journalctl</code>, <code>systemctl</code>, <code>service</code>, <code>lsof</code>, <code>dd</code>, <code>shutdown</code>, <code>logger</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Use <code>man command</code> to read the full manual for any command, or <code>command --help</code> for a quick summary of available options.</p>
+  </div>
+
+  <script>
+  (function() {
+    var filterInput = document.getElementById('cmd-filter');
+    var rows = document.querySelectorAll('.cmd-row');
+    var countEl = document.getElementById('cmd-count');
+
+    function updateCount(visible) {
+      countEl.textContent = 'Showing ' + visible + ' of ' + rows.length + ' commands';
+    }
+
+    updateCount(rows.length);
+
+    filterInput.addEventListener('input', function() {
+      var q = this.value.toLowerCase();
+      var visible = 0;
+      rows.forEach(function(row) {
+        var match = row.textContent.toLowerCase().includes(q);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      updateCount(visible);
+    });
+  })();
+  </script>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

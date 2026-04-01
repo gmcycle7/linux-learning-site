@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 5: Search &amp; Filtering — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link active" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &gt; Search &amp; Filtering
+  </nav>
+
+  <h1>Chapter 5: Search &amp; Filtering</h1>
+
+  <p>Being able to search through files and filter text is one of the most important skills in Linux. Whether you are hunting for a configuration error buried in thousands of log lines, finding a file you saved somewhere weeks ago, or transforming data from one format to another, the commands in this chapter will become part of your daily toolkit.</p>
+
+  <p>This chapter covers six essential tools: <strong>grep</strong> (search inside files), <strong>find</strong> (search for files), <strong>locate</strong> (fast file lookup), <strong>xargs</strong> (build commands from input), <strong>awk</strong> (column-based text processing), and <strong>sed</strong> (stream editing). We also cover the basics of <strong>regular expressions</strong>, which power many of these tools.</p>
+
+  <div class="concept-box">
+    <h3>Key Concept: grep vs find</h3>
+    <div class="diagram">
+      <pre>
+  grep searches INSIDE files         find searches FOR files
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~       ~~~~~~~~~~~~~~~~~~~~~~~~
+
+  file.txt                           /home/user/
+  +-----------------------+          +-- documents/
+  | line 1: hello world   |          |   +-- report.txt    &lt;-- find locates this
+  | line 2: foo bar  &lt;------grep     |   +-- notes.txt
+  | line 3: hello again   |  finds   +-- photos/
+  | line 4: test data     |  these   |   +-- vacation.jpg
+  +-----------------------+  lines   +-- .config/
+                                     +-- script.sh
+      </pre>
+    </div>
+    <p><strong>grep</strong> = "What is <em>inside</em> this file?" &mdash; It reads file contents and finds matching lines.</p>
+    <p><strong>find</strong> = "Where <em>is</em> this file?" &mdash; It walks the directory tree and finds files by name, size, date, etc.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 1: grep                                               -->
+  <!-- ============================================================ -->
+  <h2 id="grep">1. grep &mdash; Search Text Patterns</h2>
+
+  <p><code>grep</code> stands for <strong>Global Regular Expression Print</strong>. It searches through file contents (or piped input) and prints every line that matches a pattern. It is one of the most frequently used Linux commands.</p>
+
+  <h3>Basic Syntax</h3>
+  <pre><code><span class="prompt">$</span> grep [OPTIONS] PATTERN [FILE...]</code></pre>
+
+  <h3>Essential grep Options</h3>
+  <table>
+    <thead>
+      <tr><th>Option</th><th>Meaning</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>-i</code></td><td>Case insensitive</td><td><code>grep -i "error" log.txt</code></td></tr>
+      <tr><td><code>-r</code></td><td>Recursive (search directories)</td><td><code>grep -r "TODO" src/</code></td></tr>
+      <tr><td><code>-n</code></td><td>Show line numbers</td><td><code>grep -n "main" program.c</code></td></tr>
+      <tr><td><code>-c</code></td><td>Count matching lines</td><td><code>grep -c "warning" log.txt</code></td></tr>
+      <tr><td><code>-l</code></td><td>Show only filenames (not lines)</td><td><code>grep -rl "password" /etc/</code></td></tr>
+      <tr><td><code>-v</code></td><td>Invert match (non-matching lines)</td><td><code>grep -v "^#" config.txt</code></td></tr>
+      <tr><td><code>-w</code></td><td>Whole word match only</td><td><code>grep -w "cat" animals.txt</code></td></tr>
+      <tr><td><code>-E</code></td><td>Extended regex (same as <code>egrep</code>)</td><td><code>grep -E "error|warning" log.txt</code></td></tr>
+      <tr><td><code>--color</code></td><td>Highlight matches in color</td><td><code>grep --color "fail" output.txt</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>grep Examples</h3>
+
+  <p><strong>Example 1: Basic search</strong> &mdash; find lines containing "error" in a log file:</p>
+  <pre><code><span class="prompt">$</span> grep "error" /var/log/syslog
+<span class="output">Mar 15 10:22:01 server kernel: [error] disk read failure
+Mar 15 10:25:33 server app: connection error timeout</span></code></pre>
+
+  <p><strong>Example 2: Case-insensitive search</strong> &mdash; find "error", "Error", "ERROR", etc.:</p>
+  <pre><code><span class="prompt">$</span> grep -i "error" /var/log/syslog
+<span class="output">Mar 15 10:22:01 server kernel: [ERROR] disk read failure
+Mar 15 10:25:33 server app: connection error timeout
+Mar 15 10:30:00 server cron: Error in job schedule</span></code></pre>
+
+  <p><strong>Example 3: Recursive search</strong> &mdash; search all files inside a directory tree:</p>
+  <pre><code><span class="prompt">$</span> grep -r "TODO" ~/projects/
+<span class="output">~/projects/app.py:# TODO: add input validation
+~/projects/utils.py:# TODO: refactor this function
+~/projects/tests/test_main.py:# TODO: write more tests</span></code></pre>
+
+  <p><strong>Example 4: Line numbers</strong> &mdash; show which line the match is on:</p>
+  <pre><code><span class="prompt">$</span> grep -n "function" script.js
+<span class="output">3:function greet(name) {
+15:function calculate(a, b) {
+28:function displayResult(result) {</span></code></pre>
+
+  <p><strong>Example 5: Count matches</strong> &mdash; how many lines contain "404":</p>
+  <pre><code><span class="prompt">$</span> grep -c "404" access.log
+<span class="output">2847</span></code></pre>
+
+  <p><strong>Example 6: List only filenames</strong> &mdash; which files under /etc contain "PermitRootLogin":</p>
+  <pre><code><span class="prompt">$</span> grep -rl "PermitRootLogin" /etc/
+<span class="output">/etc/ssh/sshd_config</span></code></pre>
+
+  <p><strong>Example 7: Invert match</strong> &mdash; show all lines that are NOT comments:</p>
+  <pre><code><span class="prompt">$</span> grep -v "^#" /etc/fstab
+<span class="output">UUID=abcd-1234  /       ext4  defaults  0  1
+UUID=efgh-5678  /home   ext4  defaults  0  2</span></code></pre>
+
+  <p><strong>Example 8: Whole word match</strong> &mdash; find "cat" but not "category" or "concatenate":</p>
+  <pre><code><span class="prompt">$</span> grep -w "cat" animals.txt
+<span class="output">The cat sat on the mat.
+I have a cat named Whiskers.</span></code></pre>
+
+  <p><strong>Example 9: Extended regex (OR)</strong> &mdash; find lines with "error" or "warning":</p>
+  <pre><code><span class="prompt">$</span> grep -E "error|warning" /var/log/syslog
+<span class="output">Mar 15 10:22:01 server: [error] disk failure
+Mar 15 10:23:00 server: [warning] low memory</span></code></pre>
+
+  <p><strong>Example 10: Color highlighting</strong> &mdash; make matches easy to spot:</p>
+  <pre><code><span class="prompt">$</span> grep --color=auto "fail" test-results.txt</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Most modern systems alias <code>grep</code> to <code>grep --color=auto</code> by default. You can add <code>alias grep='grep --color=auto'</code> to your <code>~/.bashrc</code> to always get colored output.</p>
+  </div>
+
+  <p><strong>Example 11: Show context around matches</strong> &mdash; 2 lines before (-B) and 2 after (-A):</p>
+  <pre><code><span class="prompt">$</span> grep -B 2 -A 2 "panic" /var/log/kern.log</code></pre>
+
+  <p><strong>Example 12: Search piped input</strong> &mdash; combine with other commands:</p>
+  <pre><code><span class="prompt">$</span> ps aux | grep "nginx"
+<span class="output">root      1234  0.0  0.1  12345  6789 ?  Ss  10:00  0:00 nginx: master
+www-data  1235  0.0  0.2  12345  9876 ?  S   10:00  0:01 nginx: worker</span></code></pre>
+
+  <p><strong>Example 13: Multiple patterns</strong> &mdash; search for several words at once:</p>
+  <pre><code><span class="prompt">$</span> grep -E "^(root|www-data|nobody):" /etc/passwd
+<span class="output">root:x:0:0:root:/root:/bin/bash
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin</span></code></pre>
+
+  <p><strong>Example 14: Show only the matching part</strong> with <code>-o</code>:</p>
+  <pre><code><span class="prompt">$</span> grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" access.log
+<span class="output">192.168.1.100
+10.0.0.5
+172.16.0.1</span></code></pre>
+
+  <p><strong>Example 15: Recursive search with file filter</strong> &mdash; search only .py files:</p>
+  <pre><code><span class="prompt">$</span> grep -rn --include="*.py" "import os" ~/projects/
+<span class="output">~/projects/app.py:1:import os
+~/projects/utils.py:3:import os</span></code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Warning</div>
+    <p>When using <code>grep</code> with <code>ps aux</code>, the grep command itself often appears in the results. Use <code>grep "[n]ginx"</code> (bracket trick) or pipe through <code>grep -v grep</code> to exclude it.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 2: find                                               -->
+  <!-- ============================================================ -->
+  <h2 id="find">2. find &mdash; Search for Files</h2>
+
+  <p><code>find</code> walks through a directory tree and finds files that match criteria you specify: name, type, size, modification time, ownership, permissions, and more. It is extremely powerful and flexible.</p>
+
+  <h3>Basic Syntax</h3>
+  <pre><code><span class="prompt">$</span> find [PATH] [OPTIONS/TESTS] [ACTIONS]</code></pre>
+
+  <h3>Essential find Options</h3>
+  <table>
+    <thead>
+      <tr><th>Option</th><th>Meaning</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>-name</code></td><td>Match filename (case sensitive)</td><td><code>find . -name "*.txt"</code></td></tr>
+      <tr><td><code>-iname</code></td><td>Match filename (case insensitive)</td><td><code>find . -iname "readme*"</code></td></tr>
+      <tr><td><code>-type f</code></td><td>Files only</td><td><code>find /tmp -type f</code></td></tr>
+      <tr><td><code>-type d</code></td><td>Directories only</td><td><code>find . -type d</code></td></tr>
+      <tr><td><code>-type l</code></td><td>Symbolic links only</td><td><code>find /usr -type l</code></td></tr>
+      <tr><td><code>-size</code></td><td>Match by size (+larger, -smaller)</td><td><code>find . -size +100M</code></td></tr>
+      <tr><td><code>-mtime</code></td><td>Modified time in days</td><td><code>find . -mtime -7</code></td></tr>
+      <tr><td><code>-user</code></td><td>Owned by user</td><td><code>find /home -user alice</code></td></tr>
+      <tr><td><code>-perm</code></td><td>Match permissions</td><td><code>find . -perm 755</code></td></tr>
+      <tr><td><code>-exec</code></td><td>Run command on each result</td><td><code>find . -name "*.log" -exec rm {} \;</code></td></tr>
+      <tr><td><code>-delete</code></td><td>Delete matching files</td><td><code>find /tmp -name "*.tmp" -delete</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>find Examples</h3>
+
+  <p><strong>Example 1: Find by name</strong> &mdash; all .txt files in the current directory tree:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.txt"
+<span class="output">./notes.txt
+./documents/report.txt
+./documents/todo.txt</span></code></pre>
+
+  <p><strong>Example 2: Case-insensitive name</strong> &mdash; find README in any case:</p>
+  <pre><code><span class="prompt">$</span> find . -iname "readme*"
+<span class="output">./README.md
+./docs/Readme.txt
+./lib/readme.rst</span></code></pre>
+
+  <p><strong>Example 3: Find only directories</strong>:</p>
+  <pre><code><span class="prompt">$</span> find /var/log -type d
+<span class="output">/var/log
+/var/log/apt
+/var/log/journal
+/var/log/nginx</span></code></pre>
+
+  <p><strong>Example 4: Find files larger than 100MB</strong>:</p>
+  <pre><code><span class="prompt">$</span> find /home -type f -size +100M
+<span class="output">/home/user/Downloads/ubuntu.iso
+/home/user/Videos/recording.mp4</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Size Suffixes</div>
+    <p><code>c</code> = bytes, <code>k</code> = kilobytes, <code>M</code> = megabytes, <code>G</code> = gigabytes. Use <code>+</code> for "larger than" and <code>-</code> for "smaller than".</p>
+  </div>
+
+  <p><strong>Example 5: Find recently modified files</strong> &mdash; changed in the last 7 days:</p>
+  <pre><code><span class="prompt">$</span> find ~/projects -type f -mtime -7
+<span class="output">~/projects/app.py
+~/projects/config.yaml
+~/projects/tests/test_new.py</span></code></pre>
+
+  <p><strong>Example 6: Find old files</strong> &mdash; not modified in over 30 days:</p>
+  <pre><code><span class="prompt">$</span> find /tmp -type f -mtime +30</code></pre>
+
+  <p><strong>Example 7: Find by owner</strong>:</p>
+  <pre><code><span class="prompt">$</span> find /var/www -user www-data -type f
+<span class="output">/var/www/html/index.html
+/var/www/html/style.css</span></code></pre>
+
+  <p><strong>Example 8: Find by permissions</strong> &mdash; world-writable files (security audit):</p>
+  <pre><code><span class="prompt">$</span> find / -type f -perm -o=w 2>/dev/null</code></pre>
+
+  <p><strong>Example 9: Execute a command on results</strong> &mdash; change permissions on all .sh files:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.sh" -exec chmod +x {} \;</code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Understanding -exec syntax</div>
+    <p><code>{}</code> is a placeholder for each found file. <code>\;</code> terminates the command. For each file found, the command runs once. Use <code>+</code> instead of <code>\;</code> to pass multiple files at once (faster): <code>find . -name "*.txt" -exec wc -l {} +</code></p>
+  </div>
+
+  <p><strong>Example 10: Delete matching files</strong> &mdash; remove all .tmp files from /tmp:</p>
+  <pre><code><span class="prompt">$</span> find /tmp -name "*.tmp" -type f -delete</code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Warning</div>
+    <p><code>-delete</code> removes files permanently with no confirmation and no trash. Always test your find command WITHOUT <code>-delete</code> first to see what would be deleted. You can also use <code>-exec rm -i {} \;</code> for interactive confirmation.</p>
+  </div>
+
+  <p><strong>Example 11: Combine conditions with AND</strong> &mdash; .log files larger than 10MB:</p>
+  <pre><code><span class="prompt">$</span> find /var/log -name "*.log" -size +10M
+<span class="output">/var/log/syslog.1
+/var/log/kern.log</span></code></pre>
+
+  <p><strong>Example 12: Combine conditions with OR</strong> &mdash; find .jpg or .png files:</p>
+  <pre><code><span class="prompt">$</span> find ~/Photos \( -name "*.jpg" -o -name "*.png" \)
+<span class="output">~/Photos/vacation.jpg
+~/Photos/sunset.png
+~/Photos/family.jpg</span></code></pre>
+
+  <p><strong>Example 13: Negate a condition</strong> &mdash; all files that are NOT .git directories:</p>
+  <pre><code><span class="prompt">$</span> find . -type d -not -name ".git"</code></pre>
+
+  <p><strong>Example 14: Find empty files and directories</strong>:</p>
+  <pre><code><span class="prompt">$</span> find . -empty
+<span class="output">./empty-file.txt
+./empty-dir</span></code></pre>
+
+  <p><strong>Example 15: Limit search depth</strong> &mdash; only look 2 levels deep:</p>
+  <pre><code><span class="prompt">$</span> find . -maxdepth 2 -name "*.conf"
+<span class="output">./app.conf
+./config/database.conf</span></code></pre>
+
+  <!-- grep vs find comparison table -->
+  <h3>grep vs find &mdash; Comparison Table</h3>
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>grep</th><th>find</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Searches</td><td>File <strong>contents</strong> (text inside files)</td><td>File <strong>metadata</strong> (names, sizes, dates)</td></tr>
+      <tr><td>Input</td><td>Files or piped text</td><td>Directory tree</td></tr>
+      <tr><td>Output</td><td>Matching <strong>lines</strong></td><td>Matching <strong>file paths</strong></td></tr>
+      <tr><td>Regex</td><td>Yes (core feature)</td><td>Limited (glob patterns for -name)</td></tr>
+      <tr><td>Speed on large trees</td><td>Fast for reading files</td><td>Can be slow (walks entire tree)</td></tr>
+      <tr><td>Typical use</td><td>"Find all lines with ERROR"</td><td>"Find all .log files over 50MB"</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 3: locate                                             -->
+  <!-- ============================================================ -->
+  <h2 id="locate">3. locate &mdash; Fast Database Search</h2>
+
+  <p><code>locate</code> finds files by name almost instantly because it searches a pre-built database instead of walking the filesystem in real time. It is much faster than <code>find</code> for simple name lookups, but the database may be out of date.</p>
+
+  <h3>Basic Usage</h3>
+  <pre><code><span class="prompt">$</span> locate filename
+<span class="output">/usr/share/doc/filename.txt
+/home/user/documents/filename.pdf</span></code></pre>
+
+  <h3>Update the Database</h3>
+  <p>The database is typically updated once a day by a cron job. To update it manually:</p>
+  <pre><code><span class="prompt">$</span> sudo updatedb</code></pre>
+
+  <h3>Common locate Options</h3>
+  <pre><code><span class="prompt">$</span> locate -i "readme"          <span class="output"># Case-insensitive search</span>
+<span class="prompt">$</span> locate -c "*.conf"           <span class="output"># Count matches instead of listing</span>
+<span class="prompt">$</span> locate -l 10 "*.log"         <span class="output"># Limit output to 10 results</span>
+<span class="prompt">$</span> locate -e "report.txt"       <span class="output"># Only show files that still exist</span></code></pre>
+
+  <h3>locate vs find</h3>
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>locate</th><th>find</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Speed</td><td>Instant (database lookup)</td><td>Slower (walks filesystem)</td></tr>
+      <tr><td>Freshness</td><td>May be outdated</td><td>Always current</td></tr>
+      <tr><td>Search criteria</td><td>Name only</td><td>Name, size, date, permissions, etc.</td></tr>
+      <tr><td>Actions</td><td>List only</td><td>Can execute commands on results</td></tr>
+      <tr><td>Installation</td><td>May need to install <code>mlocate</code> or <code>plocate</code></td><td>Always available</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Use <code>locate</code> when you just need to quickly find where a file is. Use <code>find</code> when you need to filter by size, date, permissions, or run actions on results.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 4: xargs                                              -->
+  <!-- ============================================================ -->
+  <h2 id="xargs">4. xargs &mdash; Build Commands from Input</h2>
+
+  <p><code>xargs</code> reads items from standard input and executes a command with those items as arguments. It is the bridge between commands that produce output and commands that need arguments. It is especially powerful when combined with <code>find</code> and <code>grep</code>.</p>
+
+  <h3>Basic Syntax</h3>
+  <pre><code><span class="prompt">$</span> command1 | xargs command2</code></pre>
+  <p>This takes the output of <code>command1</code> and passes it as arguments to <code>command2</code>.</p>
+
+  <h3>Why xargs? The Problem It Solves</h3>
+  <p>Many commands accept filenames as arguments, but pipes send data to <strong>stdin</strong>. For example, <code>rm</code> does not read filenames from stdin. You cannot do this:</p>
+
+  <div class="wrong-right">
+    <div class="wrong">
+      <h4>Wrong</h4>
+      <pre><code><span class="prompt">$</span> find . -name "*.tmp" | rm
+<span class="output">rm: missing operand</span></code></pre>
+    </div>
+    <div class="right">
+      <h4>Correct</h4>
+      <pre><code><span class="prompt">$</span> find . -name "*.tmp" | xargs rm</code></pre>
+    </div>
+  </div>
+
+  <h3>xargs Examples</h3>
+
+  <p><strong>Example 1: Delete files found by find</strong>:</p>
+  <pre><code><span class="prompt">$</span> find /tmp -name "*.cache" | xargs rm -f</code></pre>
+
+  <p><strong>Example 2: Count lines in all Python files</strong>:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.py" | xargs wc -l
+<span class="output">   25 ./app.py
+   40 ./utils.py
+   15 ./config.py
+   80 total</span></code></pre>
+
+  <p><strong>Example 3: Use the -I {} placeholder</strong> &mdash; place each item at a specific position:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.log" | xargs -I {} mv {} {}.bak</code></pre>
+  <p>This renames every .log file to .log.bak. The <code>-I {}</code> flag lets you place the input item wherever you need it in the command.</p>
+
+  <p><strong>Example 4: Handle filenames with spaces</strong> &mdash; use null delimiter:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.txt" -print0 | xargs -0 wc -l</code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Warning: Filenames with Spaces</div>
+    <p>By default, xargs splits input on whitespace. A file named "my report.txt" would be treated as two arguments: "my" and "report.txt". Always use <code>find -print0 | xargs -0</code> when filenames might contain spaces or special characters.</p>
+  </div>
+
+  <p><strong>Example 5: Grep inside files found by find</strong>:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.conf" | xargs grep "server"
+<span class="output">./nginx.conf:    server_name example.com;
+./database.conf:    server = 192.168.1.10</span></code></pre>
+
+  <p><strong>Example 6: Process items one at a time</strong> with <code>-n 1</code>:</p>
+  <pre><code><span class="prompt">$</span> echo "file1 file2 file3" | xargs -n 1 echo "Processing:"
+<span class="output">Processing: file1
+Processing: file2
+Processing: file3</span></code></pre>
+
+  <p><strong>Example 7: Confirm before executing</strong> with <code>-p</code>:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.tmp" | xargs -p rm
+<span class="output">rm ./old.tmp ./cache.tmp ?...y</span></code></pre>
+
+  <p><strong>Example 8: Download a list of URLs</strong>:</p>
+  <pre><code><span class="prompt">$</span> cat urls.txt | xargs -n 1 wget -q</code></pre>
+
+  <p><strong>Example 9: Create directories from a list</strong>:</p>
+  <pre><code><span class="prompt">$</span> echo "dir1 dir2 dir3" | xargs mkdir -p</code></pre>
+
+  <p><strong>Example 10: Parallel execution</strong> with <code>-P</code>:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.png" -print0 | xargs -0 -P 4 -I {} convert {} {}.jpg</code></pre>
+  <p>The <code>-P 4</code> flag runs 4 processes in parallel, which can significantly speed up batch operations.</p>
+
+  <!-- ============================================================ -->
+  <!-- Combining grep + find + xargs                                 -->
+  <!-- ============================================================ -->
+  <h3>Combining grep + find + xargs &mdash; Power Workflows</h3>
+
+  <div class="concept-box">
+    <h3>Mental Model: The Pipeline</h3>
+    <div class="diagram">
+      <pre>
+  find (locate files) --&gt; xargs (pass as args) --&gt; grep (search contents)
+
+  Step 1: find . -name "*.py"         finds all Python files
+  Step 2: | xargs grep "import"       searches inside those files
+  Result: lines containing "import" from all .py files
+      </pre>
+    </div>
+  </div>
+
+  <p><strong>Workflow 1: Find TODO comments in all JavaScript files</strong>:</p>
+  <pre><code><span class="prompt">$</span> find . -name "*.js" -print0 | xargs -0 grep -n "TODO"
+<span class="output">./src/app.js:42:    // TODO: add error handling
+./src/utils.js:18:    // TODO: optimize this loop</span></code></pre>
+
+  <p><strong>Workflow 2: Find large log files and check their contents</strong>:</p>
+  <pre><code><span class="prompt">$</span> find /var/log -name "*.log" -size +1M -print0 | xargs -0 grep -l "error"
+<span class="output">/var/log/syslog
+/var/log/nginx/error.log</span></code></pre>
+
+  <p><strong>Workflow 3: Replace text in all config files</strong>:</p>
+  <pre><code><span class="prompt">$</span> find /etc/myapp -name "*.conf" -print0 | xargs -0 sed -i 's/old-server/new-server/g'</code></pre>
+
+  <p><strong>Workflow 4: Find files containing a pattern and copy them</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -rl "confidential" ~/documents/ | xargs -I {} cp {} ~/backup/</code></pre>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 5: awk                                                -->
+  <!-- ============================================================ -->
+  <h2 id="awk">5. awk &mdash; Text Processing</h2>
+
+  <p><code>awk</code> is a powerful text-processing language that excels at working with structured, column-based data. It reads input line by line, splits each line into fields (columns), and lets you manipulate and print them. Think of it as a programmable version of <code>cut</code>.</p>
+
+  <h3>Basic Syntax</h3>
+  <pre><code><span class="prompt">$</span> awk 'PATTERN { ACTION }' FILE
+<span class="prompt">$</span> command | awk 'PATTERN { ACTION }'</code></pre>
+
+  <h3>Key Concepts</h3>
+  <ul>
+    <li><code>$0</code> = the entire line</li>
+    <li><code>$1</code> = first field (column), <code>$2</code> = second, etc.</li>
+    <li><code>$NF</code> = last field, <code>$(NF-1)</code> = second to last</li>
+    <li><code>NR</code> = current line number</li>
+    <li><code>NF</code> = number of fields on the current line</li>
+    <li>Default field separator is whitespace (spaces/tabs)</li>
+    <li>Use <code>-F</code> to change the field separator</li>
+  </ul>
+
+  <h3>awk Examples</h3>
+
+  <p><strong>Example 1: Print the first column</strong>:</p>
+  <pre><code><span class="prompt">$</span> awk '{print $1}' data.txt
+<span class="output">Alice
+Bob
+Charlie</span></code></pre>
+
+  <p><strong>Example 2: Print specific columns</strong> &mdash; first and third:</p>
+  <pre><code><span class="prompt">$</span> awk '{print $1, $3}' employees.txt
+<span class="output">Alice Engineering
+Bob Marketing
+Charlie Sales</span></code></pre>
+
+  <p><strong>Example 3: Custom field separator</strong> &mdash; parse /etc/passwd (colon-delimited):</p>
+  <pre><code><span class="prompt">$</span> awk -F: '{print $1, $6}' /etc/passwd
+<span class="output">root /root
+daemon /usr/sbin
+www-data /var/www</span></code></pre>
+
+  <p><strong>Example 4: Filter by pattern</strong> &mdash; only lines where column 3 is greater than 50000:</p>
+  <pre><code><span class="prompt">$</span> awk '$3 > 50000 {print $1, $3}' salaries.txt
+<span class="output">Alice 75000
+Charlie 60000</span></code></pre>
+
+  <p><strong>Example 5: Print lines matching a regex</strong>:</p>
+  <pre><code><span class="prompt">$</span> awk '/error/ {print NR, $0}' logfile.txt
+<span class="output">15 2024-03-15 10:22:01 [error] disk read failure
+28 2024-03-15 10:25:33 [error] connection timeout</span></code></pre>
+
+  <p><strong>Example 6: Print the last column</strong>:</p>
+  <pre><code><span class="prompt">$</span> ls -l | awk '{print $NF}'
+<span class="output">documents
+photos
+script.sh
+notes.txt</span></code></pre>
+
+  <p><strong>Example 7: Sum a column of numbers</strong>:</p>
+  <pre><code><span class="prompt">$</span> awk '{sum += $2} END {print "Total:", sum}' sales.txt
+<span class="output">Total: 15420</span></code></pre>
+
+  <p><strong>Example 8: BEGIN and END blocks</strong> &mdash; add a header and footer:</p>
+  <pre><code><span class="prompt">$</span> awk 'BEGIN {print "Name\tSalary"} {print $1"\t"$3} END {print "---\nDone"}' employees.txt
+<span class="output">Name    Salary
+Alice   75000
+Bob     45000
+Charlie 60000
+---
+Done</span></code></pre>
+
+  <p><strong>Example 9: Count lines matching a pattern</strong>:</p>
+  <pre><code><span class="prompt">$</span> awk '/error/ {count++} END {print "Errors:", count}' app.log
+<span class="output">Errors: 42</span></code></pre>
+
+  <p><strong>Example 10: Print line numbers</strong>:</p>
+  <pre><code><span class="prompt">$</span> awk '{print NR": "$0}' config.txt
+<span class="output">1: server=localhost
+2: port=8080
+3: debug=true</span></code></pre>
+
+  <p><strong>Example 11: Custom output format</strong> with printf:</p>
+  <pre><code><span class="prompt">$</span> awk '{printf "%-15s %10s\n", $1, $3}' employees.txt
+<span class="output">Alice                75000
+Bob                  45000
+Charlie              60000</span></code></pre>
+
+  <p><strong>Example 12: Process CSV data</strong> &mdash; use comma as separator:</p>
+  <pre><code><span class="prompt">$</span> awk -F, '{print $1, $3}' data.csv
+<span class="output">Name Age
+Alice 30
+Bob 25
+Charlie 35</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: awk as a Quick Calculator</div>
+    <p>You can use awk for quick math: <code>awk 'BEGIN {print 1024*1024}'</code> outputs <code>1048576</code>. No input file needed when using BEGIN!</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 6: sed                                                -->
+  <!-- ============================================================ -->
+  <h2 id="sed">6. sed &mdash; Stream Editor</h2>
+
+  <p><code>sed</code> (stream editor) reads text line by line, applies transformations, and outputs the result. Its most common use is search-and-replace, but it can also delete lines, insert text, and more. It is ideal for making automated edits to files.</p>
+
+  <h3>Basic Syntax</h3>
+  <pre><code><span class="prompt">$</span> sed 'COMMAND' FILE
+<span class="prompt">$</span> command | sed 'COMMAND'</code></pre>
+
+  <h3>The Substitution Command: s/find/replace/</h3>
+  <pre><code><span class="prompt">$</span> sed 's/old/new/' file.txt        <span class="output"># Replace first occurrence per line</span>
+<span class="prompt">$</span> sed 's/old/new/g' file.txt       <span class="output"># Replace ALL occurrences per line (global)</span>
+<span class="prompt">$</span> sed -i 's/old/new/g' file.txt    <span class="output"># Edit file in-place (modifies the file)</span></code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Warning: -i Modifies Files</div>
+    <p>The <code>-i</code> flag edits the file directly. There is no undo. Make a backup first: <code>sed -i.bak 's/old/new/g' file.txt</code> creates <code>file.txt.bak</code> before modifying <code>file.txt</code>.</p>
+  </div>
+
+  <h3>sed Examples</h3>
+
+  <p><strong>Example 1: Simple replacement</strong> &mdash; replace first "hello" with "hi" on each line:</p>
+  <pre><code><span class="prompt">$</span> echo "hello world hello" | sed 's/hello/hi/'
+<span class="output">hi world hello</span></code></pre>
+
+  <p><strong>Example 2: Global replacement</strong> &mdash; replace ALL occurrences:</p>
+  <pre><code><span class="prompt">$</span> echo "hello world hello" | sed 's/hello/hi/g'
+<span class="output">hi world hi</span></code></pre>
+
+  <p><strong>Example 3: In-place edit with backup</strong>:</p>
+  <pre><code><span class="prompt">$</span> sed -i.bak 's/localhost/192.168.1.100/g' config.txt</code></pre>
+  <p>This changes "localhost" to "192.168.1.100" in config.txt and saves the original as config.txt.bak.</p>
+
+  <p><strong>Example 4: Delete lines containing a pattern</strong>:</p>
+  <pre><code><span class="prompt">$</span> sed '/^#/d' config.txt
+<span class="output">server=localhost
+port=8080
+debug=false</span></code></pre>
+  <p>The <code>d</code> command deletes matching lines. <code>/^#/</code> matches lines starting with #.</p>
+
+  <p><strong>Example 5: Delete a specific line number</strong>:</p>
+  <pre><code><span class="prompt">$</span> sed '3d' file.txt         <span class="output"># Delete line 3</span>
+<span class="prompt">$</span> sed '2,5d' file.txt       <span class="output"># Delete lines 2 through 5</span></code></pre>
+
+  <p><strong>Example 6: Print only matching lines</strong> with <code>-n</code> and <code>p</code>:</p>
+  <pre><code><span class="prompt">$</span> sed -n '/error/p' logfile.txt
+<span class="output">2024-03-15 10:22:01 [error] disk read failure
+2024-03-15 10:25:33 [error] connection timeout</span></code></pre>
+  <p><code>-n</code> suppresses default output. <code>p</code> prints only matching lines. This is similar to grep.</p>
+
+  <p><strong>Example 7: Print a range of lines</strong>:</p>
+  <pre><code><span class="prompt">$</span> sed -n '10,20p' bigfile.txt
+<span class="output">(lines 10 through 20)</span></code></pre>
+
+  <p><strong>Example 8: Replace only on a specific line</strong>:</p>
+  <pre><code><span class="prompt">$</span> sed '3s/foo/bar/' file.txt   <span class="output"># Replace only on line 3</span></code></pre>
+
+  <p><strong>Example 9: Insert text before a line</strong>:</p>
+  <pre><code><span class="prompt">$</span> sed '1i\# Configuration File' config.txt
+<span class="output"># Configuration File
+server=localhost
+port=8080</span></code></pre>
+
+  <p><strong>Example 10: Append text after a line</strong>:</p>
+  <pre><code><span class="prompt">$</span> sed '/\[section1\]/a\new_key=new_value' config.ini</code></pre>
+
+  <p><strong>Example 11: Replace with a different delimiter</strong> &mdash; useful when the pattern contains slashes:</p>
+  <pre><code><span class="prompt">$</span> sed 's|/usr/local/bin|/opt/bin|g' script.sh</code></pre>
+  <p>You can use any character as a delimiter: <code>|</code>, <code>#</code>, <code>@</code>, etc.</p>
+
+  <p><strong>Example 12: Multiple sed commands</strong> &mdash; chain with <code>-e</code> or semicolons:</p>
+  <pre><code><span class="prompt">$</span> sed -e 's/foo/bar/g' -e 's/baz/qux/g' file.txt
+<span class="prompt">$</span> sed 's/foo/bar/g; s/baz/qux/g' file.txt</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: sed + find for Batch Edits</div>
+    <p>Replace a string across all files in a project:</p>
+    <pre><code><span class="prompt">$</span> find . -name "*.html" -print0 | xargs -0 sed -i 's/oldsite\.com/newsite\.com/g'</code></pre>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SECTION 7: Regular Expressions                                -->
+  <!-- ============================================================ -->
+  <h2 id="regex">7. Regular Expressions Basics</h2>
+
+  <div class="concept-box">
+    <h3>Mental Model: Regular Expressions</h3>
+    <p>A regular expression (regex) is a <strong>pattern language</strong> for describing text. Instead of searching for an exact string like "error", you can describe a pattern like "a word starting with e, followed by any characters, ending with a digit". Regex is used by grep, sed, awk, find (partially), and almost every programming language.</p>
+    <p>Think of regex as a <strong>template with wildcards</strong> &mdash; but much more precise than simple * wildcards.</p>
+  </div>
+
+  <h3>Regex Reference Table</h3>
+  <table>
+    <thead>
+      <tr><th>Symbol</th><th>Meaning</th><th>Example</th><th>Matches</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>.</code></td><td>Any single character</td><td><code>c.t</code></td><td>cat, cot, cut, c9t</td></tr>
+      <tr><td><code>*</code></td><td>Zero or more of the previous</td><td><code>ab*c</code></td><td>ac, abc, abbc, abbbc</td></tr>
+      <tr><td><code>+</code></td><td>One or more of the previous</td><td><code>ab+c</code></td><td>abc, abbc (not ac)</td></tr>
+      <tr><td><code>?</code></td><td>Zero or one of the previous (optional)</td><td><code>colou?r</code></td><td>color, colour</td></tr>
+      <tr><td><code>^</code></td><td>Start of line</td><td><code>^Error</code></td><td>"Error" at line start</td></tr>
+      <tr><td><code>$</code></td><td>End of line</td><td><code>done$</code></td><td>"done" at line end</td></tr>
+      <tr><td><code>[]</code></td><td>Character class (any one of)</td><td><code>[aeiou]</code></td><td>any vowel</td></tr>
+      <tr><td><code>[^]</code></td><td>Negated character class</td><td><code>[^0-9]</code></td><td>any non-digit</td></tr>
+      <tr><td><code>\d</code></td><td>Any digit (0-9)</td><td><code>\d\d\d</code></td><td>123, 456, 007</td></tr>
+      <tr><td><code>\w</code></td><td>Word character (letter, digit, _)</td><td><code>\w+</code></td><td>hello, var_1</td></tr>
+      <tr><td><code>\s</code></td><td>Whitespace (space, tab, newline)</td><td><code>\s+</code></td><td>one or more spaces</td></tr>
+      <tr><td><code>|</code></td><td>OR (alternation)</td><td><code>cat|dog</code></td><td>cat or dog</td></tr>
+      <tr><td><code>()</code></td><td>Grouping</td><td><code>(ab)+</code></td><td>ab, abab, ababab</td></tr>
+      <tr><td><code>{n}</code></td><td>Exactly n times</td><td><code>a{3}</code></td><td>aaa</td></tr>
+      <tr><td><code>{n,m}</code></td><td>Between n and m times</td><td><code>a{2,4}</code></td><td>aa, aaa, aaaa</td></tr>
+      <tr><td><code>\b</code></td><td>Word boundary</td><td><code>\bcat\b</code></td><td>cat (not category)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Basic vs Extended Regex</div>
+    <p><strong>Basic regex</strong> (default grep, sed): <code>+</code>, <code>?</code>, <code>{}</code>, <code>()</code>, and <code>|</code> must be escaped with <code>\</code> to work as regex operators. Example: <code>grep "ab\+c"</code>.</p>
+    <p><strong>Extended regex</strong> (<code>grep -E</code>, <code>egrep</code>, <code>sed -E</code>, awk): These symbols work without escaping. Example: <code>grep -E "ab+c"</code>.</p>
+    <p>Recommendation: use <code>grep -E</code> and <code>sed -E</code> to avoid confusion with escaping.</p>
+  </div>
+
+  <h3>Regex Examples with grep</h3>
+
+  <p><strong>Example 1: Match lines starting with a digit</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -E "^[0-9]" data.txt
+<span class="output">42 is the answer
+123 Main Street</span></code></pre>
+
+  <p><strong>Example 2: Match lines ending with a period</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -E "\.$" sentences.txt
+<span class="output">The cat sat on the mat.
+This is the end.</span></code></pre>
+
+  <p><strong>Example 3: Match email-like patterns</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -E "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" contacts.txt
+<span class="output">alice@example.com
+bob.smith@company.org</span></code></pre>
+
+  <p><strong>Example 4: Match IP addresses</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -E "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" access.log
+<span class="output">192.168.1.100 - - [15/Mar/2024:10:22:01]
+10.0.0.5 - - [15/Mar/2024:10:25:33]</span></code></pre>
+
+  <p><strong>Example 5: Match blank lines</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -E "^$" file.txt          <span class="output"># Show blank lines</span>
+<span class="prompt">$</span> grep -Ev "^$" file.txt         <span class="output"># Remove blank lines</span></code></pre>
+
+  <p><strong>Example 6: Match lines with exactly 3 words</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -E "^\w+\s+\w+\s+\w+$" phrases.txt</code></pre>
+
+  <p><strong>Example 7: Match US phone numbers</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -E "\(?[0-9]{3}\)?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}" contacts.txt
+<span class="output">(555) 123-4567
+555.987.6543
+555-111-2222</span></code></pre>
+
+  <p><strong>Example 8: Match words starting with "pre"</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -Ew "pre\w*" dictionary.txt
+<span class="output">prepare
+predict
+preview
+prefix</span></code></pre>
+
+  <p><strong>Example 9: Match HTML tags</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -oE "&lt;[^&gt;]+&gt;" page.html
+<span class="output">&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;
+&lt;/title&gt;</span></code></pre>
+
+  <p><strong>Example 10: Match lines with repeated words</strong>:</p>
+  <pre><code><span class="prompt">$</span> grep -E "\b(\w+)\s+\1\b" text.txt
+<span class="output">the the quick brown fox
+is is not correct</span></code></pre>
+
+  <h3>Common Regex Mistakes</h3>
+
+  <div class="wrong-right">
+    <div class="wrong">
+      <h4>Wrong</h4>
+      <pre><code><span class="prompt">$</span> grep "file.txt" list.txt
+<span class="output"># Matches "file.txt" but ALSO "fileatxt"
+# because . means ANY character</span></code></pre>
+    </div>
+    <div class="right">
+      <h4>Correct</h4>
+      <pre><code><span class="prompt">$</span> grep "file\.txt" list.txt
+<span class="output"># The \. matches a literal period</span></code></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong">
+      <h4>Wrong</h4>
+      <pre><code><span class="prompt">$</span> grep "error|warning" log.txt
+<span class="output"># Searches for the literal string "error|warning"
+# The | is not treated as OR in basic regex</span></code></pre>
+    </div>
+    <div class="right">
+      <h4>Correct</h4>
+      <pre><code><span class="prompt">$</span> grep -E "error|warning" log.txt
+<span class="output"># The -E flag enables extended regex
+# Now | works as OR</span></code></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong">
+      <h4>Wrong</h4>
+      <pre><code><span class="prompt">$</span> grep -E "^.*$" file.txt
+<span class="output"># Matches EVERY line (including blank)
+# because .* matches zero or more of anything</span></code></pre>
+    </div>
+    <div class="right">
+      <h4>Correct</h4>
+      <pre><code><span class="prompt">$</span> grep -E "^.+$" file.txt
+<span class="output"># Matches non-empty lines only
+# because .+ requires at least one character</span></code></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- EXERCISES                                                     -->
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+
+  <div class="exercise">
+    <h3>Exercise 1: grep Practice</h3>
+    <p>You have a file called <code>server.log</code> with thousands of lines. Perform the following tasks:</p>
+    <ol>
+      <li>Find all lines containing "ERROR" (case insensitive)</li>
+      <li>Count how many lines contain "404"</li>
+      <li>Show line numbers for all lines containing "timeout"</li>
+      <li>Find lines that contain "error" but NOT "timeout"</li>
+      <li>Search all .log files in /var/log recursively for "segfault"</li>
+    </ol>
+    <details>
+      <summary>Show Answers</summary>
+      <pre><code><span class="prompt">$</span> grep -i "ERROR" server.log
+<span class="prompt">$</span> grep -c "404" server.log
+<span class="prompt">$</span> grep -n "timeout" server.log
+<span class="prompt">$</span> grep "error" server.log | grep -v "timeout"
+<span class="prompt">$</span> grep -r "segfault" /var/log/ --include="*.log"</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: find + xargs</h3>
+    <p>Perform the following tasks using find and xargs:</p>
+    <ol>
+      <li>Find all .txt files in your home directory</li>
+      <li>Find all files larger than 50MB in /var</li>
+      <li>Find all .tmp files in /tmp and delete them (safely)</li>
+      <li>Find all .py files and search them for the word "import"</li>
+      <li>Find all empty directories under the current directory</li>
+    </ol>
+    <details>
+      <summary>Show Answers</summary>
+      <pre><code><span class="prompt">$</span> find ~ -name "*.txt" -type f
+<span class="prompt">$</span> find /var -type f -size +50M
+<span class="prompt">$</span> find /tmp -name "*.tmp" -type f    <span class="output"># Preview first!</span>
+<span class="prompt">$</span> find /tmp -name "*.tmp" -type f -delete
+<span class="prompt">$</span> find . -name "*.py" -print0 | xargs -0 grep "import"
+<span class="prompt">$</span> find . -type d -empty</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 3: awk + sed</h3>
+    <p>Given a file <code>employees.csv</code> with this content:</p>
+    <pre><code>Name,Department,Salary
+Alice,Engineering,75000
+Bob,Marketing,45000
+Charlie,Engineering,60000
+Diana,Sales,55000</code></pre>
+    <ol>
+      <li>Print only the names (first column)</li>
+      <li>Print names and salaries of people in Engineering</li>
+      <li>Calculate the total salary</li>
+      <li>Replace "Marketing" with "Growth" in the file</li>
+      <li>Remove the header line and print the rest</li>
+    </ol>
+    <details>
+      <summary>Show Answers</summary>
+      <pre><code><span class="prompt">$</span> awk -F, '{print $1}' employees.csv
+<span class="prompt">$</span> awk -F, '$2 == "Engineering" {print $1, $3}' employees.csv
+<span class="prompt">$</span> awk -F, 'NR > 1 {sum += $3} END {print "Total:", sum}' employees.csv
+<span class="output">Total: 235000</span>
+<span class="prompt">$</span> sed -i 's/Marketing/Growth/g' employees.csv
+<span class="prompt">$</span> sed '1d' employees.csv
+<span class="output">Alice,Engineering,75000
+Bob,Growth,45000
+Charlie,Engineering,60000
+Diana,Sales,55000</span></code></pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- QUIZZES                                                       -->
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Quizzes</h2>
+
+  <div class="quiz">
+    <h3>Quiz 1: Choose the Right Command</h3>
+    <p>For each task, decide whether you would use <strong>grep</strong>, <strong>find</strong>, <strong>awk</strong>, or <strong>sed</strong>.</p>
+    <ol>
+      <li>Find all lines in a log file that contain "connection refused"</li>
+      <li>Locate all .jpg files in your home directory</li>
+      <li>Replace every occurrence of "http" with "https" in a config file</li>
+      <li>Print the third column of a space-separated file</li>
+      <li>Find all files modified in the last 24 hours</li>
+      <li>Count how many times "warning" appears in a file</li>
+      <li>Sum up all values in the second column of a data file</li>
+      <li>Delete all blank lines from a file</li>
+    </ol>
+    <details>
+      <summary>Show Answers</summary>
+      <ol>
+        <li><strong>grep</strong> &mdash; <code>grep "connection refused" logfile.txt</code></li>
+        <li><strong>find</strong> &mdash; <code>find ~ -name "*.jpg"</code></li>
+        <li><strong>sed</strong> &mdash; <code>sed -i 's/http/https/g' config.txt</code></li>
+        <li><strong>awk</strong> &mdash; <code>awk '{print $3}' data.txt</code></li>
+        <li><strong>find</strong> &mdash; <code>find . -mtime -1</code></li>
+        <li><strong>grep</strong> &mdash; <code>grep -c "warning" file.txt</code></li>
+        <li><strong>awk</strong> &mdash; <code>awk '{sum += $2} END {print sum}' data.txt</code></li>
+        <li><strong>sed</strong> &mdash; <code>sed '/^$/d' file.txt</code></li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="quiz">
+    <h3>Quiz 2: Regex Challenge</h3>
+    <p>What does each regex match? Write your answer before revealing the solution.</p>
+    <ol>
+      <li><code>^[A-Z]</code></li>
+      <li><code>[0-9]{3}-[0-9]{4}</code></li>
+      <li><code>\.txt$</code></li>
+      <li><code>^$</code></li>
+      <li><code>colou?r</code></li>
+      <li><code>(cat|dog)s?</code></li>
+      <li><code>\b[A-Z]{2,5}\b</code></li>
+      <li><code>^#.*</code></li>
+    </ol>
+    <details>
+      <summary>Show Answers</summary>
+      <ol>
+        <li><code>^[A-Z]</code> &mdash; Lines starting with an uppercase letter</li>
+        <li><code>[0-9]{3}-[0-9]{4}</code> &mdash; A pattern like 123-4567 (three digits, dash, four digits)</li>
+        <li><code>\.txt$</code> &mdash; Lines ending with ".txt" (the dot is escaped to match a literal period)</li>
+        <li><code>^$</code> &mdash; Empty/blank lines (start immediately followed by end)</li>
+        <li><code>colou?r</code> &mdash; "color" or "colour" (the u is optional)</li>
+        <li><code>(cat|dog)s?</code> &mdash; "cat", "cats", "dog", or "dogs"</li>
+        <li><code>\b[A-Z]{2,5}\b</code> &mdash; Uppercase words with 2 to 5 letters (like "US", "HTML", "NASA")</li>
+        <li><code>^#.*</code> &mdash; Lines starting with # followed by anything (comment lines)</li>
+      </ol>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- QUICK REFERENCE                                               -->
+  <!-- ============================================================ -->
+  <h2 id="quick-reference">Quick Reference</h2>
+
+  <h3>grep Cheat Sheet</h3>
+  <table>
+    <thead>
+      <tr><th>Command</th><th>What It Does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>grep "pattern" file</code></td><td>Search for pattern in file</td></tr>
+      <tr><td><code>grep -i "pattern" file</code></td><td>Case-insensitive search</td></tr>
+      <tr><td><code>grep -r "pattern" dir/</code></td><td>Recursive search in directory</td></tr>
+      <tr><td><code>grep -rn "pattern" dir/</code></td><td>Recursive with line numbers</td></tr>
+      <tr><td><code>grep -c "pattern" file</code></td><td>Count matching lines</td></tr>
+      <tr><td><code>grep -l "pattern" *.txt</code></td><td>List files containing pattern</td></tr>
+      <tr><td><code>grep -v "pattern" file</code></td><td>Show lines NOT matching</td></tr>
+      <tr><td><code>grep -w "word" file</code></td><td>Whole word match</td></tr>
+      <tr><td><code>grep -E "a|b" file</code></td><td>Extended regex (OR)</td></tr>
+      <tr><td><code>cmd | grep "pattern"</code></td><td>Filter command output</td></tr>
+    </tbody>
+  </table>
+
+  <h3>find Cheat Sheet</h3>
+  <table>
+    <thead>
+      <tr><th>Command</th><th>What It Does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>find . -name "*.txt"</code></td><td>Find .txt files</td></tr>
+      <tr><td><code>find . -type d</code></td><td>Find directories only</td></tr>
+      <tr><td><code>find . -size +100M</code></td><td>Find files over 100MB</td></tr>
+      <tr><td><code>find . -mtime -7</code></td><td>Modified in last 7 days</td></tr>
+      <tr><td><code>find . -empty</code></td><td>Find empty files/dirs</td></tr>
+      <tr><td><code>find . -name "*.log" -delete</code></td><td>Delete matching files</td></tr>
+      <tr><td><code>find . -name "*.sh" -exec chmod +x {} \;</code></td><td>Run command on each result</td></tr>
+      <tr><td><code>find . -name "*.txt" -print0 | xargs -0 cmd</code></td><td>Safe piping to xargs</td></tr>
+    </tbody>
+  </table>
+
+  <h3>sed Cheat Sheet</h3>
+  <table>
+    <thead>
+      <tr><th>Command</th><th>What It Does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>sed 's/old/new/' file</code></td><td>Replace first occurrence per line</td></tr>
+      <tr><td><code>sed 's/old/new/g' file</code></td><td>Replace all occurrences</td></tr>
+      <tr><td><code>sed -i 's/old/new/g' file</code></td><td>Replace in-place</td></tr>
+      <tr><td><code>sed '/pattern/d' file</code></td><td>Delete matching lines</td></tr>
+      <tr><td><code>sed -n '10,20p' file</code></td><td>Print lines 10-20</td></tr>
+      <tr><td><code>sed -n '/pattern/p' file</code></td><td>Print matching lines</td></tr>
+      <tr><td><code>sed '1d' file</code></td><td>Delete first line</td></tr>
+      <tr><td><code>sed '/^$/d' file</code></td><td>Delete blank lines</td></tr>
+    </tbody>
+  </table>
+
+  <h3>awk Cheat Sheet</h3>
+  <table>
+    <thead>
+      <tr><th>Command</th><th>What It Does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>awk '{print $1}' file</code></td><td>Print first column</td></tr>
+      <tr><td><code>awk '{print $NF}' file</code></td><td>Print last column</td></tr>
+      <tr><td><code>awk -F: '{print $1}' file</code></td><td>Use : as field separator</td></tr>
+      <tr><td><code>awk '/pattern/ {print}' file</code></td><td>Print lines matching pattern</td></tr>
+      <tr><td><code>awk '$3 > 100' file</code></td><td>Print lines where col 3 > 100</td></tr>
+      <tr><td><code>awk '{sum+=$1} END{print sum}'</code></td><td>Sum first column</td></tr>
+      <tr><td><code>awk 'NR==5' file</code></td><td>Print only line 5</td></tr>
+      <tr><td><code>awk '{print NR, $0}' file</code></td><td>Print with line numbers</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- NAVIGATION                                                    -->
+  <!-- ============================================================ -->
+  <div class="chapter-nav">
+    <a class="chapter-nav__prev" href="../04-viewing-editing/index.html">&larr; Chapter 4: Viewing &amp; Editing</a>
+    <a class="chapter-nav__next" href="../06-permissions/index.html">Chapter 6: Permissions &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

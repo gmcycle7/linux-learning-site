@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Cheat Sheet — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../pages/06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../pages/09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../pages/10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../pages/13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../pages/15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link active" href="cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="command-index.html">Command Index</a>
+    <a class="sidebar__link" href="glossary.html">Glossary</a>
+    <a class="sidebar__link" href="top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="exercises.html">Exercises</a>
+    <a class="sidebar__link" href="daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a><span class="sep">/</span>Reference<span class="sep">/</span>Cheat Sheet
+  </div>
+
+  <h1>Command Cheat Sheet</h1>
+
+  <p>A one-page quick reference for the most common Linux commands. Each entry shows the command, a brief description, the most important flags, and a practical example. Print this page or bookmark it for quick access.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Use <code>man command</code> or <code>command --help</code> to see full documentation for any command listed here.</p>
+  </div>
+
+  <!-- ===== NAVIGATION ===== -->
+  <h2>Navigation</h2>
+  <p>Commands for moving around the filesystem.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>pwd</code></td>
+        <td>Print the current working directory (where you are right now).</td>
+        <td><code>-P</code> resolve symlinks</td>
+        <td><pre><code><span class="prompt">$</span> pwd
+<span class="output">/home/alex/projects</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>ls</code></td>
+        <td>List files and directories.</td>
+        <td><code>-l</code> long format, <code>-a</code> show hidden, <code>-h</code> human sizes, <code>-t</code> sort by time, <code>-R</code> recursive</td>
+        <td><pre><code><span class="prompt">$</span> ls <span class="flag">-lah</span> <span class="path">/var/log</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>cd</code></td>
+        <td>Change directory.</td>
+        <td><code>-</code> go to previous dir, <code>~</code> go home</td>
+        <td><pre><code><span class="prompt">$</span> cd <span class="path">/etc/nginx</span>
+<span class="prompt">$</span> cd <span class="flag">-</span>   <span class="comment"># back to previous dir</span>
+<span class="prompt">$</span> cd <span class="flag">~</span>   <span class="comment"># go home</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== FILE OPERATIONS ===== -->
+  <h2>File Operations</h2>
+  <p>Commands for creating, copying, moving, and deleting files and directories.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>touch</code></td>
+        <td>Create an empty file or update its timestamp.</td>
+        <td><code>-t</code> set specific time</td>
+        <td><pre><code><span class="prompt">$</span> touch <span class="path">notes.txt</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>mkdir</code></td>
+        <td>Create directories.</td>
+        <td><code>-p</code> create parent dirs too, <code>-v</code> verbose</td>
+        <td><pre><code><span class="prompt">$</span> mkdir <span class="flag">-p</span> <span class="path">projects/app/src</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>cp</code></td>
+        <td>Copy files and directories.</td>
+        <td><code>-r</code> recursive (for dirs), <code>-i</code> ask before overwrite, <code>-v</code> verbose, <code>-p</code> preserve attributes</td>
+        <td><pre><code><span class="prompt">$</span> cp <span class="flag">-rv</span> <span class="path">src/</span> <span class="path">backup/</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>mv</code></td>
+        <td>Move or rename files and directories.</td>
+        <td><code>-i</code> ask before overwrite, <code>-v</code> verbose, <code>-n</code> no overwrite</td>
+        <td><pre><code><span class="prompt">$</span> mv <span class="path">old-name.txt</span> <span class="path">new-name.txt</span>
+<span class="prompt">$</span> mv <span class="path">file.txt</span> <span class="path">/home/alex/docs/</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>rm</code></td>
+        <td>Remove files and directories.</td>
+        <td><code>-r</code> recursive (for dirs), <code>-f</code> force (no prompt), <code>-i</code> ask first, <code>-v</code> verbose</td>
+        <td><pre><code><span class="prompt">$</span> rm <span class="path">temp.txt</span>
+<span class="prompt">$</span> rm <span class="flag">-ri</span> <span class="path">old-project/</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>ln</code></td>
+        <td>Create links (hard or symbolic).</td>
+        <td><code>-s</code> symbolic link, <code>-f</code> force overwrite</td>
+        <td><pre><code><span class="prompt">$</span> ln <span class="flag">-s</span> <span class="path">/usr/bin/python3</span> <span class="path">/usr/local/bin/python</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== VIEWING FILES ===== -->
+  <h2>Viewing Files</h2>
+  <p>Commands for reading file contents without editing.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>cat</code></td>
+        <td>Print entire file contents to the terminal.</td>
+        <td><code>-n</code> number lines, <code>-b</code> number non-blank, <code>-s</code> squeeze blank lines</td>
+        <td><pre><code><span class="prompt">$</span> cat <span class="flag">-n</span> <span class="path">config.txt</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>less</code></td>
+        <td>View files page by page (scrollable, searchable).</td>
+        <td><code>-N</code> show line numbers, <code>-S</code> chop long lines, <code>/pattern</code> to search</td>
+        <td><pre><code><span class="prompt">$</span> less <span class="flag">-N</span> <span class="path">/var/log/syslog</span>
+<span class="comment"># Press q to quit, / to search</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>head</code></td>
+        <td>Print the first N lines of a file (default 10).</td>
+        <td><code>-n N</code> show N lines, <code>-c N</code> show N bytes</td>
+        <td><pre><code><span class="prompt">$</span> head <span class="flag">-n 20</span> <span class="path">access.log</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>tail</code></td>
+        <td>Print the last N lines of a file (default 10).</td>
+        <td><code>-n N</code> show N lines, <code>-f</code> follow (live updates), <code>-c N</code> show N bytes</td>
+        <td><pre><code><span class="prompt">$</span> tail <span class="flag">-f</span> <span class="path">/var/log/syslog</span>
+<span class="comment"># Live-follow a log file. Ctrl+C to stop.</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== TEXT PROCESSING ===== -->
+  <h2>Text Processing</h2>
+  <p>Commands for searching, transforming, and analyzing text.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>grep</code></td>
+        <td>Search for patterns in files or input.</td>
+        <td><code>-i</code> ignore case, <code>-r</code> recursive, <code>-n</code> line numbers, <code>-c</code> count, <code>-v</code> invert, <code>-l</code> files only, <code>-E</code> extended regex</td>
+        <td><pre><code><span class="prompt">$</span> grep <span class="flag">-rn</span> "ERROR" <span class="path">/var/log/</span>
+<span class="prompt">$</span> grep <span class="flag">-i</span> "timeout" <span class="path">app.log</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>sort</code></td>
+        <td>Sort lines of text.</td>
+        <td><code>-n</code> numeric, <code>-r</code> reverse, <code>-k N</code> sort by column N, <code>-u</code> unique, <code>-h</code> human numeric</td>
+        <td><pre><code><span class="prompt">$</span> sort <span class="flag">-nrk2</span> <span class="path">scores.txt</span>
+<span class="prompt">$</span> du -sh * | sort <span class="flag">-rh</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>uniq</code></td>
+        <td>Remove or count adjacent duplicate lines (usually used after <code>sort</code>).</td>
+        <td><code>-c</code> count occurrences, <code>-d</code> show only duplicates, <code>-u</code> show only unique</td>
+        <td><pre><code><span class="prompt">$</span> sort <span class="path">names.txt</span> | uniq <span class="flag">-c</span> | sort <span class="flag">-rn</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>cut</code></td>
+        <td>Extract columns or fields from each line.</td>
+        <td><code>-d</code> delimiter, <code>-f N</code> field(s), <code>-c N</code> characters</td>
+        <td><pre><code><span class="prompt">$</span> cut <span class="flag">-d: -f1</span> <span class="path">/etc/passwd</span>
+<span class="prompt">$</span> echo "hello world" | cut <span class="flag">-c1-5</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>awk</code></td>
+        <td>Pattern-scanning and text-processing language. Great for columnar data.</td>
+        <td><code>-F</code> field separator, <code>{print $N}</code> print Nth field</td>
+        <td><pre><code><span class="prompt">$</span> awk <span class="flag">-F:</span> '{print $1, $3}' <span class="path">/etc/passwd</span>
+<span class="prompt">$</span> df -h | awk '{print $1, $5}'</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>sed</code></td>
+        <td>Stream editor for find-and-replace and text transformations.</td>
+        <td><code>-i</code> edit in place, <code>-e</code> multiple expressions, <code>s/old/new/g</code> substitute</td>
+        <td><pre><code><span class="prompt">$</span> sed 's/http/https/g' <span class="path">urls.txt</span>
+<span class="prompt">$</span> sed <span class="flag">-i</span> 's/foo/bar/g' <span class="path">config.conf</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>tr</code></td>
+        <td>Translate (replace) or delete characters.</td>
+        <td><code>-d</code> delete characters, <code>-s</code> squeeze repeats</td>
+        <td><pre><code><span class="prompt">$</span> echo "HELLO" | tr 'A-Z' 'a-z'
+<span class="output">hello</span>
+<span class="prompt">$</span> echo "a::b:::c" | tr <span class="flag">-s</span> ':'
+<span class="output">a:b:c</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>wc</code></td>
+        <td>Count lines, words, and characters.</td>
+        <td><code>-l</code> lines only, <code>-w</code> words only, <code>-c</code> bytes, <code>-m</code> characters</td>
+        <td><pre><code><span class="prompt">$</span> wc <span class="flag">-l</span> <span class="path">access.log</span>
+<span class="output">14523 access.log</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== SEARCH ===== -->
+  <h2>Search</h2>
+  <p>Commands for finding files and programs on the system.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>find</code></td>
+        <td>Search for files and directories by name, type, size, time, and more.</td>
+        <td><code>-name</code> by name, <code>-type f/d</code> file or dir, <code>-size</code> by size, <code>-mtime</code> by modification time, <code>-exec</code> run command</td>
+        <td><pre><code><span class="prompt">$</span> find <span class="path">/var/log</span> <span class="flag">-name</span> "*.log" <span class="flag">-size</span> +10M
+<span class="prompt">$</span> find <span class="path">.</span> <span class="flag">-type f -name</span> "*.tmp" <span class="flag">-exec</span> rm {} \;</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>locate</code></td>
+        <td>Find files quickly using a pre-built database (faster than <code>find</code>).</td>
+        <td><code>-i</code> ignore case, <code>-c</code> count, <code>-r</code> regex</td>
+        <td><pre><code><span class="prompt">$</span> locate <span class="flag">-i</span> "readme.md"
+<span class="prompt">$</span> sudo updatedb  <span class="comment"># refresh the database</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>which</code></td>
+        <td>Show the full path of a command (finds it in your PATH).</td>
+        <td><code>-a</code> show all matches</td>
+        <td><pre><code><span class="prompt">$</span> which python3
+<span class="output">/usr/bin/python3</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== PERMISSIONS ===== -->
+  <h2>Permissions</h2>
+  <p>Commands for controlling who can read, write, and execute files.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>chmod</code></td>
+        <td>Change file permissions (read, write, execute).</td>
+        <td><code>-R</code> recursive, numeric (755) or symbolic (u+x)</td>
+        <td><pre><code><span class="prompt">$</span> chmod <span class="flag">755</span> <span class="path">script.sh</span>
+<span class="prompt">$</span> chmod <span class="flag">u+x</span> <span class="path">deploy.sh</span>
+<span class="prompt">$</span> chmod <span class="flag">-R 644</span> <span class="path">public/</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>chown</code></td>
+        <td>Change file owner and/or group.</td>
+        <td><code>-R</code> recursive, <code>user:group</code> format</td>
+        <td><pre><code><span class="prompt">$</span> sudo chown <span class="flag">www-data:www-data</span> <span class="path">/var/www/html</span>
+<span class="prompt">$</span> sudo chown <span class="flag">-R</span> alex <span class="path">~/project</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>sudo</code></td>
+        <td>Run a command as the superuser (root).</td>
+        <td><code>-i</code> root shell, <code>-u user</code> run as another user, <code>-l</code> list allowed commands</td>
+        <td><pre><code><span class="prompt">$</span> sudo apt update
+<span class="prompt">$</span> sudo <span class="flag">-u</span> postgres psql</code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== PROCESSES ===== -->
+  <h2>Processes</h2>
+  <p>Commands for inspecting and controlling running programs.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ps</code></td>
+        <td>Show a snapshot of running processes.</td>
+        <td><code>aux</code> all users/detailed, <code>-ef</code> full-format listing, <code>--forest</code> tree view</td>
+        <td><pre><code><span class="prompt">$</span> ps <span class="flag">aux</span> | grep nginx
+<span class="prompt">$</span> ps <span class="flag">-ef --forest</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>top</code></td>
+        <td>Real-time view of processes, CPU, and memory usage.</td>
+        <td><code>-d N</code> refresh every N seconds, <code>-u user</code> filter by user. Inside: <code>q</code> quit, <code>k</code> kill, <code>M</code> sort by memory</td>
+        <td><pre><code><span class="prompt">$</span> top
+<span class="prompt">$</span> top <span class="flag">-u</span> alex</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>kill</code></td>
+        <td>Send a signal to a process (default: SIGTERM to stop it).</td>
+        <td><code>-9</code> force kill (SIGKILL), <code>-15</code> graceful stop (SIGTERM), <code>-l</code> list signals</td>
+        <td><pre><code><span class="prompt">$</span> kill <span class="flag">1234</span>         <span class="comment"># graceful stop</span>
+<span class="prompt">$</span> kill <span class="flag">-9 1234</span>     <span class="comment"># force kill</span>
+<span class="prompt">$</span> killall <span class="flag">firefox</span>  <span class="comment"># kill by name</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>bg</code></td>
+        <td>Resume a stopped job in the background.</td>
+        <td><code>%N</code> job number</td>
+        <td><pre><code><span class="prompt">$</span> bg <span class="flag">%1</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>fg</code></td>
+        <td>Bring a background job to the foreground.</td>
+        <td><code>%N</code> job number</td>
+        <td><pre><code><span class="prompt">$</span> fg <span class="flag">%1</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>jobs</code></td>
+        <td>List background and stopped jobs in the current shell.</td>
+        <td><code>-l</code> show PIDs</td>
+        <td><pre><code><span class="prompt">$</span> jobs <span class="flag">-l</span>
+<span class="output">[1]+  12345 Running   ./server &amp;</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== SYSTEM INFO ===== -->
+  <h2>System Info</h2>
+  <p>Commands for checking disk space, memory, uptime, and system identity.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>df</code></td>
+        <td>Show disk space usage for mounted filesystems.</td>
+        <td><code>-h</code> human-readable, <code>-T</code> show filesystem type, <code>-i</code> show inodes</td>
+        <td><pre><code><span class="prompt">$</span> df <span class="flag">-hT</span>
+<span class="output">Filesystem  Type  Size  Used  Avail  Use%  Mounted on
+/dev/sda1   ext4   50G   22G    26G   46%  /</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>du</code></td>
+        <td>Show disk space used by files and directories.</td>
+        <td><code>-h</code> human-readable, <code>-s</code> summary, <code>-d N</code> depth, <code>--max-depth=N</code></td>
+        <td><pre><code><span class="prompt">$</span> du <span class="flag">-sh</span> <span class="path">*</span> | sort <span class="flag">-rh</span> | head
+<span class="prompt">$</span> du <span class="flag">-hd1</span> <span class="path">/home</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>free</code></td>
+        <td>Show memory (RAM) and swap usage.</td>
+        <td><code>-h</code> human-readable, <code>-g</code> gigabytes, <code>-s N</code> repeat every N seconds</td>
+        <td><pre><code><span class="prompt">$</span> free <span class="flag">-h</span>
+<span class="output">              total   used   free  shared  buff/cache  available
+Mem:          16Gi   5.2Gi  3.1Gi   512Mi      7.7Gi     10.1Gi
+Swap:          4Gi     0B    4Gi</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>uptime</code></td>
+        <td>Show how long the system has been running and load averages.</td>
+        <td><code>-p</code> pretty format, <code>-s</code> since when</td>
+        <td><pre><code><span class="prompt">$</span> uptime
+<span class="output"> 14:32:01 up 23 days, 4:15,  2 users,  load average: 0.12, 0.08, 0.05</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>uname</code></td>
+        <td>Show system information (kernel, architecture).</td>
+        <td><code>-a</code> all info, <code>-r</code> kernel release, <code>-m</code> architecture</td>
+        <td><pre><code><span class="prompt">$</span> uname <span class="flag">-a</span>
+<span class="output">Linux server01 5.15.0-56-generic #62 SMP x86_64 GNU/Linux</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>whoami</code></td>
+        <td>Print the current username.</td>
+        <td>(no flags)</td>
+        <td><pre><code><span class="prompt">$</span> whoami
+<span class="output">alex</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== NETWORKING ===== -->
+  <h2>Networking</h2>
+  <p>Commands for network testing, file transfers, and remote access.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ping</code></td>
+        <td>Test network connectivity to a host.</td>
+        <td><code>-c N</code> send N packets, <code>-i N</code> interval in seconds</td>
+        <td><pre><code><span class="prompt">$</span> ping <span class="flag">-c 4</span> google.com</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>curl</code></td>
+        <td>Transfer data from or to a URL (HTTP, FTP, and more).</td>
+        <td><code>-o file</code> save to file, <code>-O</code> use remote filename, <code>-L</code> follow redirects, <code>-s</code> silent, <code>-I</code> headers only</td>
+        <td><pre><code><span class="prompt">$</span> curl <span class="flag">-O</span> https://example.com/file.tar.gz
+<span class="prompt">$</span> curl <span class="flag">-sI</span> https://example.com</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>wget</code></td>
+        <td>Download files from the web (simpler than curl for downloads).</td>
+        <td><code>-O file</code> output filename, <code>-q</code> quiet, <code>-c</code> resume, <code>-r</code> recursive</td>
+        <td><pre><code><span class="prompt">$</span> wget <span class="flag">-c</span> https://example.com/large-file.iso</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>ssh</code></td>
+        <td>Securely connect to a remote machine.</td>
+        <td><code>-p port</code> custom port, <code>-i key</code> identity file, <code>-L</code> port forwarding</td>
+        <td><pre><code><span class="prompt">$</span> ssh <span class="flag">alex@</span>192.168.1.100
+<span class="prompt">$</span> ssh <span class="flag">-p 2222 -i ~/.ssh/mykey</span> user@server.com</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>scp</code></td>
+        <td>Copy files between machines over SSH.</td>
+        <td><code>-r</code> recursive, <code>-P port</code> custom port, <code>-i key</code> identity file</td>
+        <td><pre><code><span class="prompt">$</span> scp <span class="path">file.txt</span> alex@server:<span class="path">/home/alex/</span>
+<span class="prompt">$</span> scp <span class="flag">-r</span> <span class="path">project/</span> alex@server:<span class="path">~/backups/</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>rsync</code></td>
+        <td>Efficiently sync files (copies only changes).</td>
+        <td><code>-a</code> archive, <code>-v</code> verbose, <code>-z</code> compress, <code>--delete</code> remove extra files, <code>--dry-run</code> preview</td>
+        <td><pre><code><span class="prompt">$</span> rsync <span class="flag">-avz</span> <span class="path">./project/</span> alex@server:<span class="path">~/project/</span>
+<span class="prompt">$</span> rsync <span class="flag">-avz --dry-run</span> <span class="path">src/</span> <span class="path">dest/</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>ip</code></td>
+        <td>Show and configure network interfaces and routing.</td>
+        <td><code>addr</code> show IP addresses, <code>link</code> show interfaces, <code>route</code> show routes</td>
+        <td><pre><code><span class="prompt">$</span> ip <span class="flag">addr show</span>
+<span class="prompt">$</span> ip <span class="flag">route</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== ARCHIVES ===== -->
+  <h2>Archives &amp; Compression</h2>
+  <p>Commands for creating and extracting compressed files.</p>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Key Flags</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>tar</code></td>
+        <td>Create or extract archive files (.tar, .tar.gz, .tar.bz2, .tar.xz).</td>
+        <td><code>-c</code> create, <code>-x</code> extract, <code>-z</code> gzip, <code>-j</code> bzip2, <code>-J</code> xz, <code>-f file</code> filename, <code>-v</code> verbose, <code>-t</code> list contents</td>
+        <td><pre><code><span class="prompt">$</span> tar <span class="flag">-czf</span> <span class="path">backup.tar.gz</span> <span class="path">project/</span>
+<span class="prompt">$</span> tar <span class="flag">-xzf</span> <span class="path">backup.tar.gz</span>
+<span class="prompt">$</span> tar <span class="flag">-tf</span> <span class="path">archive.tar.gz</span>   <span class="comment"># list only</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>gzip</code></td>
+        <td>Compress or decompress files (.gz).</td>
+        <td><code>-d</code> decompress, <code>-k</code> keep original, <code>-v</code> verbose, <code>-9</code> best compression</td>
+        <td><pre><code><span class="prompt">$</span> gzip <span class="flag">-k</span> <span class="path">large-file.log</span>
+<span class="prompt">$</span> gzip <span class="flag">-d</span> <span class="path">large-file.log.gz</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>zip</code></td>
+        <td>Create zip archives (cross-platform compatible).</td>
+        <td><code>-r</code> recursive, <code>-e</code> encrypt, <code>-9</code> best compression</td>
+        <td><pre><code><span class="prompt">$</span> zip <span class="flag">-r</span> <span class="path">archive.zip</span> <span class="path">folder/</span>
+<span class="prompt">$</span> unzip <span class="path">archive.zip</span> <span class="flag">-d</span> <span class="path">output/</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>xz</code></td>
+        <td>High-ratio compression (.xz format).</td>
+        <td><code>-d</code> decompress, <code>-k</code> keep original, <code>-9</code> best compression, <code>-v</code> verbose</td>
+        <td><pre><code><span class="prompt">$</span> xz <span class="flag">-k</span> <span class="path">database.sql</span>
+<span class="prompt">$</span> xz <span class="flag">-d</span> <span class="path">database.sql.xz</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== PACKAGE MANAGEMENT ===== -->
+  <h2>Package Management</h2>
+  <p>Commands for installing, updating, and removing software. The command depends on your Linux distribution.</p>
+
+  <h3>Debian / Ubuntu (apt)</h3>
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>apt update</code></td>
+        <td>Refresh the list of available packages.</td>
+        <td><pre><code><span class="prompt">$</span> sudo apt update</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>apt upgrade</code></td>
+        <td>Upgrade all installed packages to their latest versions.</td>
+        <td><pre><code><span class="prompt">$</span> sudo apt upgrade <span class="flag">-y</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>apt install</code></td>
+        <td>Install a package.</td>
+        <td><pre><code><span class="prompt">$</span> sudo apt install <span class="flag">nginx</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>apt remove</code></td>
+        <td>Remove a package (keeps config files).</td>
+        <td><pre><code><span class="prompt">$</span> sudo apt remove <span class="flag">nginx</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>apt search</code></td>
+        <td>Search for a package by name or description.</td>
+        <td><pre><code><span class="prompt">$</span> apt search <span class="flag">image editor</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>dpkg -i</code></td>
+        <td>Install a .deb package file directly.</td>
+        <td><pre><code><span class="prompt">$</span> sudo dpkg <span class="flag">-i</span> <span class="path">package.deb</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Red Hat / Fedora / CentOS (yum / dnf)</h3>
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>dnf install</code></td>
+        <td>Install a package.</td>
+        <td><pre><code><span class="prompt">$</span> sudo dnf install <span class="flag">httpd</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>dnf update</code></td>
+        <td>Update all packages.</td>
+        <td><pre><code><span class="prompt">$</span> sudo dnf update</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>dnf remove</code></td>
+        <td>Remove a package.</td>
+        <td><pre><code><span class="prompt">$</span> sudo dnf remove <span class="flag">httpd</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>dnf search</code></td>
+        <td>Search for packages.</td>
+        <td><pre><code><span class="prompt">$</span> dnf search <span class="flag">text editor</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>yum install</code></td>
+        <td>Install a package (older Red Hat systems).</td>
+        <td><pre><code><span class="prompt">$</span> sudo yum install <span class="flag">git</span></code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Arch Linux (pacman)</h3>
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>pacman -S</code></td>
+        <td>Install a package.</td>
+        <td><pre><code><span class="prompt">$</span> sudo pacman <span class="flag">-S</span> vim</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>pacman -Syu</code></td>
+        <td>Update all packages and the system.</td>
+        <td><pre><code><span class="prompt">$</span> sudo pacman <span class="flag">-Syu</span></code></pre></td>
+      </tr>
+      <tr>
+        <td><code>pacman -R</code></td>
+        <td>Remove a package.</td>
+        <td><pre><code><span class="prompt">$</span> sudo pacman <span class="flag">-R</span> vim</code></pre></td>
+      </tr>
+      <tr>
+        <td><code>pacman -Ss</code></td>
+        <td>Search for a package.</td>
+        <td><pre><code><span class="prompt">$</span> pacman <span class="flag">-Ss</span> editor</code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===== QUICK REFERENCE TABLE ===== -->
+  <h2>Quick Reference: One-Liners</h2>
+  <p>Common one-liner combinations you will use over and over.</p>
+
+  <table>
+    <thead>
+      <tr><th>Task</th><th>Command</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Find large files (&gt;100MB)</td><td><code>find / -type f -size +100M 2>/dev/null</code></td></tr>
+      <tr><td>Count lines in a file</td><td><code>wc -l filename</code></td></tr>
+      <tr><td>See top 10 largest directories</td><td><code>du -sh */ | sort -rh | head</code></td></tr>
+      <tr><td>Watch a log in real time</td><td><code>tail -f /var/log/syslog</code></td></tr>
+      <tr><td>Find text in all files recursively</td><td><code>grep -rn "pattern" /path/</code></td></tr>
+      <tr><td>Replace text in a file</td><td><code>sed -i 's/old/new/g' file.txt</code></td></tr>
+      <tr><td>See which ports are open</td><td><code>ss -tulnp</code></td></tr>
+      <tr><td>Kill a process by name</td><td><code>pkill -f process-name</code></td></tr>
+      <tr><td>See your IP address</td><td><code>ip addr show | grep inet</code></td></tr>
+      <tr><td>Check disk space</td><td><code>df -h</code></td></tr>
+      <tr><td>Check memory usage</td><td><code>free -h</code></td></tr>
+      <tr><td>Download a file</td><td><code>wget URL</code> or <code>curl -O URL</code></td></tr>
+      <tr><td>Create a compressed backup</td><td><code>tar -czf backup.tar.gz directory/</code></td></tr>
+      <tr><td>Extract an archive</td><td><code>tar -xzf archive.tar.gz</code></td></tr>
+      <tr><td>Sync a folder to a server</td><td><code>rsync -avz src/ user@host:dest/</code></td></tr>
+      <tr><td>List all installed packages (Debian)</td><td><code>dpkg --list</code></td></tr>
+      <tr><td>See what is using a port</td><td><code>sudo lsof -i :8080</code></td></tr>
+      <tr><td>Find and delete .tmp files</td><td><code>find . -name "*.tmp" -delete</code></td></tr>
+      <tr><td>Show environment variables</td><td><code>env</code> or <code>printenv</code></td></tr>
+      <tr><td>Run a command every 2 seconds</td><td><code>watch -n 2 "command"</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Print This Page</div>
+    <p>This cheat sheet is designed to be printer-friendly. Use your browser's print function (Ctrl+P) to save a copy.</p>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

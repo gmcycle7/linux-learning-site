@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 13: Real-World Workflows — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link active" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &rsaquo;
+    <span>Chapter 13: Real-World Workflows</span>
+  </nav>
+
+  <h1>Chapter 13: Real-World Workflows</h1>
+
+  <p>This chapter is where everything comes together. You have learned individual commands across the previous twelve chapters. Now we combine them into <strong>practical workflows</strong> that solve real problems you will face every day as a Linux user, developer, or system administrator.</p>
+
+  <p>Each workflow below follows the same pattern: <strong>the problem</strong>, <strong>step-by-step commands</strong>, <strong>expected output</strong>, and <strong>tips</strong> for getting the best results.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">How to Use This Chapter</div>
+    <p>You do not need to memorize every workflow. Bookmark this page and come back whenever you face one of these situations. Over time, the patterns will become second nature.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="find-large-files">1. Find Large Files</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> Your disk is running low on space and you need to find which files are eating up the most room. You want to locate the biggest offenders quickly so you can decide what to delete or move.</p>
+
+  <h3>Approach 1: Using <code>du</code> + <code>sort</code> + <code>head</code></h3>
+
+  <p>The <code>du</code> command calculates disk usage. Combined with <code>sort</code> and <code>head</code>, you can list the top space consumers.</p>
+
+  <pre><code><span class="prompt">$</span> du -ah /home/user | sort -rh | head -20
+<span class="output">4.2G    /home/user
+1.8G    /home/user/Videos
+900M    /home/user/Videos/tutorial.mp4
+650M    /home/user/.cache
+420M    /home/user/Downloads
+380M    /home/user/Downloads/ubuntu.iso
+210M    /home/user/.cache/mozilla
+...</span></code></pre>
+
+  <p>Explanation of the flags:</p>
+  <ul>
+    <li><code>-a</code> &mdash; show all files, not just directories</li>
+    <li><code>-h</code> &mdash; human-readable sizes (K, M, G)</li>
+    <li><code>sort -rh</code> &mdash; reverse sort by human-readable numbers (biggest first)</li>
+    <li><code>head -20</code> &mdash; show only the top 20 results</li>
+  </ul>
+
+  <h3>Approach 2: Using <code>find</code> with <code>-size</code></h3>
+
+  <p>If you want to find files above a specific threshold:</p>
+
+  <pre><code><span class="prompt">$</span> find /home/user -type f -size +100M
+<span class="output">/home/user/Videos/tutorial.mp4
+/home/user/Downloads/ubuntu.iso</span></code></pre>
+
+  <p>To also see the sizes:</p>
+
+  <pre><code><span class="prompt">$</span> find /home/user -type f -size +100M -exec ls -lh {} \;
+<span class="output">-rw-r--r-- 1 user user 900M Mar 15 10:30 /home/user/Videos/tutorial.mp4
+-rw-r--r-- 1 user user 380M Mar 10 08:22 /home/user/Downloads/ubuntu.iso</span></code></pre>
+
+  <h3>Approach 3: Using <code>find</code> + <code>sort</code> for a Sorted List</h3>
+
+  <pre><code><span class="prompt">$</span> find /home/user -type f -size +50M -printf '%s %p\n' | sort -rn | head -10
+<span class="output">943718400 /home/user/Videos/tutorial.mp4
+398458880 /home/user/Downloads/ubuntu.iso
+...</span></code></pre>
+
+  <p>The <code>-printf '%s %p\n'</code> prints size in bytes followed by the path, making it sortable numerically.</p>
+
+  <h3>Approach 4: Using <code>ncdu</code> (Interactive)</h3>
+
+  <pre><code><span class="prompt">$</span> ncdu /home/user</code></pre>
+
+  <p>This opens an interactive, navigable view of disk usage. Press <code>d</code> to delete files directly, <code>q</code> to quit. Install it with <code>sudo apt install ncdu</code> if not available.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Start with <code>du -sh /home/user/*</code> to see which top-level directories are largest, then drill down into the big ones.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="search-logs">2. Search Logs for Errors</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> Something went wrong on your server or machine. You need to find error messages in system logs to diagnose the issue.</p>
+
+  <h3>Step 1: Know Where Logs Live</h3>
+
+  <p>Most system logs are in <code>/var/log/</code>:</p>
+
+  <pre><code><span class="prompt">$</span> ls /var/log/
+<span class="output">auth.log  dpkg.log  kern.log  syslog  apache2/  nginx/  mysql/  ...</span></code></pre>
+
+  <h3>Step 2: Search with <code>grep</code></h3>
+
+  <pre><code><span class="prompt">$</span> grep -i "error" /var/log/syslog
+<span class="output">Mar 15 10:30:22 server kernel: [ERROR] disk I/O timeout
+Mar 15 10:30:25 server systemd: Unit failed: error code 1</span></code></pre>
+
+  <p>Use <code>-i</code> for case-insensitive search since errors may appear as "Error", "ERROR", or "error".</p>
+
+  <h3>Step 3: Search Multiple Patterns</h3>
+
+  <pre><code><span class="prompt">$</span> grep -iE "error|fail|critical|panic" /var/log/syslog</code></pre>
+
+  <p>The <code>-E</code> flag enables extended regex so you can use <code>|</code> for OR patterns.</p>
+
+  <h3>Step 4: Use <code>journalctl</code> for systemd Logs</h3>
+
+  <pre><code><span class="prompt">$</span> journalctl -p err -b
+<span class="output">-- Logs begin at Mon 2025-03-10, end at Sat 2025-03-15 --
+Mar 15 10:30:22 server kernel: disk I/O timeout
+Mar 15 10:31:00 server nginx[1234]: bind() failed</span></code></pre>
+
+  <p>Flags explained:</p>
+  <ul>
+    <li><code>-p err</code> &mdash; show only priority "error" and above (error, critical, alert, emergency)</li>
+    <li><code>-b</code> &mdash; only current boot</li>
+  </ul>
+
+  <p>Other useful <code>journalctl</code> commands:</p>
+
+  <pre><code><span class="prompt">$</span> journalctl -u nginx --since "1 hour ago"    # Logs from a specific service
+<span class="prompt">$</span> journalctl -f                                # Follow logs in real time
+<span class="prompt">$</span> journalctl --since "2025-03-15" --until "2025-03-16"</code></pre>
+
+  <h3>Step 5: Watch Logs in Real Time</h3>
+
+  <pre><code><span class="prompt">$</span> tail -f /var/log/syslog
+<span class="prompt">$</span> tail -f /var/log/syslog | grep --line-buffered "error"</code></pre>
+
+  <p>The <code>--line-buffered</code> flag ensures grep outputs each matching line immediately rather than waiting for a buffer to fill.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Add context to your searches with <code>grep -C 3 "error" /var/log/syslog</code> to see 3 lines before and after each match. This helps you understand what happened leading up to the error.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="copy-files-safely">3. Copy Files Safely</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You need to copy files, but you do not want to accidentally overwrite existing files at the destination. A careless <code>cp</code> can silently destroy data.</p>
+
+  <h3>Approach 1: Use <code>cp -i</code> (Interactive)</h3>
+
+  <pre><code><span class="prompt">$</span> cp -i report.txt /backup/report.txt
+<span class="output">cp: overwrite '/backup/report.txt'? n</span></code></pre>
+
+  <p>The <code>-i</code> flag prompts you before overwriting any file. Always use this when copying to directories that might already contain files with the same names.</p>
+
+  <h3>Approach 2: Use <code>cp -n</code> (No Clobber)</h3>
+
+  <pre><code><span class="prompt">$</span> cp -n report.txt /backup/report.txt</code></pre>
+
+  <p>The <code>-n</code> flag silently skips files that already exist at the destination. No prompt, no overwrite.</p>
+
+  <h3>Approach 3: Use <code>cp --backup</code></h3>
+
+  <pre><code><span class="prompt">$</span> cp --backup=numbered report.txt /backup/report.txt</code></pre>
+
+  <p>If <code>/backup/report.txt</code> already exists, this creates <code>/backup/report.txt.~1~</code> as a backup before overwriting.</p>
+
+  <h3>Approach 4: Use <code>rsync --dry-run</code></h3>
+
+  <pre><code><span class="prompt">$</span> rsync -av --dry-run /home/user/docs/ /backup/docs/
+<span class="output">sending incremental file list
+report.txt
+notes.txt
+images/screenshot.png
+
+sent 180 bytes  received 45 bytes  450.00 bytes/sec
+total size is 1,234,567  speedup is 5,486.52 (DRY RUN)</span></code></pre>
+
+  <p>The <code>--dry-run</code> flag shows exactly what would happen without actually doing it. Once satisfied:</p>
+
+  <pre><code><span class="prompt">$</span> rsync -av /home/user/docs/ /backup/docs/</code></pre>
+
+  <h3>Approach 5: Verify Before Copying</h3>
+
+  <p>Always check what exists at the destination first:</p>
+
+  <pre><code><span class="prompt">$</span> ls -la /backup/
+<span class="prompt">$</span> diff report.txt /backup/report.txt    # See if files differ</code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Warning</div>
+    <p>A plain <code>cp file.txt /destination/file.txt</code> will silently overwrite the destination file with no way to undo. Always use <code>-i</code> or <code>--dry-run</code> with rsync when you are unsure.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="batch-rename">4. Batch Rename Files</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You have many files that need renaming, for example changing extensions, adding prefixes, or replacing spaces with underscores. Doing it one by one is tedious and error-prone.</p>
+
+  <h3>Approach 1: Using <code>mv</code> in a <code>for</code> Loop</h3>
+
+  <p>Rename all <code>.txt</code> files to <code>.md</code>:</p>
+
+  <pre><code><span class="prompt">$</span> for f in *.txt; do mv "$f" "${f%.txt}.md"; done</code></pre>
+
+  <p>How it works:</p>
+  <ul>
+    <li><code>for f in *.txt</code> &mdash; loops over every <code>.txt</code> file in the current directory</li>
+    <li><code>${f%.txt}</code> &mdash; removes the <code>.txt</code> suffix from the filename</li>
+    <li><code>.md</code> is appended as the new extension</li>
+  </ul>
+
+  <h3>Approach 2: Replace Spaces with Underscores</h3>
+
+  <pre><code><span class="prompt">$</span> for f in *\ *; do mv "$f" "${f// /_}"; done</code></pre>
+
+  <p>The <code>${f// /_}</code> syntax replaces all spaces with underscores in the variable <code>$f</code>.</p>
+
+  <h3>Approach 3: Add a Prefix to All Files</h3>
+
+  <pre><code><span class="prompt">$</span> for f in *.jpg; do mv "$f" "photo_$f"; done
+<span class="output"># beach.jpg -> photo_beach.jpg
+# sunset.jpg -> photo_sunset.jpg</span></code></pre>
+
+  <h3>Approach 4: Add a Date Prefix</h3>
+
+  <pre><code><span class="prompt">$</span> for f in *.log; do mv "$f" "$(date +%Y%m%d)_$f"; done
+<span class="output"># app.log -> 20250315_app.log
+# error.log -> 20250315_error.log</span></code></pre>
+
+  <h3>Approach 5: Using the <code>rename</code> Command</h3>
+
+  <p>The <code>rename</code> command (Perl version) uses regular expressions:</p>
+
+  <pre><code><span class="prompt">$</span> rename 's/\.txt$/.md/' *.txt          # Change extension
+<span class="prompt">$</span> rename 's/ /_/g' *                     # Replace spaces
+<span class="prompt">$</span> rename 'y/A-Z/a-z/' *                  # Lowercase all filenames
+<span class="prompt">$</span> rename 's/^/backup_/' *.sql             # Add prefix</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: Always Preview First</div>
+    <p>Use <code>rename -n</code> (dry run) to see what would be renamed without actually doing it:</p>
+    <pre><code><span class="prompt">$</span> rename -n 's/\.txt$/.md/' *.txt
+<span class="output">file1.txt renamed as file1.md
+file2.txt renamed as file2.md</span></code></pre>
+  </div>
+
+  <h3>Approach 6: Numbered Sequence</h3>
+
+  <pre><code><span class="prompt">$</span> counter=1; for f in *.jpg; do mv "$f" "img_$(printf '%03d' $counter).jpg"; counter=$((counter+1)); done
+<span class="output"># beach.jpg -> img_001.jpg
+# sunset.jpg -> img_002.jpg
+# mountain.jpg -> img_003.jpg</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="monitor-process">5. Monitor a Running Process</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You started a long-running task (a build, a download, a server) and you want to monitor it &mdash; see how much CPU and memory it uses, or check if it is still alive.</p>
+
+  <h3>Method 1: <code>watch</code> + <code>ps</code></h3>
+
+  <pre><code><span class="prompt">$</span> watch -n 2 'ps aux | grep python'</code></pre>
+
+  <p>This refreshes every 2 seconds, showing all processes matching "python". Press <kbd>Ctrl+C</kbd> to stop.</p>
+
+  <h3>Method 2: <code>top -p</code> (Monitor a Specific PID)</h3>
+
+  <p>First find the PID:</p>
+
+  <pre><code><span class="prompt">$</span> pgrep -f "my_script.py"
+<span class="output">12345</span>
+<span class="prompt">$</span> top -p 12345</code></pre>
+
+  <p>This shows a live dashboard for only that process, displaying CPU usage, memory, and run time.</p>
+
+  <h3>Method 3: <code>ps</code> with <code>grep</code></h3>
+
+  <pre><code><span class="prompt">$</span> ps aux | grep "[n]ginx"
+<span class="output">root      1234  0.0  0.2  50000  4000 ?  Ss   10:30   0:00 nginx: master
+www-data  1235  0.0  0.3  50500  6000 ?  S    10:30   0:05 nginx: worker</span></code></pre>
+
+  <p>The <code>[n]ginx</code> trick prevents grep from matching its own process in the output.</p>
+
+  <h3>Method 4: Check if a Process is Still Running</h3>
+
+  <pre><code><span class="prompt">$</span> kill -0 12345 && echo "Running" || echo "Not running"
+<span class="output">Running</span></code></pre>
+
+  <p>The <code>kill -0</code> sends signal 0 (no actual signal) &mdash; it just tests whether the process exists.</p>
+
+  <h3>Method 5: Monitor with <code>htop</code></h3>
+
+  <pre><code><span class="prompt">$</span> htop -p 12345</code></pre>
+
+  <p>Like <code>top</code> but with colors, mouse support, and easier navigation. Press <code>F6</code> to sort, <code>F9</code> to send signals.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Watching Resource Usage Over Time</div>
+    <p>For longer monitoring, you can log resource usage to a file:</p>
+    <pre><code><span class="prompt">$</span> while kill -0 12345 2>/dev/null; do
+  ps -p 12345 -o %cpu,%mem,etime | tail -1 >> monitor.log
+  sleep 5
+done</code></pre>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="check-disk-usage">6. Check Disk Usage</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You need to know how much disk space is used, how much is free, and what is taking up the most space.</p>
+
+  <h3>Step 1: Check Overall Disk Space with <code>df</code></h3>
+
+  <pre><code><span class="prompt">$</span> df -h
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   35G   13G  73% /
+/dev/sda2       200G  120G   70G  63% /home
+tmpfs           3.9G  1.2M  3.9G   1% /tmp</span></code></pre>
+
+  <p>Key flags:</p>
+  <ul>
+    <li><code>-h</code> &mdash; human-readable sizes</li>
+    <li><code>-T</code> &mdash; also shows filesystem type (ext4, xfs, etc.)</li>
+  </ul>
+
+  <h3>Step 2: Find What is Using Space with <code>du</code></h3>
+
+  <pre><code><span class="prompt">$</span> du -sh /home/user/*
+<span class="output">1.8G    /home/user/Videos
+650M    /home/user/.cache
+420M    /home/user/Downloads
+180M    /home/user/Documents
+50M     /home/user/Pictures</span></code></pre>
+
+  <pre><code><span class="prompt">$</span> du -sh /home/user/* | sort -rh
+<span class="output">1.8G    /home/user/Videos
+650M    /home/user/.cache
+420M    /home/user/Downloads
+...</span></code></pre>
+
+  <h3>Step 3: Drill Down with <code>ncdu</code></h3>
+
+  <pre><code><span class="prompt">$</span> ncdu /home/user</code></pre>
+
+  <p>This opens an interactive disk usage browser. Navigate with arrow keys, press <code>Enter</code> to drill into directories, <code>d</code> to delete, <code>q</code> to quit.</p>
+
+  <h3>Step 4: Find Large Files Specifically</h3>
+
+  <pre><code><span class="prompt">$</span> find / -type f -size +500M 2>/dev/null
+<span class="output">/var/log/large-application.log
+/home/user/Videos/tutorial.mp4</span></code></pre>
+
+  <p>The <code>2>/dev/null</code> suppresses "permission denied" errors from directories you cannot read.</p>
+
+  <h3>Step 5: Check Inode Usage</h3>
+
+  <p>Sometimes you run out of inodes (too many small files) even if you have free space:</p>
+
+  <pre><code><span class="prompt">$</span> df -i
+<span class="output">Filesystem      Inodes  IUsed   IFree IUse% Mounted on
+/dev/sda1      3276800 250000 3026800    8% /</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Quick Summary Command</div>
+    <p>A one-liner to see the biggest directories under your current path:</p>
+    <pre><code><span class="prompt">$</span> du -h --max-depth=1 | sort -rh | head -15</code></pre>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="download-files">7. Download Files from the Terminal</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You need to download a file from the internet &mdash; a software package, a dataset, an image &mdash; and you only have a terminal.</p>
+
+  <h3>Method 1: <code>wget</code></h3>
+
+  <pre><code><span class="prompt">$</span> wget https://example.com/file.tar.gz
+<span class="output">--2025-03-15 10:30:00--  https://example.com/file.tar.gz
+Saving to: 'file.tar.gz'
+file.tar.gz         100%[==================>]  25.3M  5.20MB/s  in 4.9s
+2025-03-15 10:30:05 (5.20 MB/s) - 'file.tar.gz' saved [26,542,080]</span></code></pre>
+
+  <p>Save with a custom filename:</p>
+
+  <pre><code><span class="prompt">$</span> wget -O myfile.tar.gz https://example.com/file.tar.gz</code></pre>
+
+  <p>Resume a partially downloaded file:</p>
+
+  <pre><code><span class="prompt">$</span> wget -c https://example.com/large-file.iso</code></pre>
+
+  <p>Download an entire directory listing:</p>
+
+  <pre><code><span class="prompt">$</span> wget -r -np -l 1 https://example.com/files/</code></pre>
+
+  <h3>Method 2: <code>curl</code></h3>
+
+  <pre><code><span class="prompt">$</span> curl -O https://example.com/file.tar.gz        # Save with original name
+<span class="prompt">$</span> curl -o myfile.tar.gz https://example.com/file.tar.gz  # Custom name
+<span class="prompt">$</span> curl -C - -O https://example.com/large.iso      # Resume download</code></pre>
+
+  <h3>Download Multiple Files</h3>
+
+  <pre><code><span class="prompt">$</span> wget -i urls.txt      # Download all URLs listed in a file</code></pre>
+
+  <p>Or with a loop:</p>
+
+  <pre><code><span class="prompt">$</span> for url in https://example.com/file{1..5}.txt; do wget "$url"; done</code></pre>
+
+  <h3>Download in the Background</h3>
+
+  <pre><code><span class="prompt">$</span> wget -b https://example.com/huge-file.iso
+<span class="output">Continuing in background, pid 12345.
+Output will be written to 'wget-log'.</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">wget vs curl Quick Reference</div>
+    <p><code>wget</code> is ideal for downloading files (especially recursively). <code>curl</code> is better for APIs and supports more protocols. Both can resume downloads. See Chapter 15 for a detailed comparison.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="ssh-remote">8. SSH into a Remote Server</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You need to connect to a remote machine to administer it, deploy code, or troubleshoot. SSH (Secure Shell) is the standard tool for this.</p>
+
+  <h3>Step 1: Generate SSH Keys (One-Time Setup)</h3>
+
+  <pre><code><span class="prompt">$</span> ssh-keygen -t ed25519 -C "your_email@example.com"
+<span class="output">Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/user/.ssh/id_ed25519):
+Enter passphrase (empty for no passphrase):
+Your identification has been saved in /home/user/.ssh/id_ed25519
+Your public key has been saved in /home/user/.ssh/id_ed25519.pub</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>Always set a passphrase for your SSH key. It adds a layer of security so that even if someone steals your private key file, they cannot use it without the passphrase.</p>
+  </div>
+
+  <h3>Step 2: Copy Your Public Key to the Server</h3>
+
+  <pre><code><span class="prompt">$</span> ssh-copy-id user@192.168.1.100
+<span class="output">/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s)
+Number of key(s) added: 1
+Now try logging into the machine.</span></code></pre>
+
+  <p>This copies your public key to <code>~/.ssh/authorized_keys</code> on the remote server.</p>
+
+  <h3>Step 3: Connect</h3>
+
+  <pre><code><span class="prompt">$</span> ssh user@192.168.1.100
+<span class="output">Welcome to Ubuntu 22.04.3 LTS
+Last login: Sat Mar 15 09:00:00 2025 from 192.168.1.50
+user@server:~$</span></code></pre>
+
+  <h3>Step 4: Connect on a Non-Standard Port</h3>
+
+  <pre><code><span class="prompt">$</span> ssh -p 2222 user@192.168.1.100</code></pre>
+
+  <h3>Step 5: Run a Command Without Interactive Login</h3>
+
+  <pre><code><span class="prompt">$</span> ssh user@192.168.1.100 "df -h"
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   35G   13G  73% /</span></code></pre>
+
+  <h3>Step 6: Set Up an SSH Config File</h3>
+
+  <p>Create or edit <code>~/.ssh/config</code>:</p>
+
+  <pre><code>Host myserver
+    HostName 192.168.1.100
+    User admin
+    Port 2222
+    IdentityFile ~/.ssh/id_ed25519</code></pre>
+
+  <p>Now you can connect with just:</p>
+
+  <pre><code><span class="prompt">$</span> ssh myserver</code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Security Reminder</div>
+    <p>Never share your private key (<code>id_ed25519</code>). Only share the public key (<code>id_ed25519.pub</code>). Set permissions correctly: <code>chmod 700 ~/.ssh</code> and <code>chmod 600 ~/.ssh/id_ed25519</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="transfer-files">9. Transfer Files Securely</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You need to move files between your local machine and a remote server, or between two servers, securely.</p>
+
+  <h3>Method 1: <code>scp</code> (Secure Copy)</h3>
+
+  <p>Copy a local file to a remote server:</p>
+
+  <pre><code><span class="prompt">$</span> scp report.txt user@server:/home/user/documents/
+<span class="output">report.txt                           100%   25KB  2.5MB/s   00:00</span></code></pre>
+
+  <p>Copy a remote file to your local machine:</p>
+
+  <pre><code><span class="prompt">$</span> scp user@server:/var/log/app.log ./local-copy.log</code></pre>
+
+  <p>Copy an entire directory:</p>
+
+  <pre><code><span class="prompt">$</span> scp -r /home/user/project/ user@server:/home/user/backup/</code></pre>
+
+  <h3>Method 2: <code>rsync</code> (Recommended)</h3>
+
+  <p><code>rsync</code> is smarter than <code>scp</code> &mdash; it only copies files that have changed, can resume interrupted transfers, and shows progress.</p>
+
+  <p>Sync a local directory to a remote server:</p>
+
+  <pre><code><span class="prompt">$</span> rsync -avz /home/user/project/ user@server:/home/user/project/
+<span class="output">sending incremental file list
+./
+src/main.py
+src/utils.py
+README.md
+
+sent 15,234 bytes  received 345 bytes  10,386.00 bytes/sec
+total size is 125,000  speedup is 8.02</span></code></pre>
+
+  <p>Flags explained:</p>
+  <ul>
+    <li><code>-a</code> &mdash; archive mode (preserves permissions, timestamps, symlinks, etc.)</li>
+    <li><code>-v</code> &mdash; verbose output</li>
+    <li><code>-z</code> &mdash; compress data during transfer</li>
+  </ul>
+
+  <p>Sync from remote to local:</p>
+
+  <pre><code><span class="prompt">$</span> rsync -avz user@server:/home/user/project/ /home/user/local-copy/</code></pre>
+
+  <p>Dry run first to see what would be transferred:</p>
+
+  <pre><code><span class="prompt">$</span> rsync -avz --dry-run /home/user/project/ user@server:/backup/</code></pre>
+
+  <p>Exclude certain files:</p>
+
+  <pre><code><span class="prompt">$</span> rsync -avz --exclude='.git' --exclude='node_modules' /project/ user@server:/project/</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Trailing Slash Matters with rsync</div>
+    <p><code>rsync src/ dest/</code> copies the <em>contents</em> of <code>src</code> into <code>dest</code>. <code>rsync src dest/</code> (no trailing slash on src) copies the <code>src</code> directory itself into <code>dest</code>, creating <code>dest/src/</code>. This is a common gotcha.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="find-text-in-files">10. Find Text Inside Many Files</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You know a string appears somewhere in your project files, but you do not know which file. You need to search the contents of many files at once.</p>
+
+  <h3>Method 1: <code>grep -r</code> (Recursive)</h3>
+
+  <pre><code><span class="prompt">$</span> grep -r "TODO" /home/user/project/
+<span class="output">/home/user/project/src/main.py:# TODO: refactor this function
+/home/user/project/src/utils.py:# TODO: add error handling
+/home/user/project/README.md:- TODO: write installation docs</span></code></pre>
+
+  <p>With line numbers and color:</p>
+
+  <pre><code><span class="prompt">$</span> grep -rn --color "TODO" /home/user/project/</code></pre>
+
+  <p>Limit to specific file types:</p>
+
+  <pre><code><span class="prompt">$</span> grep -rn --include="*.py" "import os" /home/user/project/</code></pre>
+
+  <p>Exclude directories:</p>
+
+  <pre><code><span class="prompt">$</span> grep -rn --exclude-dir=".git" --exclude-dir="node_modules" "config" /project/</code></pre>
+
+  <h3>Method 2: <code>find</code> + <code>grep</code></h3>
+
+  <pre><code><span class="prompt">$</span> find /project -name "*.py" -exec grep -l "import os" {} \;
+<span class="output">/project/src/main.py
+/project/src/utils.py</span></code></pre>
+
+  <p>The <code>-l</code> flag shows only filenames, not the matching lines.</p>
+
+  <h3>Method 3: <code>ripgrep</code> (rg) for Speed</h3>
+
+  <p>If you install <code>ripgrep</code>, it is significantly faster than grep for large codebases:</p>
+
+  <pre><code><span class="prompt">$</span> rg "TODO" /home/user/project/
+<span class="output">src/main.py
+3:# TODO: refactor this function
+
+src/utils.py
+15:# TODO: add error handling</span></code></pre>
+
+  <p><code>rg</code> automatically ignores <code>.git</code>, <code>node_modules</code>, and files listed in <code>.gitignore</code>. Install with <code>sudo apt install ripgrep</code>.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip</div>
+    <p>When searching a large codebase, always exclude version control and dependency directories. This dramatically reduces search time and noise.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="grep-find-xargs">11. Combine grep + find + xargs</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You need to perform complex searches or operations on files that match certain criteria. The combination of <code>find</code>, <code>grep</code>, and <code>xargs</code> is one of the most powerful patterns in Linux.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">The Power Trio</div>
+    <p><code>find</code> selects files by name, size, date, or type. <code>grep</code> searches within file contents. <code>xargs</code> takes input from a pipe and passes it as arguments to another command. Together, they can do almost anything.</p>
+  </div>
+
+  <h3>Example 1: Find Python Files Containing "TODO"</h3>
+
+  <pre><code><span class="prompt">$</span> find /project -name "*.py" | xargs grep -l "TODO"
+<span class="output">/project/src/main.py
+/project/tests/test_utils.py</span></code></pre>
+
+  <h3>Example 2: Count Lines of Code in All JavaScript Files</h3>
+
+  <pre><code><span class="prompt">$</span> find /project -name "*.js" -not -path "*/node_modules/*" | xargs wc -l
+<span class="output">   120 /project/src/app.js
+    85 /project/src/utils.js
+    45 /project/src/config.js
+   250 total</span></code></pre>
+
+  <h3>Example 3: Delete All <code>.tmp</code> Files Older Than 7 Days</h3>
+
+  <pre><code><span class="prompt">$</span> find /tmp -name "*.tmp" -mtime +7 -print | xargs rm -v
+<span class="output">removed '/tmp/session_abc123.tmp'
+removed '/tmp/upload_def456.tmp'</span></code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Handle Filenames with Spaces</div>
+    <p>If filenames contain spaces, use null-terminated strings to avoid breaking:</p>
+    <pre><code><span class="prompt">$</span> find /project -name "*.txt" -print0 | xargs -0 grep "pattern"</code></pre>
+    <p>The <code>-print0</code> and <code>-0</code> flags use null bytes instead of newlines as delimiters.</p>
+  </div>
+
+  <h3>Example 4: Replace Text in All Config Files</h3>
+
+  <pre><code><span class="prompt">$</span> find /etc/myapp -name "*.conf" | xargs sed -i 's/old_server/new_server/g'</code></pre>
+
+  <h3>Example 5: Find Files Modified Today and Archive Them</h3>
+
+  <pre><code><span class="prompt">$</span> find /project -type f -mtime 0 -print0 | xargs -0 tar -czf today-changes.tar.gz</code></pre>
+
+  <h3>Example 6: Find and Chmod Specific Files</h3>
+
+  <pre><code><span class="prompt">$</span> find /project -name "*.sh" | xargs chmod +x</code></pre>
+
+  <h3>Example 7: List Files Larger Than 10MB and Show Their Sizes</h3>
+
+  <pre><code><span class="prompt">$</span> find / -type f -size +10M -print0 2>/dev/null | xargs -0 ls -lh | sort -k5 -rh | head -20</code></pre>
+
+  <h3>Example 8: Search and Replace Across an Entire Project</h3>
+
+  <pre><code><span class="prompt">$</span> grep -rl "old_function" /project/src/ | xargs sed -i 's/old_function/new_function/g'</code></pre>
+
+  <p>This first finds all files containing "old_function" (using <code>grep -rl</code>), then replaces the text in each of those files.</p>
+
+  <h3>Example 9: Find Empty Files and Directories</h3>
+
+  <pre><code><span class="prompt">$</span> find /project -empty -type f    # Empty files
+<span class="prompt">$</span> find /project -empty -type d    # Empty directories</code></pre>
+
+  <h3>Example 10: Parallel Execution with xargs</h3>
+
+  <pre><code><span class="prompt">$</span> find /images -name "*.png" -print0 | xargs -0 -P 4 -I {} convert {} -resize 50% {}</code></pre>
+
+  <p>The <code>-P 4</code> flag runs up to 4 processes in parallel, speeding up the operation significantly.</p>
+
+  <!-- ============================================================ -->
+  <h2 id="pipes">12. Use Pipes Effectively</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You want to chain commands together so the output of one becomes the input of the next. Pipes (<code>|</code>) are the fundamental building blocks of Linux command-line power.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">How Pipes Work</div>
+    <p>The pipe character <code>|</code> takes the standard output (stdout) of the command on the left and feeds it as standard input (stdin) to the command on the right. You can chain as many pipes as you need.</p>
+  </div>
+
+  <h3>Pipe Chain 1: Find the Most Common Error</h3>
+
+  <pre><code><span class="prompt">$</span> grep "ERROR" /var/log/app.log | awk '{print $5}' | sort | uniq -c | sort -rn | head -5
+<span class="output">    142 ConnectionTimeout
+     87 FileNotFound
+     34 PermissionDenied
+     12 OutOfMemory
+      5 DiskFull</span></code></pre>
+
+  <h3>Pipe Chain 2: List Users Currently Logged In (Unique)</h3>
+
+  <pre><code><span class="prompt">$</span> who | awk '{print $1}' | sort -u
+<span class="output">admin
+deploy
+root</span></code></pre>
+
+  <h3>Pipe Chain 3: Show the 10 Largest Installed Packages</h3>
+
+  <pre><code><span class="prompt">$</span> dpkg-query -W -f='${Installed-Size}\t${Package}\n' | sort -rn | head -10
+<span class="output">512000  linux-firmware
+125000  chromium-browser
+ 98000  libreoffice-core
+...</span></code></pre>
+
+  <h3>Pipe Chain 4: Count Files by Extension</h3>
+
+  <pre><code><span class="prompt">$</span> find /project -type f | sed 's/.*\.//' | sort | uniq -c | sort -rn | head -10
+<span class="output">    234 py
+    156 js
+     89 html
+     67 css
+     45 json
+     23 md</span></code></pre>
+
+  <h3>Pipe Chain 5: Find Processes Using the Most Memory</h3>
+
+  <pre><code><span class="prompt">$</span> ps aux --sort=-%mem | head -11
+<span class="output">USER       PID %CPU %MEM    VSZ   RSS TTY   STAT START   TIME COMMAND
+mysql     1234  2.3 15.2 2048000 312000 ?   Sl   10:00  0:45 /usr/sbin/mysqld
+www-data  5678  1.1  8.5 1024000 174000 ?   Sl   10:00  0:20 apache2</span></code></pre>
+
+  <h3>Pipe Chain 6: Extract Unique IP Addresses from a Log</h3>
+
+  <pre><code><span class="prompt">$</span> grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' /var/log/auth.log | sort -u
+<span class="output">10.0.0.1
+192.168.1.50
+203.0.113.42</span></code></pre>
+
+  <h3>Pipe Chain 7: Show Directory Sizes Sorted</h3>
+
+  <pre><code><span class="prompt">$</span> du -h --max-depth=1 /home/user | sort -rh
+<span class="output">4.2G    /home/user
+1.8G    /home/user/Videos
+650M    /home/user/.cache
+420M    /home/user/Downloads</span></code></pre>
+
+  <h3>Pipe Chain 8: Find Duplicate Lines in a File</h3>
+
+  <pre><code><span class="prompt">$</span> sort data.txt | uniq -d
+<span class="output">duplicate line 1
+duplicate line 2</span></code></pre>
+
+  <h3>Pipe Chain 9: Monitor Network Connections</h3>
+
+  <pre><code><span class="prompt">$</span> ss -tun | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -10
+<span class="output">     15 192.168.1.50
+      8 10.0.0.1
+      3 203.0.113.42</span></code></pre>
+
+  <h3>Pipe Chain 10: Generate a Simple Report</h3>
+
+  <pre><code><span class="prompt">$</span> echo "=== Server Report ===" && date && echo "---" && uptime && echo "---" && df -h / | tail -1 && echo "---" && free -h | grep Mem
+<span class="output">=== Server Report ===
+Sat Mar 15 10:30:00 UTC 2025
+---
+ 10:30:00 up 45 days,  3:22,  2 users,  load average: 0.15, 0.20, 0.18
+---
+/dev/sda1        50G   35G   13G  73% /
+---
+Mem:           7.8Gi  3.2Gi  2.1Gi  0.0Ki  2.5Gi  4.3Gi</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Debugging Pipes</div>
+    <p>If a long pipe chain is not producing what you expect, build it up one stage at a time. Start with the first command, verify its output, then add the next pipe, and so on.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="backup-folder">13. Backup a Folder</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>The problem:</strong> You want to create a backup of a directory &mdash; either a one-time snapshot or an incremental backup &mdash; with timestamps so you know when each backup was made.</p>
+
+  <h3>Method 1: <code>tar</code> with Timestamp</h3>
+
+  <pre><code><span class="prompt">$</span> tar -czf "backup_$(date +%Y%m%d_%H%M%S).tar.gz" /home/user/project/
+<span class="output">tar: Removing leading '/' from member names</span></code></pre>
+
+  <p>This creates a file like <code>backup_20250315_103000.tar.gz</code>. Each backup has a unique name based on the date and time.</p>
+
+  <p>To verify the backup contents:</p>
+
+  <pre><code><span class="prompt">$</span> tar -tzf backup_20250315_103000.tar.gz | head -10
+<span class="output">home/user/project/
+home/user/project/src/
+home/user/project/src/main.py
+home/user/project/README.md
+...</span></code></pre>
+
+  <h3>Method 2: <code>rsync</code> (Incremental Backup)</h3>
+
+  <pre><code><span class="prompt">$</span> rsync -av --delete /home/user/project/ /backup/project/
+<span class="output">sending incremental file list
+deleting old-file.txt
+./
+src/new-feature.py
+
+sent 15,234 bytes  received 345 bytes  31,158.00 bytes/sec
+total size is 125,000  speedup is 8.02</span></code></pre>
+
+  <p>Flags:</p>
+  <ul>
+    <li><code>-a</code> &mdash; archive mode (preserves everything)</li>
+    <li><code>-v</code> &mdash; verbose</li>
+    <li><code>--delete</code> &mdash; remove files in the destination that no longer exist in the source (makes it a true mirror)</li>
+  </ul>
+
+  <h3>Method 3: <code>cp -a</code> (Simple Copy)</h3>
+
+  <pre><code><span class="prompt">$</span> cp -a /home/user/project/ "/backup/project_$(date +%Y%m%d)/"</code></pre>
+
+  <p>The <code>-a</code> flag preserves all attributes (permissions, timestamps, symlinks). This is a full copy every time, so it uses more space than rsync.</p>
+
+  <h3>Method 4: Rotating Backups Script</h3>
+
+  <pre><code>#!/bin/bash
+# backup.sh - Create timestamped backup, keep last 5
+
+BACKUP_DIR="/backup"
+SOURCE="/home/user/project"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_NAME="project_${TIMESTAMP}.tar.gz"
+
+# Create backup
+tar -czf "${BACKUP_DIR}/${BACKUP_NAME}" "$SOURCE"
+
+# Remove old backups, keep last 5
+cd "$BACKUP_DIR"
+ls -t project_*.tar.gz | tail -n +6 | xargs rm -f
+
+echo "Backup created: ${BACKUP_NAME}"
+echo "Remaining backups:"
+ls -lh project_*.tar.gz</code></pre>
+
+  <h3>Method 5: Rsync with Dated Snapshots</h3>
+
+  <pre><code><span class="prompt">$</span> rsync -av /home/user/project/ "/backup/$(date +%Y%m%d)_project/"</code></pre>
+
+  <p>This creates a full copy in a date-stamped folder each time you run it.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Best Practice</div>
+    <p>Always verify your backup after creating it. Try listing contents (<code>tar -tzf</code>) or restoring to a test location. A backup you cannot restore from is not a backup.</p>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Automating Backups</div>
+    <p>Use <code>cron</code> to schedule regular backups. Edit your crontab with <code>crontab -e</code> and add:</p>
+    <pre><code># Run backup every day at 2:00 AM
+0 2 * * * /home/user/scripts/backup.sh >> /var/log/backup.log 2>&1</code></pre>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="summary">Chapter Summary</h2>
+  <!-- ============================================================ -->
+
+  <p>In this chapter, you learned 13 practical workflows that solve real problems:</p>
+
+  <table>
+    <thead>
+      <tr><th>Workflow</th><th>Key Commands</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Find large files</td><td><code>du -ah | sort -rh</code>, <code>find -size</code>, <code>ncdu</code></td></tr>
+      <tr><td>Search logs</td><td><code>grep</code>, <code>journalctl</code>, <code>tail -f</code></td></tr>
+      <tr><td>Copy safely</td><td><code>cp -i</code>, <code>rsync --dry-run</code></td></tr>
+      <tr><td>Batch rename</td><td><code>for</code> loop + <code>mv</code>, <code>rename</code></td></tr>
+      <tr><td>Monitor process</td><td><code>watch</code>, <code>top -p</code>, <code>htop</code></td></tr>
+      <tr><td>Check disk</td><td><code>df -h</code>, <code>du -sh</code>, <code>ncdu</code></td></tr>
+      <tr><td>Download files</td><td><code>wget</code>, <code>curl -O</code></td></tr>
+      <tr><td>SSH remote</td><td><code>ssh-keygen</code>, <code>ssh-copy-id</code>, <code>ssh</code></td></tr>
+      <tr><td>Transfer files</td><td><code>scp</code>, <code>rsync -avz</code></td></tr>
+      <tr><td>Find text in files</td><td><code>grep -rn</code>, <code>rg</code></td></tr>
+      <tr><td>grep + find + xargs</td><td><code>find | xargs grep</code></td></tr>
+      <tr><td>Pipes</td><td><code>|</code> chains with sort, uniq, awk, head</td></tr>
+      <tr><td>Backup folder</td><td><code>tar -czf</code>, <code>rsync -av</code>, <code>cp -a</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+  <!-- ============================================================ -->
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Find the Top 5 Largest Files in Your Home Directory</div>
+    <p>Use <code>find</code> and <code>sort</code> to list the 5 biggest files under <code>~</code>. Show their sizes in human-readable format.</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> find ~ -type f -printf '%s %p\n' 2>/dev/null | sort -rn | head -5</code></pre>
+      <p>Or with human-readable sizes:</p>
+      <pre><code><span class="prompt">$</span> find ~ -type f -exec ls -lhS {} + 2>/dev/null | head -5</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Search and Replace Across Files</div>
+    <p>Find all <code>.txt</code> files in your current directory that contain the word "draft" and replace it with "final".</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> grep -rl "draft" *.txt | xargs sed -i 's/draft/final/g'</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Create a Backup Script</div>
+    <p>Write a one-liner that creates a compressed backup of <code>/etc</code> with today's date in the filename, saving it to <code>/tmp</code>.</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> sudo tar -czf "/tmp/etc_backup_$(date +%Y%m%d).tar.gz" /etc</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 4: Build a Pipe Chain</div>
+    <p>Write a pipe chain that counts how many unique file extensions exist in <code>/usr/bin</code>.</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> find /usr/bin -type f -name "*.*" | sed 's/.*\.//' | sort -u | wc -l</code></pre>
+    </details>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="prev-next">
+    <a class="prev-next__link prev-next__prev" href="../12-shell-scripting/index.html">&larr; 12. Shell &amp; Scripting</a>
+    <a class="prev-next__link prev-next__next" href="../14-troubleshooting/index.html">14. Troubleshooting &rarr;</a>
+  </nav>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

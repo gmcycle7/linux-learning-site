@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 9: Networking Basics — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing Files</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions &amp; Ownership</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link active" href="../09-networking/index.html">9. Networking Basics</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives &amp; Compression</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Real-World Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Command Comparisons</a>
+  </div>
+
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index (A-Z)</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Practice Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <div class="breadcrumb">
+    <a href="../../index.html">Home</a>
+    <span class="sep">/</span>
+    <span>Chapter 9: Networking Basics</span>
+  </div>
+
+  <h1>Chapter 9: Networking Basics</h1>
+
+  <p>Nearly everything in modern computing involves a network. Whether you are SSHing into a remote server, downloading files, debugging a web app, or checking if a service is reachable, you need networking commands. This chapter covers the essential tools for inspecting network configuration, testing connectivity, transferring data, querying DNS, and connecting to remote machines.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">What You Will Learn</div>
+    <p>IP address management, connectivity testing, socket inspection, HTTP requests, file downloads, DNS queries, route tracing, and remote access via SSH/SCP/rsync.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="networking-model">Mental Model: How Networking Works</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: How Networking Works</div>
+    <p>Before diving into commands, understand these three core concepts:</p>
+    <p><strong>IP Addresses</strong> &mdash; Every device on a network has a unique address. Think of it like a postal address for your computer. IPv4 looks like <code>192.168.1.10</code>, IPv6 like <code>fe80::1</code>.</p>
+    <p><strong>Ports</strong> &mdash; A single IP address can run many services. Ports are like apartment numbers at the same street address. SSH uses port 22, HTTP uses port 80, HTTPS uses port 443. Ports range from 0-65535.</p>
+    <p><strong>DNS</strong> &mdash; The Domain Name System translates human-readable names (like <code>example.com</code>) into IP addresses (like <code>93.184.216.34</code>). Your computer asks a DNS server "What is the IP for example.com?" before it can connect.</p>
+    <div class="diagram">
+      <pre>You type: https://example.com/page
+         |
+         v
+[DNS Lookup] "What IP is example.com?"
+         |
+         v
+DNS says: 93.184.216.34
+         |
+         v
+[TCP Connection] Connect to 93.184.216.34 on port 443
+         |
+         v
+[HTTP Request] GET /page
+         |
+         v
+[Response] HTML content returned to your browser</pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="ip">ip &mdash; Network Interface &amp; Routing</h2>
+
+  <p><strong>What it does:</strong> The <code>ip</code> command is the modern replacement for <code>ifconfig</code>, <code>route</code>, and <code>arp</code>. It manages and displays network interfaces, IP addresses, and routing tables.</p>
+
+  <p><strong>Why it matters:</strong> <code>ifconfig</code> is deprecated on most modern distributions. The <code>ip</code> command is more powerful, consistent, and is the standard tool for network configuration.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> ip addr show
+<span class="comment"># (or shorthand: ip a)</span>
+<span class="output">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+    inet6 ::1/128 scope host
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500
+    link/ether 52:54:00:ab:cd:ef brd ff:ff:ff:ff:ff:ff
+    inet 192.168.1.10/24 brd 192.168.1.255 scope global eth0
+    inet6 fe80::5054:ff:feab:cdef/64 scope link</span></pre>
+
+  <pre><span class="prompt">$</span> ip addr show eth0
+<span class="comment"># Show only a specific interface</span></pre>
+
+  <pre><span class="prompt">$</span> ip -4 addr
+<span class="comment"># Show only IPv4 addresses</span></pre>
+
+  <pre><span class="prompt">$</span> ip link show
+<span class="comment"># Show link-layer info (MAC addresses, state)</span>
+<span class="output">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 state UNKNOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 state UP
+    link/ether 52:54:00:ab:cd:ef brd ff:ff:ff:ff:ff:ff</span></pre>
+
+  <pre><span class="prompt">$</span> sudo ip link set eth0 down
+<span class="comment"># Disable a network interface</span></pre>
+
+  <pre><span class="prompt">$</span> sudo ip link set eth0 up
+<span class="comment"># Enable a network interface</span></pre>
+
+  <pre><span class="prompt">$</span> ip route show
+<span class="comment"># (or shorthand: ip r)</span>
+<span class="output">default via 192.168.1.1 dev eth0 proto dhcp metric 100
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.10 metric 100</span></pre>
+
+  <pre><span class="prompt">$</span> ip route get 8.8.8.8
+<span class="output">8.8.8.8 via 192.168.1.1 dev eth0 src 192.168.1.10 uid 1000</span>
+<span class="comment"># Shows which route/interface would be used to reach that IP</span></pre>
+
+  <pre><span class="prompt">$</span> ip -br addr
+<span class="comment"># Brief format — clean summary</span>
+<span class="output">lo               UNKNOWN        127.0.0.1/8 ::1/128
+eth0             UP             192.168.1.10/24 fe80::5054:ff:feab:cdef/64</span></pre>
+
+  <pre><span class="prompt">$</span> ip neigh show
+<span class="comment"># Show ARP table (neighbors)</span>
+<span class="output">192.168.1.1 dev eth0 lladdr 00:11:22:33:44:55 REACHABLE
+192.168.1.20 dev eth0 lladdr aa:bb:cc:dd:ee:ff STALE</span></pre>
+
+  <pre><span class="prompt">$</span> ip -s link show eth0
+<span class="comment"># Show interface statistics (packets, bytes, errors)</span></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">ifconfig is Deprecated</div>
+    <p><code>ifconfig</code> still works on many systems but it is part of the <code>net-tools</code> package which is no longer installed by default. Use <code>ip</code> instead. Mapping: <code>ifconfig</code> &rarr; <code>ip addr</code>, <code>route</code> &rarr; <code>ip route</code>, <code>arp</code> &rarr; <code>ip neigh</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="ping">ping &mdash; Test Connectivity</h2>
+
+  <p><strong>What it does:</strong> <code>ping</code> sends ICMP echo request packets to a host and reports if it responds. It is the first tool you reach for when testing "Can I reach this machine?"</p>
+
+  <p><strong>Why it matters:</strong> Ping is the most basic network diagnostic. If ping fails, there is either a DNS problem, a routing problem, a firewall blocking ICMP, or the host is down.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> ping google.com
+<span class="output">PING google.com (142.250.80.46) 56(84) bytes of data.
+64 bytes from lax17s55-in-f14.1e100.net (142.250.80.46): icmp_seq=1 ttl=118 time=11.2 ms
+64 bytes from lax17s55-in-f14.1e100.net (142.250.80.46): icmp_seq=2 ttl=118 time=10.8 ms
+64 bytes from lax17s55-in-f14.1e100.net (142.250.80.46): icmp_seq=3 ttl=118 time=11.0 ms
+^C
+--- google.com ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms
+rtt min/avg/max/mdev = 10.8/11.0/11.2/0.163 ms</span></pre>
+
+  <pre><span class="prompt">$</span> ping -c 4 google.com
+<span class="comment"># Send exactly 4 packets and stop</span></pre>
+
+  <pre><span class="prompt">$</span> ping -c 3 -W 2 192.168.1.100
+<span class="comment"># 3 packets, 2-second timeout per packet</span></pre>
+
+  <pre><span class="prompt">$</span> ping -i 0.2 -c 10 google.com
+<span class="comment"># Send packets every 0.2 seconds (faster ping, needs root for &lt;0.2)</span></pre>
+
+  <pre><span class="prompt">$</span> ping -q -c 10 google.com
+<span class="comment"># Quiet mode — only show summary</span>
+<span class="output">--- google.com ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9012ms
+rtt min/avg/max/mdev = 10.5/11.1/12.3/0.521 ms</span></pre>
+
+  <pre><span class="prompt">$</span> ping -s 1000 -c 3 google.com
+<span class="comment"># Send larger packets (1000 bytes instead of default 56)</span></pre>
+
+  <pre><span class="prompt">$</span> ping -4 google.com
+<span class="comment"># Force IPv4</span></pre>
+
+  <pre><span class="prompt">$</span> ping -6 google.com
+<span class="comment"># Force IPv6</span></pre>
+
+  <p><strong>Understanding the output:</strong></p>
+  <table>
+    <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>icmp_seq</code></td><td>Packet sequence number (gaps = lost packets)</td></tr>
+      <tr><td><code>ttl</code></td><td>Time to live (hops remaining). Low TTL = far away host.</td></tr>
+      <tr><td><code>time</code></td><td>Round-trip time in milliseconds. Under 50ms is good for most connections.</td></tr>
+      <tr><td><code>packet loss</code></td><td>Percentage of packets that got no reply. 0% is ideal.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">No response does not always mean the host is down</div>
+    <p>Many servers and firewalls block ICMP (ping) traffic for security. A host that does not respond to ping may still be reachable on other ports. Try <code>curl</code> or <code>ssh</code> instead.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="ss">ss &mdash; Socket Statistics</h2>
+
+  <p><strong>What it does:</strong> <code>ss</code> (socket statistics) displays information about network sockets &mdash; which ports are listening, which connections are established, and which processes own them.</p>
+
+  <p><strong>Why it matters:</strong> When debugging connectivity issues ("Why can I not connect to port 8080?"), <code>ss</code> shows you if anything is actually listening there.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>-t</code></td><td>TCP sockets only</td></tr>
+      <tr><td><code>-u</code></td><td>UDP sockets only</td></tr>
+      <tr><td><code>-l</code></td><td>Listening sockets only</td></tr>
+      <tr><td><code>-n</code></td><td>Do not resolve service names (show port numbers)</td></tr>
+      <tr><td><code>-p</code></td><td>Show process using the socket</td></tr>
+      <tr><td><code>-a</code></td><td>All sockets (listening + established)</td></tr>
+      <tr><td><code>-4</code></td><td>IPv4 only</td></tr>
+      <tr><td><code>-6</code></td><td>IPv6 only</td></tr>
+      <tr><td><code>-s</code></td><td>Summary statistics</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> ss -tlnp
+<span class="comment"># TCP, listening, numeric, with process names — the most common usage</span>
+<span class="output">State   Recv-Q  Send-Q  Local Address:Port   Peer Address:Port  Process
+LISTEN  0       128     0.0.0.0:22            0.0.0.0:*          users:(("sshd",pid=1234,fd=3))
+LISTEN  0       511     0.0.0.0:80            0.0.0.0:*          users:(("nginx",pid=5678,fd=6))
+LISTEN  0       128     127.0.0.1:3306        0.0.0.0:*          users:(("mysqld",pid=9012,fd=22))
+LISTEN  0       128     0.0.0.0:443           0.0.0.0:*          users:(("nginx",pid=5678,fd=7))</span></pre>
+
+  <pre><span class="prompt">$</span> ss -tunap
+<span class="comment"># TCP and UDP, all sockets, numeric, with process</span></pre>
+
+  <pre><span class="prompt">$</span> ss -t state established
+<span class="comment"># Show only established TCP connections</span>
+<span class="output">Recv-Q  Send-Q  Local Address:Port   Peer Address:Port
+0       0       192.168.1.10:22      192.168.1.20:54321
+0       0       192.168.1.10:80      203.0.113.50:12345</span></pre>
+
+  <pre><span class="prompt">$</span> ss -tlnp | grep :80
+<span class="comment"># Check if anything is listening on port 80</span>
+<span class="output">LISTEN  0  511  0.0.0.0:80  0.0.0.0:*  users:(("nginx",pid=5678,fd=6))</span></pre>
+
+  <pre><span class="prompt">$</span> ss -s
+<span class="comment"># Summary of socket types</span>
+<span class="output">Total: 234
+TCP:   45 (estab 12, closed 5, orphaned 0, timewait 3)
+UDP:   8
+...</span></pre>
+
+  <pre><span class="prompt">$</span> ss -t -o
+<span class="comment"># Show timer information</span></pre>
+
+  <pre><span class="prompt">$</span> ss dst 192.168.1.20
+<span class="comment"># Show connections to a specific destination</span></pre>
+
+  <pre><span class="prompt">$</span> ss sport = :22
+<span class="comment"># Show connections from source port 22</span></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Memory Aid: ss -tulnp</div>
+    <p>The most commonly used <code>ss</code> invocation is <code>ss -tulnp</code> (TCP + UDP, listening, numeric, processes). Remember it as "TULNP" or "tulip" minus the i.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="netstat">netstat &mdash; Legacy Socket Statistics</h2>
+
+  <p><strong>What it does:</strong> <code>netstat</code> is the older tool for displaying network connections, routing tables, and interface statistics. It does the same things as <code>ss</code> but is slower and part of the deprecated <code>net-tools</code> package.</p>
+
+  <p><strong>Why you still see it:</strong> Many guides, scripts, and interview questions still reference <code>netstat</code>. Know the equivalents:</p>
+
+  <table>
+    <thead><tr><th>Task</th><th>netstat (legacy)</th><th>ss (modern)</th></tr></thead>
+    <tbody>
+      <tr><td>Listening TCP ports</td><td><code>netstat -tlnp</code></td><td><code>ss -tlnp</code></td></tr>
+      <tr><td>All connections</td><td><code>netstat -anp</code></td><td><code>ss -anp</code></td></tr>
+      <tr><td>Routing table</td><td><code>netstat -rn</code></td><td><code>ip route</code></td></tr>
+      <tr><td>Interface stats</td><td><code>netstat -i</code></td><td><code>ip -s link</code></td></tr>
+      <tr><td>Socket summary</td><td><code>netstat -s</code></td><td><code>ss -s</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> netstat -tlnp
+<span class="output">Proto Recv-Q Send-Q Local Address    Foreign Address  State   PID/Program name
+tcp        0      0 0.0.0.0:22       0.0.0.0:*        LISTEN  1234/sshd
+tcp        0      0 0.0.0.0:80       0.0.0.0:*        LISTEN  5678/nginx
+tcp        0      0 127.0.0.1:3306   0.0.0.0:*        LISTEN  9012/mysqld</span></pre>
+
+  <pre><span class="prompt">$</span> netstat -an | grep ESTABLISHED | wc -l
+<span class="output">12</span>
+<span class="comment"># Count active connections</span></pre>
+
+  <pre><span class="prompt">$</span> netstat -rn
+<span class="comment"># Routing table</span>
+<span class="output">Destination     Gateway         Genmask         Flags Metric Ref Use Iface
+0.0.0.0         192.168.1.1     0.0.0.0         UG    100    0   0   eth0
+192.168.1.0     0.0.0.0         255.255.255.0   U     100    0   0   eth0</span></pre>
+
+  <pre><span class="prompt">$</span> netstat -i
+<span class="comment"># Interface statistics</span></pre>
+
+  <pre><span class="prompt">$</span> netstat -tunap
+<span class="comment"># All TCP/UDP sockets with process info</span></pre>
+
+  <pre><span class="prompt">$</span> netstat -tlnp | grep :443
+<span class="comment"># Check who is listening on HTTPS port</span></pre>
+
+  <pre><span class="prompt">$</span> netstat -s
+<span class="comment"># Protocol statistics (detailed counters)</span></pre>
+
+  <pre><span class="prompt">$</span> netstat -anp | grep nginx
+<span class="comment"># All sockets related to nginx</span></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Prefer ss over netstat</div>
+    <p><code>ss</code> is faster, more feature-rich, and installed by default on modern distributions. Use <code>netstat</code> only when <code>ss</code> is not available or when maintaining legacy scripts.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="curl">curl &mdash; Transfer URLs</h2>
+
+  <p><strong>What it does:</strong> <code>curl</code> (Client URL) transfers data to or from a server using supported protocols (HTTP, HTTPS, FTP, and many more). It is an incredibly versatile tool for testing APIs, downloading files, and debugging web services.</p>
+
+  <p><strong>Why it matters:</strong> If you work with web services, APIs, or need to test HTTP responses from the command line, <code>curl</code> is indispensable.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>-o FILE</code></td><td>Save output to a specific file</td></tr>
+      <tr><td><code>-O</code></td><td>Save with the remote filename</td></tr>
+      <tr><td><code>-I</code></td><td>Fetch headers only (HEAD request)</td></tr>
+      <tr><td><code>-X METHOD</code></td><td>Specify HTTP method (GET, POST, PUT, DELETE)</td></tr>
+      <tr><td><code>-d DATA</code></td><td>Send data in POST request body</td></tr>
+      <tr><td><code>-H HEADER</code></td><td>Add a custom header</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose output (shows full request/response)</td></tr>
+      <tr><td><code>-s</code></td><td>Silent mode (no progress bar)</td></tr>
+      <tr><td><code>-L</code></td><td>Follow redirects</td></tr>
+      <tr><td><code>-u USER:PASS</code></td><td>HTTP authentication</td></tr>
+      <tr><td><code>-k</code></td><td>Skip SSL certificate verification (insecure)</td></tr>
+      <tr><td><code>-w FORMAT</code></td><td>Custom output format (timing, status codes, etc.)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> curl https://example.com
+<span class="comment"># Fetch a web page and print to stdout</span></pre>
+
+  <pre><span class="prompt">$</span> curl -o page.html https://example.com
+<span class="comment"># Save to a specific file</span></pre>
+
+  <pre><span class="prompt">$</span> curl -O https://example.com/file.tar.gz
+<span class="comment"># Save with the remote filename (file.tar.gz)</span></pre>
+
+  <pre><span class="prompt">$</span> curl -I https://example.com
+<span class="output">HTTP/2 200
+content-type: text/html; charset=UTF-8
+content-length: 1256
+date: Mon, 31 Mar 2026 14:32:10 GMT
+server: ECAcc (lax/1234)</span></pre>
+
+  <pre><span class="prompt">$</span> curl -X POST -H "Content-Type: application/json" \
+  -d '{"name":"Alice","email":"alice@example.com"}' \
+  https://api.example.com/users
+<span class="comment"># POST JSON data to an API</span></pre>
+
+  <pre><span class="prompt">$</span> curl -X PUT -H "Authorization: Bearer TOKEN123" \
+  -d '{"status":"active"}' \
+  https://api.example.com/users/42
+<span class="comment"># PUT request with auth header</span></pre>
+
+  <pre><span class="prompt">$</span> curl -s https://api.example.com/data | jq .
+<span class="comment"># Silent mode piped to jq for pretty JSON formatting</span></pre>
+
+  <pre><span class="prompt">$</span> curl -v https://example.com 2>&amp;1 | head -30
+<span class="comment"># Verbose output shows TLS handshake, headers, everything</span></pre>
+
+  <pre><span class="prompt">$</span> curl -L http://example.com/redirect
+<span class="comment"># Follow HTTP redirects (301, 302)</span></pre>
+
+  <pre><span class="prompt">$</span> curl -w "HTTP Code: %{http_code}\nTime: %{time_total}s\n" -o /dev/null -s https://example.com
+<span class="output">HTTP Code: 200
+Time: 0.234s</span></pre>
+
+  <pre><span class="prompt">$</span> curl -X DELETE https://api.example.com/users/42
+<span class="comment"># DELETE request</span></pre>
+
+  <pre><span class="prompt">$</span> curl -d "username=alice&amp;password=secret" https://example.com/login
+<span class="comment"># POST form data (application/x-www-form-urlencoded)</span></pre>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Security Warning</div>
+    <p>Never use <code>curl -k</code> in production. It disables SSL certificate verification, making you vulnerable to man-in-the-middle attacks. Use it only for testing with self-signed certificates.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="wget">wget &mdash; Download Files</h2>
+
+  <p><strong>What it does:</strong> <code>wget</code> (Web Get) downloads files from the web. It is designed specifically for downloading and supports recursive downloads, retries, and resuming interrupted downloads.</p>
+
+  <p><strong>Why it matters:</strong> When you need to download files on a server that has no GUI (no browser), <code>wget</code> is the go-to tool. It handles retries and interrupted connections gracefully.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> wget https://example.com/file.tar.gz
+<span class="comment"># Download a file (saves to current directory)</span>
+<span class="output">--2026-03-31 14:32:10--  https://example.com/file.tar.gz
+Resolving example.com... 93.184.216.34
+Connecting to example.com|93.184.216.34|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 52428800 (50M) [application/gzip]
+Saving to: 'file.tar.gz'
+
+file.tar.gz         100%[===================>]  50.00M  12.5MB/s    in 4.0s
+
+2026-03-31 14:32:14 (12.5 MB/s) - 'file.tar.gz' saved [52428800/52428800]</span></pre>
+
+  <pre><span class="prompt">$</span> wget -O custom-name.tar.gz https://example.com/file.tar.gz
+<span class="comment"># Save with a custom filename</span></pre>
+
+  <pre><span class="prompt">$</span> wget -c https://example.com/bigfile.iso
+<span class="comment"># Resume a partially downloaded file</span></pre>
+
+  <pre><span class="prompt">$</span> wget -q https://example.com/file.tar.gz
+<span class="comment"># Quiet mode (no progress output)</span></pre>
+
+  <pre><span class="prompt">$</span> wget -r -l 2 -np https://example.com/docs/
+<span class="comment"># Recursive download, 2 levels deep, no parent directories</span></pre>
+
+  <pre><span class="prompt">$</span> wget -i urls.txt
+<span class="comment"># Download all URLs listed in a file</span></pre>
+
+  <pre><span class="prompt">$</span> wget --limit-rate=1m https://example.com/bigfile.iso
+<span class="comment"># Limit download speed to 1 MB/s</span></pre>
+
+  <pre><span class="prompt">$</span> wget -b https://example.com/bigfile.iso
+<span class="comment"># Download in background (logs to wget-log)</span></pre>
+
+  <pre><span class="prompt">$</span> wget --mirror --convert-links --adjust-extension --page-requisites https://example.com/
+<span class="comment"># Mirror an entire website for offline viewing</span></pre>
+
+  <pre><span class="prompt">$</span> wget --spider https://example.com/file.tar.gz
+<span class="comment"># Check if a file exists without downloading (dry run)</span></pre>
+
+  <!-- curl vs wget comparison -->
+  <h3>curl vs wget</h3>
+  <table>
+    <thead><tr><th>Feature</th><th>curl</th><th>wget</th></tr></thead>
+    <tbody>
+      <tr><td>Primary use</td><td>Transfer data (APIs, testing)</td><td>Download files</td></tr>
+      <tr><td>Output default</td><td>Prints to stdout</td><td>Saves to file</td></tr>
+      <tr><td>Recursive download</td><td>No</td><td>Yes (<code>-r</code>)</td></tr>
+      <tr><td>Resume downloads</td><td>Yes (<code>-C -</code>)</td><td>Yes (<code>-c</code>)</td></tr>
+      <tr><td>HTTP methods</td><td>All (GET, POST, PUT, DELETE, etc.)</td><td>GET and POST only</td></tr>
+      <tr><td>Custom headers</td><td>Yes (<code>-H</code>)</td><td>Yes (<code>--header</code>)</td></tr>
+      <tr><td>Protocols</td><td>HTTP, FTP, SCP, SFTP, LDAP, SMTP, and more</td><td>HTTP, HTTPS, FTP</td></tr>
+      <tr><td>JSON/API work</td><td>Excellent</td><td>Limited</td></tr>
+      <tr><td>Library</td><td>libcurl (used by many apps)</td><td>Standalone tool</td></tr>
+      <tr><td>Background download</td><td>No (use <code>&amp;</code>)</td><td>Yes (<code>-b</code>)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Rule of Thumb</div>
+    <p>Use <code>curl</code> when working with APIs, testing endpoints, or sending custom HTTP requests. Use <code>wget</code> when downloading files, especially large ones or entire directories.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="nslookup">nslookup &mdash; DNS Lookup</h2>
+
+  <p><strong>What it does:</strong> <code>nslookup</code> queries DNS servers to find the IP address associated with a domain name (or vice versa).</p>
+
+  <p><strong>Why it matters:</strong> When a website is unreachable, the first question is: "Is DNS resolving correctly?" <code>nslookup</code> answers that quickly.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> nslookup example.com
+<span class="output">Server:		127.0.0.53
+Address:	127.0.0.53#53
+
+Non-authoritative answer:
+Name:	example.com
+Address: 93.184.216.34</span></pre>
+
+  <pre><span class="prompt">$</span> nslookup -type=MX example.com
+<span class="comment"># Look up mail exchange records</span>
+<span class="output">example.com	mail exchanger = 10 mail.example.com.</span></pre>
+
+  <pre><span class="prompt">$</span> nslookup -type=NS example.com
+<span class="comment"># Look up nameservers</span>
+<span class="output">example.com	nameserver = a.iana-servers.net.
+example.com	nameserver = b.iana-servers.net.</span></pre>
+
+  <pre><span class="prompt">$</span> nslookup example.com 8.8.8.8
+<span class="comment"># Query a specific DNS server (Google's)</span></pre>
+
+  <pre><span class="prompt">$</span> nslookup -type=TXT example.com
+<span class="comment"># Look up TXT records (SPF, DKIM, etc.)</span></pre>
+
+  <pre><span class="prompt">$</span> nslookup 93.184.216.34
+<span class="comment"># Reverse lookup: IP to hostname</span>
+<span class="output">34.216.184.93.in-addr.arpa	name = example.com.</span></pre>
+
+  <pre><span class="prompt">$</span> nslookup -type=AAAA example.com
+<span class="comment"># Look up IPv6 address</span></pre>
+
+  <pre><span class="prompt">$</span> nslookup -type=SOA example.com
+<span class="comment"># Look up Start of Authority record</span></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="dig">dig &mdash; DNS Query Tool</h2>
+
+  <p><strong>What it does:</strong> <code>dig</code> (Domain Information Groper) performs DNS lookups and displays detailed results including TTL, query time, and authority information. It is more powerful and scriptable than <code>nslookup</code>.</p>
+
+  <p><strong>Why it matters:</strong> For serious DNS troubleshooting, <code>dig</code> gives you more information and control than <code>nslookup</code>.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> dig example.com
+<span class="output">; &lt;&lt;&gt;&gt; DiG 9.18.12 &lt;&lt;&gt;&gt; example.com
+;; ANSWER SECTION:
+example.com.		86400	IN	A	93.184.216.34
+
+;; Query time: 23 msec
+;; SERVER: 127.0.0.53#53(127.0.0.53)
+;; WHEN: Mon Mar 31 14:32:10 UTC 2026
+;; MSG SIZE  rcvd: 56</span></pre>
+
+  <pre><span class="prompt">$</span> dig +short example.com
+<span class="output">93.184.216.34</span>
+<span class="comment"># Just the answer, nothing else</span></pre>
+
+  <pre><span class="prompt">$</span> dig MX example.com
+<span class="comment"># Query MX records</span></pre>
+
+  <pre><span class="prompt">$</span> dig @8.8.8.8 example.com
+<span class="comment"># Query a specific DNS server</span></pre>
+
+  <pre><span class="prompt">$</span> dig -x 93.184.216.34
+<span class="comment"># Reverse DNS lookup</span></pre>
+
+  <pre><span class="prompt">$</span> dig +trace example.com
+<span class="comment"># Trace the full DNS delegation chain from root servers</span></pre>
+
+  <pre><span class="prompt">$</span> dig example.com ANY
+<span class="comment"># Request all record types</span></pre>
+
+  <pre><span class="prompt">$</span> dig +short example.com NS
+<span class="output">a.iana-servers.net.
+b.iana-servers.net.</span></pre>
+
+  <pre><span class="prompt">$</span> dig +noall +answer example.com
+<span class="comment"># Show only the answer section (clean output)</span>
+<span class="output">example.com.		86400	IN	A	93.184.216.34</span></pre>
+
+  <pre><span class="prompt">$</span> dig +stats example.com | grep "Query time"
+<span class="output">;; Query time: 23 msec</span></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="traceroute">traceroute &mdash; Trace Network Path</h2>
+
+  <p><strong>What it does:</strong> <code>traceroute</code> shows the path packets take from your machine to a destination, listing every router (hop) along the way and the time at each hop.</p>
+
+  <p><strong>Why it matters:</strong> When connectivity is slow or failing, <code>traceroute</code> shows you <em>where</em> the problem is &mdash; is it your local network, your ISP, or a router in between?</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> traceroute google.com
+<span class="output">traceroute to google.com (142.250.80.46), 30 hops max, 60 byte packets
+ 1  gateway (192.168.1.1)  1.234 ms  1.123 ms  1.098 ms
+ 2  isp-router (10.0.0.1)  5.432 ms  5.321 ms  5.234 ms
+ 3  core-router.isp.net (203.0.113.1)  12.345 ms  12.234 ms  12.123 ms
+ 4  * * *
+ 5  lax-edge.google.com (72.14.237.1)  11.234 ms  11.123 ms  11.098 ms
+ 6  lax17s55-in-f14.1e100.net (142.250.80.46)  11.456 ms  11.345 ms  11.234 ms</span></pre>
+
+  <pre><span class="prompt">$</span> traceroute -n google.com
+<span class="comment"># Numeric only (skip DNS lookups for faster output)</span></pre>
+
+  <pre><span class="prompt">$</span> traceroute -m 15 google.com
+<span class="comment"># Max 15 hops instead of default 30</span></pre>
+
+  <pre><span class="prompt">$</span> traceroute -w 2 google.com
+<span class="comment"># Wait 2 seconds per probe (default is 5)</span></pre>
+
+  <pre><span class="prompt">$</span> traceroute -I google.com
+<span class="comment"># Use ICMP instead of UDP (may work better through firewalls)</span></pre>
+
+  <pre><span class="prompt">$</span> traceroute -T -p 443 google.com
+<span class="comment"># Use TCP on port 443 (useful when ICMP/UDP is blocked)</span></pre>
+
+  <pre><span class="prompt">$</span> tracepath google.com
+<span class="comment"># Simpler alternative that doesn't need root</span></pre>
+
+  <pre><span class="prompt">$</span> mtr google.com
+<span class="comment"># Combines ping + traceroute in a live updating display</span></pre>
+
+  <p><strong>Reading the output:</strong> Each numbered line is a "hop" (router). Three time values are shown (three probes). <code>* * *</code> means that router did not respond &mdash; this is common and does not necessarily indicate a problem. If all hops after a certain point are <code>*</code>, the destination is unreachable.</p>
+
+  <!-- ============================================================ -->
+  <h2 id="ssh">ssh &mdash; Secure Shell</h2>
+
+  <p><strong>What it does:</strong> <code>ssh</code> (Secure Shell) opens an encrypted connection to a remote machine, giving you a command-line session as if you were sitting at that machine.</p>
+
+  <p><strong>Why it matters:</strong> SSH is the primary way to manage remote Linux servers. Every sysadmin, developer, and DevOps engineer uses it daily.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> ssh alice@192.168.1.20
+<span class="comment"># Connect as user "alice" to IP 192.168.1.20</span></pre>
+
+  <pre><span class="prompt">$</span> ssh alice@webserver.example.com
+<span class="comment"># Connect using a hostname</span></pre>
+
+  <pre><span class="prompt">$</span> ssh -p 2222 alice@server.com
+<span class="comment"># Connect on a non-standard port</span></pre>
+
+  <pre><span class="prompt">$</span> ssh alice@server.com "uptime && df -h"
+<span class="comment"># Run a command remotely without opening an interactive shell</span>
+<span class="output"> 14:32:07 up 45 days,  3:22,  1 user,  load average: 0.52, 0.78, 0.65
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   12G   35G  26% /</span></pre>
+
+  <pre><span class="prompt">$</span> ssh -v alice@server.com
+<span class="comment"># Verbose mode (debug connection issues)</span></pre>
+
+  <pre><span class="prompt">$</span> ssh -L 8080:localhost:80 alice@server.com
+<span class="comment"># Local port forwarding: access server's port 80 via your localhost:8080</span></pre>
+
+  <pre><span class="prompt">$</span> ssh -N -L 3307:localhost:3306 alice@server.com
+<span class="comment"># Forward MySQL port without opening a shell (-N = no command)</span></pre>
+
+  <pre><span class="prompt">$</span> ssh -J jumphost.com alice@internal-server.com
+<span class="comment"># Jump through a bastion/jump host</span></pre>
+
+  <h3>SSH Key-Based Authentication</h3>
+
+  <div class="concept-box">
+    <div class="concept-box__title">SSH Key Authentication</div>
+    <p>Instead of typing a password every time, you can use a key pair (public + private). The private key stays on your machine. The public key is placed on the server. This is more secure and more convenient.</p>
+    <div class="diagram">
+      <pre>YOUR MACHINE                          REMOTE SERVER
++------------------+                  +------------------+
+| ~/.ssh/id_ed25519 |  --- proves --> | ~/.ssh/           |
+| (private key)     |     identity    |   authorized_keys |
+| NEVER share this  |                 |   (public key)    |
++------------------+                  +------------------+
+
+Step 1: ssh-keygen (creates the key pair on your machine)
+Step 2: ssh-copy-id user@server (copies public key to server)
+Step 3: ssh user@server (logs in without a password)</pre>
+    </div>
+  </div>
+
+  <pre><span class="prompt">$</span> ssh-keygen -t ed25519 -C "alice@work"
+<span class="output">Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/alice/.ssh/id_ed25519):
+Enter passphrase (empty for no passphrase):
+Your identification has been saved in /home/alice/.ssh/id_ed25519
+Your public key has been saved in /home/alice/.ssh/id_ed25519.pub</span></pre>
+
+  <pre><span class="prompt">$</span> ssh-copy-id alice@server.com
+<span class="comment"># Copies your public key to the server's authorized_keys</span></pre>
+
+  <pre><span class="prompt">$</span> cat ~/.ssh/config
+<span class="output">Host webserver
+    HostName 192.168.1.20
+    User alice
+    Port 2222
+    IdentityFile ~/.ssh/id_ed25519
+
+Host dbserver
+    HostName 10.0.1.50
+    User admin
+    ProxyJump webserver</span>
+
+<span class="prompt">$</span> ssh webserver
+<span class="comment"># Now you can just type "ssh webserver" instead of the full command</span></pre>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Never Share Your Private Key</div>
+    <p>Your private key (<code>~/.ssh/id_ed25519</code>) must never be shared, emailed, or committed to a repository. Only the public key (<code>~/.ssh/id_ed25519.pub</code>) is placed on servers.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="scp">scp &mdash; Secure Copy</h2>
+
+  <p><strong>What it does:</strong> <code>scp</code> (Secure Copy Protocol) copies files between your local machine and a remote machine over an encrypted SSH connection.</p>
+
+  <p><strong>Why it matters:</strong> Need to copy a config file to a server or download a log file? <code>scp</code> is the simplest way to transfer files over SSH.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> scp file.txt alice@server.com:/home/alice/
+<span class="comment"># Copy local file to remote server</span></pre>
+
+  <pre><span class="prompt">$</span> scp alice@server.com:/var/log/app.log ./
+<span class="comment"># Copy remote file to current local directory</span></pre>
+
+  <pre><span class="prompt">$</span> scp -r project/ alice@server.com:/home/alice/
+<span class="comment"># Copy an entire directory recursively</span></pre>
+
+  <pre><span class="prompt">$</span> scp -P 2222 file.txt alice@server.com:/tmp/
+<span class="comment"># Use a non-standard SSH port (note: uppercase -P for scp)</span></pre>
+
+  <pre><span class="prompt">$</span> scp alice@server1.com:/data/file.txt bob@server2.com:/backup/
+<span class="comment"># Copy between two remote servers (through your machine)</span></pre>
+
+  <pre><span class="prompt">$</span> scp -C largefile.tar.gz alice@server.com:/data/
+<span class="comment"># Enable compression during transfer</span></pre>
+
+  <pre><span class="prompt">$</span> scp -i ~/.ssh/mykey.pem file.txt alice@server.com:/tmp/
+<span class="comment"># Use a specific SSH key</span></pre>
+
+  <pre><span class="prompt">$</span> scp *.log alice@server.com:/backup/logs/
+<span class="comment"># Copy multiple files matching a pattern</span></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">scp Syntax Pattern</div>
+    <p>The pattern is always <code>scp [source] [destination]</code>. Remote paths use the format <code>user@host:/path</code>. If either source or destination is local, just use the normal file path.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="rsync">rsync &mdash; Efficient Sync</h2>
+
+  <p><strong>What it does:</strong> <code>rsync</code> synchronizes files and directories between two locations (local or remote). Unlike <code>scp</code>, it only transfers the <em>differences</em> between source and destination, making it extremely efficient for repeated transfers.</p>
+
+  <p><strong>Why it matters:</strong> <code>rsync</code> is the standard tool for backups, deployments, and keeping directories in sync. It is faster than <code>scp</code> for everything except the first transfer.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>-a</code></td><td>Archive mode (preserves permissions, timestamps, symlinks, recursive)</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose output</td></tr>
+      <tr><td><code>-z</code></td><td>Compress data during transfer</td></tr>
+      <tr><td><code>-h</code></td><td>Human-readable numbers</td></tr>
+      <tr><td><code>--delete</code></td><td>Delete files in destination that do not exist in source</td></tr>
+      <tr><td><code>--dry-run</code></td><td>Show what would be done without actually doing it</td></tr>
+      <tr><td><code>-n</code></td><td>Short for <code>--dry-run</code></td></tr>
+      <tr><td><code>--progress</code></td><td>Show transfer progress</td></tr>
+      <tr><td><code>--exclude</code></td><td>Exclude files matching a pattern</td></tr>
+      <tr><td><code>-e</code></td><td>Specify the remote shell (e.g., <code>-e "ssh -p 2222"</code>)</td></tr>
+      <tr><td><code>-P</code></td><td>Equivalent to <code>--partial --progress</code> (resume + progress)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> rsync -av /home/alice/project/ /backup/project/
+<span class="comment"># Sync a local directory to another local directory</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avz /home/alice/project/ alice@server.com:/home/alice/project/
+<span class="comment"># Sync local to remote with compression</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avz alice@server.com:/var/log/ ./server-logs/
+<span class="comment"># Sync remote to local</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avz --delete /home/alice/project/ /backup/project/
+<span class="comment"># Mirror: sync AND delete files in destination that are not in source</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avzn --delete /home/alice/project/ /backup/project/
+<span class="comment"># Dry run — see what WOULD happen without doing it</span>
+<span class="output">sending incremental file list
+deleting old-file.txt
+new-file.txt
+modified-file.txt
+
+sent 234 bytes  received 45 bytes  558.00 bytes/sec
+total size is 12,345  speedup is 44.23 (DRY RUN)</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avz --exclude='*.log' --exclude='.git/' src/ dest/
+<span class="comment"># Exclude log files and .git directory</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avz -e "ssh -p 2222" /data/ alice@server.com:/data/
+<span class="comment"># Use a non-standard SSH port</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avzP largefile.iso alice@server.com:/data/
+<span class="comment"># Show progress and allow resume of interrupted transfer</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avz --include='*.jpg' --exclude='*' photos/ alice@server.com:/photos/
+<span class="comment"># Only sync .jpg files</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avz --max-size='100M' /data/ /backup/
+<span class="comment"># Skip files larger than 100MB</span></pre>
+
+  <pre><span class="prompt">$</span> rsync -avz --bwlimit=5000 /data/ alice@server.com:/data/
+<span class="comment"># Limit bandwidth to 5000 KB/s</span></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Trailing Slash Matters!</div>
+    <p>With <code>rsync</code>, a trailing <code>/</code> on the source means "the contents of this directory." Without it, the directory itself is copied.</p>
+    <pre><span class="prompt">$</span> rsync -av project/ /backup/
+<span class="comment"># Copies CONTENTS of project/ into /backup/</span>
+
+<span class="prompt">$</span> rsync -av project /backup/
+<span class="comment"># Copies the project DIRECTORY into /backup/project/</span></pre>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Dangerous</div>
+      <pre><span class="prompt">$</span> rsync -avz --delete /wrong/source/ /important/data/
+<span class="comment"># If source is wrong/empty, --delete will ERASE your data!</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Safe Approach</div>
+      <pre><span class="prompt">$</span> rsync -avzn --delete /source/ /dest/
+<span class="comment"># Always --dry-run first when using --delete</span>
+<span class="prompt">$</span> rsync -avz --delete /source/ /dest/
+<span class="comment"># Then run for real after verifying</span></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Practice Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Network Reconnaissance</div>
+    <p>Perform the following tasks on your local machine:</p>
+    <ol>
+      <li>Find your IP address using <code>ip addr</code>. Identify the interface name and IP.</li>
+      <li>Find your default gateway using <code>ip route</code>.</li>
+      <li>Ping your default gateway &mdash; do you get a response?</li>
+      <li>Use <code>dig +short</code> to look up the IP of <code>google.com</code>.</li>
+      <li>Use <code>ss -tlnp</code> to list all services listening on your machine.</li>
+      <li>Use <code>traceroute</code> (or <code>tracepath</code>) to see the hops to <code>google.com</code>.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="comment"># 1. Find your IP</span>
+<span class="prompt">$</span> ip -br addr
+<span class="comment"># Look for the interface that is UP with an IP (not 127.0.0.1)</span>
+
+<span class="comment"># 2. Default gateway</span>
+<span class="prompt">$</span> ip route | grep default
+<span class="output">default via 192.168.1.1 dev eth0</span>
+
+<span class="comment"># 3. Ping gateway</span>
+<span class="prompt">$</span> ping -c 3 192.168.1.1
+
+<span class="comment"># 4. DNS lookup</span>
+<span class="prompt">$</span> dig +short google.com
+
+<span class="comment"># 5. Listening services</span>
+<span class="prompt">$</span> sudo ss -tlnp
+
+<span class="comment"># 6. Traceroute</span>
+<span class="prompt">$</span> traceroute google.com
+<span class="comment"># or if not installed:</span>
+<span class="prompt">$</span> tracepath google.com</pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: File Transfer Practice</div>
+    <p>If you have access to a second machine (or a VM), practice these transfers. Otherwise, do the <code>curl</code> exercises:</p>
+    <ol>
+      <li>Use <code>curl -I</code> to check the HTTP headers of <code>https://example.com</code>. What is the status code?</li>
+      <li>Download a file with <code>wget</code> and verify its size with <code>ls -lh</code>.</li>
+      <li>Use <code>curl</code> to query a public JSON API: <code>curl -s https://httpbin.org/ip | jq .</code></li>
+      <li>If you have two machines: use <code>rsync -avzn</code> (dry-run) to preview syncing a directory, then run it for real.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="comment"># 1. Check headers</span>
+<span class="prompt">$</span> curl -I https://example.com
+<span class="comment"># Look for "HTTP/2 200" on the first line</span>
+
+<span class="comment"># 2. Download a file</span>
+<span class="prompt">$</span> wget https://example.com/index.html
+<span class="prompt">$</span> ls -lh index.html
+
+<span class="comment"># 3. Query a JSON API</span>
+<span class="prompt">$</span> curl -s https://httpbin.org/ip | jq .
+<span class="output">{
+  "origin": "203.0.113.10"
+}</span>
+
+<span class="comment"># 4. rsync dry-run then real</span>
+<span class="prompt">$</span> rsync -avzn ~/project/ alice@server:/backup/project/
+<span class="comment"># Review output, then:</span>
+<span class="prompt">$</span> rsync -avz ~/project/ alice@server:/backup/project/</pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Knowledge Check</h2>
+
+  <div class="quiz">
+    <div class="quiz__question">1. You need to check which process is listening on port 8080. Which command would you use?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q1" value="a"> <code>ping -p 8080 localhost</code></label>
+      <label><input type="radio" name="q1" value="b"> <code>ss -tlnp | grep :8080</code></label>
+      <label><input type="radio" name="q1" value="c"> <code>curl localhost:8080</code></label>
+      <label><input type="radio" name="q1" value="d"> <code>traceroute -p 8080 localhost</code></label>
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.classList.toggle('show')">Show Answer</button>
+    <div class="quiz__answer"><strong>B.</strong> <code>ss -tlnp | grep :8080</code> shows which process is listening on TCP port 8080. The <code>-p</code> flag displays the process name and PID. Option C would <em>connect</em> to port 8080 but would not tell you which process is listening there.</div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">2. What is the difference between <code>rsync -av src/ dest/</code> and <code>rsync -av src dest/</code>?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q2" value="a"> There is no difference</label>
+      <label><input type="radio" name="q2" value="b"> The first copies the contents of src into dest. The second copies the src directory itself into dest (creating dest/src/).</label>
+      <label><input type="radio" name="q2" value="c"> The first is faster than the second</label>
+      <label><input type="radio" name="q2" value="d"> The second will fail because of missing trailing slash</label>
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.classList.toggle('show')">Show Answer</button>
+    <div class="quiz__answer"><strong>B.</strong> The trailing slash on the source directory matters. <code>src/</code> means "the contents of src" while <code>src</code> means "the src directory itself." With the trailing slash, files end up directly in <code>dest/</code>. Without it, they end up in <code>dest/src/</code>.</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="page-nav">
+    <a href="../08-system-disk/index.html">&larr; Chapter 8: System &amp; Disk Info</a>
+    <a href="../10-archives/index.html">Chapter 10: Archives &amp; Compression &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; Chapter 9: Networking Basics
+  </div>
+
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

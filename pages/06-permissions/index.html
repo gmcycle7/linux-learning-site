@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 6: Permissions &amp; Ownership — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing Files</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link active" href="../06-permissions/index.html">6. Permissions &amp; Ownership</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking Basics</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives &amp; Compression</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Real-World Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Command Comparisons</a>
+  </div>
+
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index (A-Z)</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Practice Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <div class="breadcrumb">
+    <a href="../../index.html">Home</a>
+    <span class="sep">&rsaquo;</span>
+    Permissions &amp; Ownership
+  </div>
+
+  <h1>Chapter 6: Permissions &amp; Ownership</h1>
+
+  <p>Linux is a multi-user operating system. That means many people (or programs) can use the same machine at the same time. Permissions are the mechanism that controls <strong>who</strong> can do <strong>what</strong> to <strong>which files</strong>. Understanding permissions is essential for keeping your files safe, your system secure, and your scripts running correctly.</p>
+
+  <p>In this chapter you will learn how to read permission strings, change them with <code>chmod</code>, transfer ownership with <code>chown</code> and <code>chgrp</code>, control default permissions with <code>umask</code>, and use <code>sudo</code> responsibly.</p>
+
+  <!-- ============================================================ -->
+  <h2 id="understanding-permissions">1. Understanding Permissions</h2>
+  <!-- ============================================================ -->
+
+  <p>Every file and directory in Linux has three sets of permissions that control access for three categories of users:</p>
+
+  <ul>
+    <li><strong>User (u)</strong> &mdash; the owner of the file. Usually the person who created it.</li>
+    <li><strong>Group (g)</strong> &mdash; a set of users who share a common group membership. Every file belongs to exactly one group.</li>
+    <li><strong>Others (o)</strong> &mdash; everyone else on the system who is not the owner and not in the file's group.</li>
+  </ul>
+
+  <p>You can see permissions by running <code>ls -l</code>:</p>
+
+  <pre><code><span class="prompt">$</span> ls -l
+<span class="output">-rwxr-xr--  1 alice  developers  4096  Mar 15 10:30  deploy.sh
+drwxr-x---  3 alice  developers  4096  Mar 14 09:15  configs/
+-rw-r--r--  1 bob    staff       2048  Mar 13 14:22  readme.txt
+lrwxrwxrwx  1 alice  developers    12  Mar 12 08:00  latest -> deploy.sh</span></code></pre>
+
+  <p>Each column in that output means something specific. Here is a detailed breakdown:</p>
+
+  <div class="diagram">
+-rwxr-xr--   1   alice   developers   4096   Mar 15 10:30   deploy.sh
+|__________|  |   |____   |________   |____   |___________|  |________|
+     |        |     |         |         |           |             |
+ permissions  |   owner     group     size     last modified   filename
+              |
+         link count
+</div>
+
+  <h3>Breaking Down the Permission String</h3>
+
+  <p>The permission string is 10 characters long. The first character indicates the <strong>file type</strong>, and the remaining nine characters are three groups of three, each representing <strong>read</strong>, <strong>write</strong>, and <strong>execute</strong> for user, group, and others.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Concept: Anatomy of the Permission String</div>
+    <div class="diagram">
+ -  r w x  r - x  r - -
+ |  |___|  |___|  |___|
+ |    |      |      |
+ |  user   group  others
+ |
+file type:
+  -  = regular file
+  d  = directory
+  l  = symbolic link
+  c  = character device
+  b  = block device
+
+Example:  -rwxr-xr--
+          ^ ^^^ ^^^ ^^^
+          | ||| ||| |||
+          | ||| ||| ||+-- others: no execute
+          | ||| ||| |+--- others: no write
+          | ||| ||| +---- others: read
+          | ||| ||+------ group: execute
+          | ||| |+------- group: no write
+          | ||| +-------- group: read
+          | ||+---------- user: execute
+          | |+----------- user: write
+          | +------------ user: read
+          +-------------- regular file
+</div>
+  </div>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Permissions as a Lock System</div>
+    <p>Think of every file as a room with three different locks on the door:</p>
+    <ul>
+      <li><strong>Read (r)</strong> is like a <em>window</em> &mdash; you can look inside and see the contents, but you cannot change anything.</li>
+      <li><strong>Write (w)</strong> is like a <em>key to the desk</em> &mdash; you can modify, add, or delete the contents inside.</li>
+      <li><strong>Execute (x)</strong> is like a <em>key to the engine</em> &mdash; you can run the file as a program or (for directories) walk into the room.</li>
+    </ul>
+    <p>Three copies of these locks exist: one for the <strong>owner</strong>, one for the <strong>group</strong>, and one for <strong>everyone else</strong>. Each copy can be independently locked or unlocked.</p>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert__title">How to Check Permissions</div>
+    <p>Use <code>ls -l</code> for files in a directory. Use <code>ls -la</code> to include hidden files. Use <code>ls -ld directory_name</code> to see the permissions on the directory itself (not its contents). Use <code>stat filename</code> for even more detail including the numeric (octal) mode.</p>
+  </div>
+
+  <pre><code><span class="prompt">$</span> stat deploy.sh
+<span class="output">  File: deploy.sh
+  Size: 4096       Blocks: 8          IO Block: 4096   regular file
+Device: 801h/2049d Inode: 524292      Links: 1
+Access: (0754/-rwxr-xr--)  Uid: ( 1000/   alice)   Gid: ( 1001/developers)
+Access: 2025-03-15 10:30:00.000000000 +0000
+Modify: 2025-03-15 10:30:00.000000000 +0000
+Change: 2025-03-15 10:30:00.000000000 +0000</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="rwx-meaning">2. rwx &mdash; What Read, Write, and Execute Mean</h2>
+  <!-- ============================================================ -->
+
+  <p>The meaning of <code>r</code>, <code>w</code>, and <code>x</code> is straightforward for regular files, but behaves differently for directories. This is one of the most commonly misunderstood areas of Linux permissions.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Permission</th>
+        <th>On a File</th>
+        <th>On a Directory</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>r</code> (read)</td>
+        <td>View the contents of the file (e.g., <code>cat</code>, <code>less</code>)</td>
+        <td>List the names of files inside the directory (e.g., <code>ls</code>)</td>
+      </tr>
+      <tr>
+        <td><code>w</code> (write)</td>
+        <td>Modify or overwrite the file's contents</td>
+        <td>Create, rename, or delete files inside the directory</td>
+      </tr>
+      <tr>
+        <td><code>x</code> (execute)</td>
+        <td>Run the file as a program or script</td>
+        <td>Enter the directory (<code>cd</code>) and access files within it</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Important: Directory Permissions Are Different</div>
+    <p>A directory with <code>r</code> but no <code>x</code> lets you see the <em>names</em> of files inside, but you cannot <code>cd</code> into it or read any file contents. A directory with <code>x</code> but no <code>r</code> lets you <code>cd</code> into it and access files by name, but you cannot list the directory contents with <code>ls</code>. You almost always want both <code>r</code> and <code>x</code> together on directories.</p>
+  </div>
+
+  <h3>Common Permission Combinations Explained</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>String</th>
+        <th>Meaning for Files</th>
+        <th>Meaning for Directories</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>r--</code></td>
+        <td>Read-only</td>
+        <td>Can list names, but cannot enter or modify</td>
+      </tr>
+      <tr>
+        <td><code>rw-</code></td>
+        <td>Read and write (but cannot execute)</td>
+        <td>Can list and create/delete files, but cannot enter</td>
+      </tr>
+      <tr>
+        <td><code>r-x</code></td>
+        <td>Read and execute (common for scripts)</td>
+        <td>Can list and enter, but cannot create/delete files</td>
+      </tr>
+      <tr>
+        <td><code>rwx</code></td>
+        <td>Full access</td>
+        <td>Full access: list, enter, create, delete</td>
+      </tr>
+      <tr>
+        <td><code>--x</code></td>
+        <td>Execute only (rare for files)</td>
+        <td>Can enter but cannot list contents</td>
+      </tr>
+      <tr>
+        <td><code>---</code></td>
+        <td>No access at all</td>
+        <td>No access at all</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2 id="numeric-symbolic">3. Numeric (Octal) vs Symbolic Notation</h2>
+  <!-- ============================================================ -->
+
+  <p>Linux permissions can be expressed in two ways: <strong>symbolic</strong> (letters like <code>rwx</code>) and <strong>numeric/octal</strong> (numbers like <code>755</code>). Both describe exactly the same thing, just in different formats.</p>
+
+  <h3>Numeric (Octal) System</h3>
+
+  <p>Each permission has a numeric value:</p>
+  <ul>
+    <li><code>r</code> (read) = <strong>4</strong></li>
+    <li><code>w</code> (write) = <strong>2</strong></li>
+    <li><code>x</code> (execute) = <strong>1</strong></li>
+    <li><code>-</code> (none) = <strong>0</strong></li>
+  </ul>
+
+  <p>You add these values together for each category (user, group, others). The result is a three-digit number.</p>
+
+  <h3>Conversion Table</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Symbolic</th>
+        <th>Binary</th>
+        <th>Octal</th>
+        <th>Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>---</code></td><td>000</td><td><strong>0</strong></td><td>No permissions</td></tr>
+      <tr><td><code>--x</code></td><td>001</td><td><strong>1</strong></td><td>Execute only</td></tr>
+      <tr><td><code>-w-</code></td><td>010</td><td><strong>2</strong></td><td>Write only</td></tr>
+      <tr><td><code>-wx</code></td><td>011</td><td><strong>3</strong></td><td>Write and execute</td></tr>
+      <tr><td><code>r--</code></td><td>100</td><td><strong>4</strong></td><td>Read only</td></tr>
+      <tr><td><code>r-x</code></td><td>101</td><td><strong>5</strong></td><td>Read and execute</td></tr>
+      <tr><td><code>rw-</code></td><td>110</td><td><strong>6</strong></td><td>Read and write</td></tr>
+      <tr><td><code>rwx</code></td><td>111</td><td><strong>7</strong></td><td>Read, write, and execute</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Common Octal Permission Values</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Octal</th>
+        <th>Symbolic</th>
+        <th>Typical Use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>755</code></td><td><code>rwxr-xr-x</code></td><td>Executable files, directories (owner: full, everyone: read+execute)</td></tr>
+      <tr><td><code>644</code></td><td><code>rw-r--r--</code></td><td>Regular files (owner: read+write, everyone: read-only)</td></tr>
+      <tr><td><code>700</code></td><td><code>rwx------</code></td><td>Private executables/directories (owner-only)</td></tr>
+      <tr><td><code>600</code></td><td><code>rw-------</code></td><td>Private files like SSH keys, config files with passwords</td></tr>
+      <tr><td><code>777</code></td><td><code>rwxrwxrwx</code></td><td>DANGEROUS: everyone can do everything (almost never correct)</td></tr>
+      <tr><td><code>666</code></td><td><code>rw-rw-rw-</code></td><td>DANGEROUS: everyone can read and write</td></tr>
+      <tr><td><code>750</code></td><td><code>rwxr-x---</code></td><td>Group-shared executables/directories</td></tr>
+      <tr><td><code>640</code></td><td><code>rw-r-----</code></td><td>Group-readable files</td></tr>
+      <tr><td><code>444</code></td><td><code>r--r--r--</code></td><td>Read-only for everyone</td></tr>
+      <tr><td><code>400</code></td><td><code>r--------</code></td><td>Owner read-only (e.g., sensitive credentials)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Quick Conversion Trick</div>
+    <p>To convert a symbolic permission to octal, look at each group of three characters separately and add the values:</p>
+    <div class="diagram">
+rwxr-xr--
+
+rwx = 4+2+1 = 7
+r-x = 4+0+1 = 5
+r-- = 4+0+0 = 4
+
+Result: 754
+</div>
+    <p>To go the other way, break each digit into its components: 6 = 4+2 = <code>rw-</code>, 5 = 4+1 = <code>r-x</code>, 1 = 1 = <code>--x</code>. So <code>651</code> = <code>rw-r-x--x</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="chmod">4. chmod &mdash; Change Permissions</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>chmod</code> command changes the permissions on a file or directory. You can use either symbolic or numeric notation.</p>
+
+  <h3>Syntax</h3>
+
+  <pre><code><span class="prompt">$</span> chmod [options] mode file...</code></pre>
+
+  <h3>Symbolic Mode</h3>
+
+  <p>Symbolic mode uses letters and operators to modify permissions selectively:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Who</th>
+        <th>Operator</th>
+        <th>Permission</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>u</code> = user (owner)<br><code>g</code> = group<br><code>o</code> = others<br><code>a</code> = all (u+g+o)</td>
+        <td><code>+</code> = add<br><code>-</code> = remove<br><code>=</code> = set exactly</td>
+        <td><code>r</code> = read<br><code>w</code> = write<br><code>x</code> = execute</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Examples: Symbolic Mode</h3>
+
+  <pre><code><span class="comment"># Add execute permission for the owner</span>
+<span class="prompt">$</span> chmod u+x script.sh
+<span class="comment"># Before: -rw-r--r--  ->  After: -rwxr--r--</span>
+
+<span class="comment"># Remove write permission from group and others</span>
+<span class="prompt">$</span> chmod go-w shared.txt
+<span class="comment"># Before: -rw-rw-rw-  ->  After: -rw-r--r--</span>
+
+<span class="comment"># Set group permissions to read-only (exactly)</span>
+<span class="prompt">$</span> chmod g=r config.yml
+<span class="comment"># Before: -rw-rwxr--  ->  After: -rw-r--r--</span>
+
+<span class="comment"># Add read permission for everyone</span>
+<span class="prompt">$</span> chmod a+r report.pdf
+<span class="comment"># Before: -rw-------  ->  After: -rw-r--r--</span>
+
+<span class="comment"># Add execute for owner and group</span>
+<span class="prompt">$</span> chmod ug+x build.sh
+<span class="comment"># Before: -rw-rw-r--  ->  After: -rwxrwxr--</span>
+
+<span class="comment"># Remove all permissions for others</span>
+<span class="prompt">$</span> chmod o= private.key
+<span class="comment"># Before: -rw-r--r--  ->  After: -rw-r-----</span>
+
+<span class="comment"># Multiple operations in one command (comma-separated)</span>
+<span class="prompt">$</span> chmod u+x,g=rx,o-w deploy.sh
+<span class="comment"># Adds execute for user, sets group to r-x, removes write from others</span></code></pre>
+
+  <h3>Examples: Numeric Mode</h3>
+
+  <pre><code><span class="comment"># Standard permissions for a script (owner: all, group: read+exec, others: read+exec)</span>
+<span class="prompt">$</span> chmod 755 deploy.sh
+<span class="comment"># Result: -rwxr-xr-x</span>
+
+<span class="comment"># Standard permissions for a regular file</span>
+<span class="prompt">$</span> chmod 644 readme.txt
+<span class="comment"># Result: -rw-r--r--</span>
+
+<span class="comment"># Private file, owner only</span>
+<span class="prompt">$</span> chmod 600 ~/.ssh/id_rsa
+<span class="comment"># Result: -rw-------</span>
+
+<span class="comment"># Private directory, owner only</span>
+<span class="prompt">$</span> chmod 700 ~/private/
+<span class="comment"># Result: drwx------</span>
+
+<span class="comment"># Group-shared directory</span>
+<span class="prompt">$</span> chmod 750 /var/www/project/
+<span class="comment"># Result: drwxr-x---</span></code></pre>
+
+  <h3>Recursive Permissions with -R</h3>
+
+  <pre><code><span class="comment"># Change permissions recursively for an entire directory tree</span>
+<span class="prompt">$</span> chmod -R 755 /var/www/html/
+
+<span class="comment"># Add group read permission to all files in a directory tree</span>
+<span class="prompt">$</span> chmod -R g+r project/</code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: Different Permissions for Files vs Directories</div>
+    <p>Using <code>chmod -R 755</code> makes everything executable, which you usually do not want for regular files. A better approach is to set directories and files separately:</p>
+  </div>
+
+  <pre><code><span class="comment"># Set all directories to 755</span>
+<span class="prompt">$</span> find /var/www/html -type d -exec chmod 755 {} \;
+
+<span class="comment"># Set all files to 644</span>
+<span class="prompt">$</span> find /var/www/html -type f -exec chmod 644 {} \;</code></pre>
+
+  <h3>More chmod Examples</h3>
+
+  <pre><code><span class="comment"># Make a file read-only for everyone</span>
+<span class="prompt">$</span> chmod 444 important.conf
+<span class="comment"># Result: -r--r--r--</span>
+
+<span class="comment"># Remove all permissions for group and others</span>
+<span class="prompt">$</span> chmod go= secrets.env
+<span class="comment"># Before: -rw-r--r--  ->  After: -rw-------</span>
+
+<span class="comment"># Copy permissions from user to group</span>
+<span class="prompt">$</span> chmod g=u report.txt
+<span class="comment"># Before: -rwxr--r--  ->  After: -rwxrwxr--</span>
+
+<span class="comment"># Give everyone full permissions (almost always wrong!)</span>
+<span class="prompt">$</span> chmod 777 some_file
+<span class="comment"># Result: -rwxrwxrwx   (DO NOT DO THIS casually)</span>
+
+<span class="comment"># Make script executable by owner only</span>
+<span class="prompt">$</span> chmod 700 backup.sh
+<span class="comment"># Result: -rwx------</span></code></pre>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Do NOT chmod 777 Everything</div>
+    <p>When you run into a "Permission denied" error, the temptation is to throw <code>chmod 777</code> at it. <strong>Do not do this.</strong> Setting 777 means every user on the system can read, write, and execute that file. This is a massive security hole. Instead, figure out <em>why</em> you do not have permission and fix the actual problem.</p>
+    <ul>
+      <li>Are you the wrong user? Use <code>sudo</code> or <code>chown</code>.</li>
+      <li>Is the group wrong? Use <code>chgrp</code>.</li>
+      <li>Do you just need execute? Use <code>chmod u+x</code>.</li>
+      <li>Is the parent directory blocking access? Check directory permissions.</li>
+    </ul>
+    <p><code>chmod 777</code> is a sign that you do not understand the problem. Take time to understand it instead.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="chown">5. chown &mdash; Change Owner</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>chown</code> command changes the <strong>owner</strong> and/or the <strong>group</strong> of a file. You typically need <code>sudo</code> to change file ownership (only root can give away files to other users).</p>
+
+  <h3>Syntax</h3>
+
+  <pre><code><span class="prompt">$</span> chown [options] user[:group] file...</code></pre>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Change owner to alice</span>
+<span class="prompt">$</span> sudo chown alice report.txt
+<span class="output"># Owner is now alice, group is unchanged</span>
+
+<span class="comment"># Change owner to alice and group to developers</span>
+<span class="prompt">$</span> sudo chown alice:developers project/
+<span class="output"># Owner: alice, Group: developers</span>
+
+<span class="comment"># Change only the group (note the colon before group name)</span>
+<span class="prompt">$</span> sudo chown :staff shared.txt
+<span class="output"># Owner unchanged, Group: staff</span>
+
+<span class="comment"># Recursive: change owner/group for an entire directory tree</span>
+<span class="prompt">$</span> sudo chown -R www-data:www-data /var/www/html/
+<span class="output"># All files and subdirectories now owned by www-data</span>
+
+<span class="comment"># Change owner to bob, keep the current group</span>
+<span class="prompt">$</span> sudo chown bob server.conf
+
+<span class="comment"># Use numeric UID and GID</span>
+<span class="prompt">$</span> sudo chown 1000:1001 data.csv
+
+<span class="comment"># Change ownership of a symbolic link itself (not the target)</span>
+<span class="prompt">$</span> sudo chown -h alice symlink_file
+
+<span class="comment"># Change owner and group from a reference file</span>
+<span class="prompt">$</span> sudo chown --reference=template.txt newfile.txt
+<span class="output"># newfile.txt now has the same owner and group as template.txt</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Why chown requires sudo</div>
+    <p>Ordinary users cannot give their files to someone else &mdash; this is a security measure. If any user could change ownership, they could create malicious files and make it look like root created them. Only the superuser (root) can change file ownership. You can, however, change a file's group to any group you belong to.</p>
+  </div>
+
+  <h3>Practical Use Cases for chown</h3>
+
+  <pre><code><span class="comment"># Fix web server permissions after deploying code</span>
+<span class="prompt">$</span> sudo chown -R www-data:www-data /var/www/mysite/
+
+<span class="comment"># Take ownership of a file someone shared with you</span>
+<span class="prompt">$</span> sudo chown $(whoami) downloaded_tool
+
+<span class="comment"># Set up a shared directory for a team</span>
+<span class="prompt">$</span> sudo mkdir /opt/teamproject
+<span class="prompt">$</span> sudo chown root:devteam /opt/teamproject
+<span class="prompt">$</span> sudo chmod 775 /opt/teamproject</code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="chgrp">6. chgrp &mdash; Change Group</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>chgrp</code> command changes <em>only</em> the group of a file. It is essentially a convenience shortcut &mdash; <code>chown :group file</code> does the same thing. You can change a file's group to any group you belong to without <code>sudo</code>.</p>
+
+  <h3>Syntax</h3>
+
+  <pre><code><span class="prompt">$</span> chgrp [options] group file...</code></pre>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Change group to developers</span>
+<span class="prompt">$</span> chgrp developers project.py
+<span class="output"># Group is now developers</span>
+
+<span class="comment"># Recursive group change</span>
+<span class="prompt">$</span> chgrp -R marketing /shared/campaigns/
+<span class="output"># All files and subdirectories now in marketing group</span>
+
+<span class="comment"># Change group using a reference file</span>
+<span class="prompt">$</span> chgrp --reference=template.conf newapp.conf
+<span class="output"># newapp.conf now has the same group as template.conf</span>
+
+<span class="comment"># Change group on multiple files at once</span>
+<span class="prompt">$</span> chgrp staff report1.txt report2.txt report3.txt
+
+<span class="comment"># Verbose output to see what changed</span>
+<span class="prompt">$</span> chgrp -v webteam index.html
+<span class="output">changed group of 'index.html' from staff to webteam</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: Check Your Groups</div>
+    <p>To see which groups you belong to, run <code>groups</code> or <code>id</code>. You can only <code>chgrp</code> to a group you are a member of (unless you use <code>sudo</code>).</p>
+  </div>
+
+  <pre><code><span class="prompt">$</span> groups
+<span class="output">alice sudo developers docker</span>
+
+<span class="prompt">$</span> id
+<span class="output">uid=1000(alice) gid=1000(alice) groups=1000(alice),27(sudo),1001(developers),998(docker)</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="umask">7. umask &mdash; Default Permission Mask</h2>
+  <!-- ============================================================ -->
+
+  <p>When you create a new file or directory, it does not get <code>777</code> permissions by default. Linux applies a <strong>umask</strong> (user file-creation mask) that removes certain permissions automatically. The umask is subtractive &mdash; it defines which permissions to <em>take away</em> from the maximum.</p>
+
+  <h3>How umask Works</h3>
+
+  <p>The maximum default permissions are:</p>
+  <ul>
+    <li><strong>Files:</strong> <code>666</code> (rw-rw-rw-) &mdash; files are never created executable by default</li>
+    <li><strong>Directories:</strong> <code>777</code> (rwxrwxrwx)</li>
+  </ul>
+
+  <p>The umask is subtracted from these maximums:</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Concept: umask Calculation</div>
+    <div class="diagram">
+umask = 022
+
+For a new FILE:
+  Base permissions:    666  (rw-rw-rw-)
+  Subtract umask:    - 022
+  ─────────────────────────
+  Result:              644  (rw-r--r--)
+
+For a new DIRECTORY:
+  Base permissions:    777  (rwxrwxrwx)
+  Subtract umask:    - 022
+  ─────────────────────────
+  Result:              755  (rwxr-xr-x)
+</div>
+    <p><strong>Note:</strong> The subtraction is not standard arithmetic &mdash; it is a bitwise AND NOT operation. In practice, for the common umask values (022, 077, 002), simple subtraction gives the same result. But technically <code>umask 033</code> applied to a file with base 666 gives 644, not 633, because the execute bit was never set for files.</p>
+  </div>
+
+  <h3>Checking and Setting umask</h3>
+
+  <pre><code><span class="comment"># Check current umask</span>
+<span class="prompt">$</span> umask
+<span class="output">0022</span>
+
+<span class="comment"># Check umask in symbolic format</span>
+<span class="prompt">$</span> umask -S
+<span class="output">u=rwx,g=rx,o=rx</span>
+
+<span class="comment"># Set umask to 022 (the most common default)</span>
+<span class="prompt">$</span> umask 022
+
+<span class="comment"># Set a restrictive umask (only owner gets permissions)</span>
+<span class="prompt">$</span> umask 077</code></pre>
+
+  <h3>Common umask Values</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>umask</th>
+        <th>New File</th>
+        <th>New Directory</th>
+        <th>Use Case</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>022</code></td>
+        <td><code>644</code> (rw-r--r--)</td>
+        <td><code>755</code> (rwxr-xr-x)</td>
+        <td>Most common default. Others can read but not write.</td>
+      </tr>
+      <tr>
+        <td><code>002</code></td>
+        <td><code>664</code> (rw-rw-r--)</td>
+        <td><code>775</code> (rwxrwxr-x)</td>
+        <td>Group-friendly. Group members can write too.</td>
+      </tr>
+      <tr>
+        <td><code>077</code></td>
+        <td><code>600</code> (rw-------)</td>
+        <td><code>700</code> (rwx------)</td>
+        <td>Maximum privacy. Only the owner has access.</td>
+      </tr>
+      <tr>
+        <td><code>027</code></td>
+        <td><code>640</code> (rw-r-----)</td>
+        <td><code>750</code> (rwxr-x---)</td>
+        <td>Group can read, others get nothing.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Testing umask</h3>
+
+  <pre><code><span class="comment"># Set a restrictive umask</span>
+<span class="prompt">$</span> umask 077
+
+<span class="comment"># Create a file and a directory</span>
+<span class="prompt">$</span> touch secret.txt
+<span class="prompt">$</span> mkdir secret_dir
+
+<span class="comment"># Check the results</span>
+<span class="prompt">$</span> ls -l secret.txt
+<span class="output">-rw------- 1 alice alice 0 Mar 15 11:00 secret.txt</span>
+
+<span class="prompt">$</span> ls -ld secret_dir
+<span class="output">drwx------ 2 alice alice 4096 Mar 15 11:00 secret_dir</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Making umask Permanent</div>
+    <p>The <code>umask</code> command only affects the current shell session. To make it permanent, add the <code>umask</code> command to your shell profile file (<code>~/.bashrc</code>, <code>~/.bash_profile</code>, or <code>~/.profile</code>). System-wide defaults are typically set in <code>/etc/profile</code> or <code>/etc/login.defs</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="executable-bit">8. The Executable Bit</h2>
+  <!-- ============================================================ -->
+
+  <p>In Linux, a file does not become a program just because it has a <code>.sh</code> extension. Files are only executable if the <strong>execute bit</strong> is set in their permissions. This is fundamentally different from Windows, where the file extension (like <code>.exe</code>) determines whether a file is a program.</p>
+
+  <h3>Making a Script Executable</h3>
+
+  <pre><code><span class="comment"># Create a simple script</span>
+<span class="prompt">$</span> cat hello.sh
+<span class="output">#!/bin/bash
+echo "Hello, world!"</span>
+
+<span class="comment"># Try to run it — permission denied!</span>
+<span class="prompt">$</span> ./hello.sh
+<span class="output">bash: ./hello.sh: Permission denied</span>
+
+<span class="comment"># Check permissions — no execute bit</span>
+<span class="prompt">$</span> ls -l hello.sh
+<span class="output">-rw-r--r-- 1 alice alice 33 Mar 15 12:00 hello.sh</span>
+
+<span class="comment"># Add the execute bit</span>
+<span class="prompt">$</span> chmod +x hello.sh
+
+<span class="comment"># Check again — execute bit is set</span>
+<span class="prompt">$</span> ls -l hello.sh
+<span class="output">-rwxr-xr-x 1 alice alice 33 Mar 15 12:00 hello.sh</span>
+
+<span class="comment"># Now it runs!</span>
+<span class="prompt">$</span> ./hello.sh
+<span class="output">Hello, world!</span></code></pre>
+
+  <h3>The Shebang Line</h3>
+
+  <p>The first line of an executable script should be a <strong>shebang</strong> (also called hashbang): <code>#!</code> followed by the path to the interpreter. This tells the system which program to use to run the script.</p>
+
+  <pre><code><span class="comment"># Bash script</span>
+<span class="output">#!/bin/bash</span>
+
+<span class="comment"># Python script</span>
+<span class="output">#!/usr/bin/env python3</span>
+
+<span class="comment"># Perl script</span>
+<span class="output">#!/usr/bin/perl</span>
+
+<span class="comment"># Node.js script</span>
+<span class="output">#!/usr/bin/env node</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: Use env for Portability</div>
+    <p>Instead of hardcoding the interpreter path (like <code>#!/usr/bin/python3</code>), use <code>#!/usr/bin/env python3</code>. The <code>env</code> command searches your PATH for the interpreter, making the script portable across systems where the interpreter may be installed in different locations.</p>
+  </div>
+
+  <h3>Workaround: Running Without Execute Permission</h3>
+
+  <p>Even without the execute bit, you can still run a script by calling the interpreter directly:</p>
+
+  <pre><code><span class="comment"># These work even without the execute bit</span>
+<span class="prompt">$</span> bash hello.sh
+<span class="output">Hello, world!</span>
+
+<span class="prompt">$</span> python3 myscript.py
+<span class="prompt">$</span> node app.js</code></pre>
+
+  <p>However, setting the execute bit is the proper way to make a script runnable with <code>./script.sh</code> syntax.</p>
+
+  <!-- ============================================================ -->
+  <h2 id="sudo">9. sudo &mdash; Superuser Do</h2>
+  <!-- ============================================================ -->
+
+  <p><code>sudo</code> allows a permitted user to run a command as the <strong>superuser</strong> (root) or another user. It is how you perform administrative tasks without logging in as root.</p>
+
+  <h3>Basic Usage</h3>
+
+  <pre><code><span class="comment"># Install a package (requires root privileges)</span>
+<span class="prompt">$</span> sudo apt install nginx
+<span class="output">[sudo] password for alice:</span>
+
+<span class="comment"># Edit a system configuration file</span>
+<span class="prompt">$</span> sudo nano /etc/hosts
+
+<span class="comment"># Restart a service</span>
+<span class="prompt">$</span> sudo systemctl restart nginx
+
+<span class="comment"># View a file owned by root</span>
+<span class="prompt">$</span> sudo cat /etc/shadow</code></pre>
+
+  <h3>sudo vs su</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Command</th>
+        <th>What It Does</th>
+        <th>When to Use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>sudo command</code></td>
+        <td>Runs a single command as root</td>
+        <td>Most of the time &mdash; safer, logged, temporary</td>
+      </tr>
+      <tr>
+        <td><code>sudo -i</code></td>
+        <td>Opens an interactive root shell (login shell)</td>
+        <td>When you need to run many root commands</td>
+      </tr>
+      <tr>
+        <td><code>sudo -s</code></td>
+        <td>Opens a root shell (non-login)</td>
+        <td>Quick root shell with your current environment</td>
+      </tr>
+      <tr>
+        <td><code>su -</code></td>
+        <td>Switches to root user (needs root's password)</td>
+        <td>Rarely &mdash; requires knowing root password</td>
+      </tr>
+      <tr>
+        <td><code>su - bob</code></td>
+        <td>Switches to user bob (needs bob's password)</td>
+        <td>Testing as another user</td>
+      </tr>
+      <tr>
+        <td><code>sudo -u bob command</code></td>
+        <td>Runs a command as user bob</td>
+        <td>Running a command as a specific user</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>The sudoers File</h3>
+
+  <p>Who can use <code>sudo</code> is controlled by the <code>/etc/sudoers</code> file. Never edit this file directly &mdash; always use <code>visudo</code>, which checks for syntax errors before saving.</p>
+
+  <pre><code><span class="comment"># Open the sudoers file safely</span>
+<span class="prompt">$</span> sudo visudo
+
+<span class="comment"># Common entries in /etc/sudoers:</span>
+<span class="output">root    ALL=(ALL:ALL) ALL           # root can do everything
+%sudo   ALL=(ALL:ALL) ALL           # members of sudo group can do everything
+alice   ALL=(ALL) NOPASSWD: ALL     # alice can sudo without a password (be careful!)</span></code></pre>
+
+  <h3>Useful sudo Tricks</h3>
+
+  <pre><code><span class="comment"># Repeat the last command with sudo (when you forgot to add it)</span>
+<span class="prompt">$</span> apt update
+<span class="output">E: Could not open lock file - open (13: Permission denied)</span>
+<span class="prompt">$</span> sudo !!
+<span class="output">sudo apt update
+[sudo] password for alice:</span>
+
+<span class="comment"># Check if you can use sudo</span>
+<span class="prompt">$</span> sudo -v
+
+<span class="comment"># See what commands you are allowed to run</span>
+<span class="prompt">$</span> sudo -l
+<span class="output">User alice may run the following commands:
+    (ALL : ALL) ALL</span>
+
+<span class="comment"># Edit a file with your normal editor, saving as root</span>
+<span class="prompt">$</span> sudoedit /etc/nginx/nginx.conf
+
+<span class="comment"># Write to a file as root (common redirect trick)</span>
+<span class="prompt">$</span> echo "new line" | sudo tee -a /etc/hosts</code></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Warning: sudo Is Not the Answer to Every "Permission Denied"</div>
+    <p>When you see "Permission denied," your first instinct should NOT be to add <code>sudo</code>. Ask yourself these questions first:</p>
+    <ul>
+      <li><strong>Am I in the right directory?</strong> Maybe you are trying to access a path that does not exist.</li>
+      <li><strong>Do I own this file?</strong> Maybe you should use <code>chown</code> to take ownership instead.</li>
+      <li><strong>Is the execute bit missing?</strong> Maybe you just need <code>chmod +x</code>.</li>
+      <li><strong>Am I in the right group?</strong> Maybe adding yourself to the correct group is the proper fix.</li>
+      <li><strong>Is this a file I should have access to?</strong> If not, there is probably a good reason it is restricted.</li>
+    </ul>
+    <p>Using <code>sudo</code> when you should not can create files owned by root in your home directory, break application configurations, or worse &mdash; cause security problems. <code>sudo</code> is powerful. Use it intentionally, not reflexively.</p>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">DANGER: Commands You Should Never Run Carelessly with sudo</div>
+    <p>These commands can destroy your system. Understand them before you type them:</p>
+    <ul>
+      <li><code>sudo rm -rf /</code> &mdash; Deletes your entire filesystem. Unrecoverable.</li>
+      <li><code>sudo chmod -R 777 /</code> &mdash; Removes all permission security from your entire system.</li>
+      <li><code>sudo chown -R user:user /</code> &mdash; Changes ownership of system files, breaking everything.</li>
+      <li><code>sudo dd if=/dev/zero of=/dev/sda</code> &mdash; Overwrites your hard drive with zeros.</li>
+    </ul>
+    <p>Always double-check your commands before pressing Enter, especially when using <code>sudo</code> with recursive flags (<code>-R</code>, <code>-r</code>) or destructive commands (<code>rm</code>, <code>dd</code>, <code>mkfs</code>).</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="wrong-vs-right">Wrong vs Correct Permission Examples</h2>
+  <!-- ============================================================ -->
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="comment"># "I got Permission Denied, so I'll just..."</span>
+<span class="prompt">$</span> sudo chmod 777 /var/www/html/
+<span class="prompt">$</span> sudo chmod -R 777 ~/project/</code></pre>
+      <p>This opens your files to every user on the system. It is lazy and insecure.</p>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct</div>
+      <pre><code><span class="comment"># Fix the actual ownership problem</span>
+<span class="prompt">$</span> sudo chown -R www-data:www-data /var/www/html/
+<span class="prompt">$</span> sudo chmod -R 755 /var/www/html/</code></pre>
+      <p>Set the correct owner and give appropriate permissions (755 for dirs, 644 for files).</p>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="comment"># SSH key with too-open permissions</span>
+<span class="prompt">$</span> chmod 644 ~/.ssh/id_rsa</code></pre>
+      <p>SSH will refuse to use a private key that others can read. You will get: "Permissions 0644 are too open."</p>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct</div>
+      <pre><code><span class="comment"># SSH keys must be private</span>
+<span class="prompt">$</span> chmod 600 ~/.ssh/id_rsa
+<span class="prompt">$</span> chmod 644 ~/.ssh/id_rsa.pub</code></pre>
+      <p>Private key: 600 (owner read/write). Public key: 644 (everyone can read).</p>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong</div>
+      <pre><code><span class="comment"># Running everything as root</span>
+<span class="prompt">$</span> sudo pip install flask
+<span class="prompt">$</span> sudo npm install -g express</code></pre>
+      <p>Installing packages with sudo can break system Python/Node and create permission conflicts.</p>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct</div>
+      <pre><code><span class="comment"># Use virtual environments / user installs</span>
+<span class="prompt">$</span> python3 -m venv venv
+<span class="prompt">$</span> pip install flask
+<span class="prompt">$</span> npm install express</code></pre>
+      <p>Use virtual environments for Python and local installs for Node. No sudo needed.</p>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+  <!-- ============================================================ -->
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Reading and Setting Permissions</div>
+    <p>Complete the following tasks in a practice directory:</p>
+    <ol>
+      <li>Create a directory called <code>perm-practice</code> and <code>cd</code> into it.</li>
+      <li>Create three files: <code>public.txt</code>, <code>team.txt</code>, and <code>secret.txt</code>.</li>
+      <li>Set <code>public.txt</code> so everyone can read it but only you can write to it.</li>
+      <li>Set <code>team.txt</code> so you and your group can read and write, but others get nothing.</li>
+      <li>Set <code>secret.txt</code> so only you can read and write, nobody else gets any access.</li>
+      <li>Run <code>ls -l</code> and verify the permissions look correct.</li>
+      <li>Run <code>stat</code> on each file and note the octal modes.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> mkdir perm-practice && cd perm-practice
+<span class="prompt">$</span> touch public.txt team.txt secret.txt
+
+<span class="prompt">$</span> chmod 644 public.txt
+<span class="prompt">$</span> chmod 660 team.txt
+<span class="prompt">$</span> chmod 600 secret.txt
+
+<span class="prompt">$</span> ls -l
+<span class="output">-rw-r--r-- 1 alice alice 0 Mar 15 14:00 public.txt
+-rw-rw---- 1 alice alice 0 Mar 15 14:00 team.txt
+-rw------- 1 alice alice 0 Mar 15 14:00 secret.txt</span>
+
+<span class="prompt">$</span> stat -c "%a %n" *.txt
+<span class="output">644 public.txt
+660 team.txt
+600 secret.txt</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Script Permissions</div>
+    <p>Create a script and make it executable:</p>
+    <ol>
+      <li>Create a file called <code>greet.sh</code> with a shebang line and an echo command.</li>
+      <li>Try to run it with <code>./greet.sh</code> &mdash; what happens?</li>
+      <li>Add the execute bit using symbolic notation.</li>
+      <li>Run it again. What changed?</li>
+      <li>Remove the execute bit for group and others, keeping it only for yourself.</li>
+      <li>Verify with <code>ls -l</code>.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> cat > greet.sh &lt;&lt;'EOF'
+#!/bin/bash
+echo "Hello from $(whoami) at $(date)"
+EOF
+
+<span class="prompt">$</span> ./greet.sh
+<span class="output">bash: ./greet.sh: Permission denied</span>
+
+<span class="prompt">$</span> chmod u+x greet.sh
+<span class="prompt">$</span> ./greet.sh
+<span class="output">Hello from alice at Sat Mar 15 14:05:00 UTC 2025</span>
+
+<span class="prompt">$</span> chmod go-x greet.sh
+
+<span class="prompt">$</span> ls -l greet.sh
+<span class="output">-rwxr--r-- 1 alice alice 55 Mar 15 14:05 greet.sh</span>
+
+<span class="comment"># Only the owner has execute. The final permissions are 744.</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: umask Experimentation</div>
+    <p>Explore how umask affects new files and directories:</p>
+    <ol>
+      <li>Check your current umask value.</li>
+      <li>Create a file and directory. Note their permissions.</li>
+      <li>Set umask to <code>077</code>. Create another file and directory. Compare.</li>
+      <li>Set umask to <code>002</code>. Create another file and directory. Compare.</li>
+      <li>Restore your original umask value.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> umask
+<span class="output">0022</span>
+
+<span class="prompt">$</span> touch file_022.txt && mkdir dir_022
+<span class="prompt">$</span> ls -l file_022.txt
+<span class="output">-rw-r--r-- 1 alice alice 0 Mar 15 14:10 file_022.txt</span>
+<span class="prompt">$</span> ls -ld dir_022
+<span class="output">drwxr-xr-x 2 alice alice 4096 Mar 15 14:10 dir_022</span>
+
+<span class="prompt">$</span> umask 077
+<span class="prompt">$</span> touch file_077.txt && mkdir dir_077
+<span class="prompt">$</span> ls -l file_077.txt
+<span class="output">-rw------- 1 alice alice 0 Mar 15 14:11 file_077.txt</span>
+<span class="prompt">$</span> ls -ld dir_077
+<span class="output">drwx------ 2 alice alice 4096 Mar 15 14:11 dir_077</span>
+
+<span class="prompt">$</span> umask 002
+<span class="prompt">$</span> touch file_002.txt && mkdir dir_002
+<span class="prompt">$</span> ls -l file_002.txt
+<span class="output">-rw-rw-r-- 1 alice alice 0 Mar 15 14:12 file_002.txt</span>
+<span class="prompt">$</span> ls -ld dir_002
+<span class="output">drwxrwxr-x 2 alice alice 4096 Mar 15 14:12 dir_002</span>
+
+<span class="comment"># Restore original</span>
+<span class="prompt">$</span> umask 022</code></pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Quizzes</h2>
+  <!-- ============================================================ -->
+
+  <div class="quiz">
+    <div class="quiz__question">Quiz 1: What does the permission string <code>-rwxr-x---</code> mean in octal notation, and who can execute the file?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q1" value="a"> a) 750 &mdash; Only the owner can execute</label>
+      <label><input type="radio" name="q1" value="b"> b) 750 &mdash; The owner and group members can execute</label>
+      <label><input type="radio" name="q1" value="c"> c) 650 &mdash; The owner and group members can execute</label>
+      <label><input type="radio" name="q1" value="d"> d) 740 &mdash; Only the owner can execute</label>
+    </div>
+    <button class="quiz__check" onclick="document.getElementById('q1-answer').classList.toggle('show')">Check Answer</button>
+    <div class="quiz__answer" id="q1-answer">
+      <strong>Correct answer: b) 750 &mdash; The owner and group members can execute.</strong><br>
+      Breakdown: <code>rwx</code> = 4+2+1 = 7 (user), <code>r-x</code> = 4+0+1 = 5 (group), <code>---</code> = 0 (others). The owner has full permissions (rwx). Group members have read and execute (r-x). Others have no access. Both the owner and group members can execute the file.
+    </div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">Quiz 2: You run <code>umask 027</code> and then create a new file with <code>touch notes.txt</code>. What permissions will the file have?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q2" value="a"> a) -rw-r----- (640)</label>
+      <label><input type="radio" name="q2" value="b"> b) -rwxr-x--- (750)</label>
+      <label><input type="radio" name="q2" value="c"> c) -rw-rw---- (660)</label>
+      <label><input type="radio" name="q2" value="d"> d) -rw------- (600)</label>
+    </div>
+    <button class="quiz__check" onclick="document.getElementById('q2-answer').classList.toggle('show')">Check Answer</button>
+    <div class="quiz__answer" id="q2-answer">
+      <strong>Correct answer: a) -rw-r----- (640)</strong><br>
+      Files start with a base of 666. Subtract the umask 027: 666 - 027 = 640. That is <code>rw-r-----</code>. The owner can read and write. The group can only read. Others have no access. Remember, files never get the execute bit from default creation &mdash; only directories do.
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="summary">Chapter Summary</h2>
+  <!-- ============================================================ -->
+
+  <table>
+    <thead>
+      <tr>
+        <th>Command</th>
+        <th>Purpose</th>
+        <th>Common Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ls -l</code></td>
+        <td>View file permissions</td>
+        <td><code>ls -l file.txt</code></td>
+      </tr>
+      <tr>
+        <td><code>chmod</code></td>
+        <td>Change permissions</td>
+        <td><code>chmod 755 script.sh</code></td>
+      </tr>
+      <tr>
+        <td><code>chown</code></td>
+        <td>Change owner (and group)</td>
+        <td><code>sudo chown alice:devs file</code></td>
+      </tr>
+      <tr>
+        <td><code>chgrp</code></td>
+        <td>Change group</td>
+        <td><code>chgrp staff report.txt</code></td>
+      </tr>
+      <tr>
+        <td><code>umask</code></td>
+        <td>Set default permission mask</td>
+        <td><code>umask 022</code></td>
+      </tr>
+      <tr>
+        <td><code>sudo</code></td>
+        <td>Run command as superuser</td>
+        <td><code>sudo apt update</code></td>
+      </tr>
+      <tr>
+        <td><code>stat</code></td>
+        <td>Show detailed file info</td>
+        <td><code>stat file.txt</code></td>
+      </tr>
+      <tr>
+        <td><code>id</code></td>
+        <td>Show user and group IDs</td>
+        <td><code>id</code></td>
+      </tr>
+      <tr>
+        <td><code>groups</code></td>
+        <td>Show group memberships</td>
+        <td><code>groups alice</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Key Takeaways</div>
+    <ul>
+      <li>Every file has an owner, a group, and permissions for user/group/others.</li>
+      <li><code>r</code>=4, <code>w</code>=2, <code>x</code>=1. Add them up for octal notation.</li>
+      <li>Use <code>chmod</code> to change permissions, <code>chown</code> to change ownership.</li>
+      <li><code>umask</code> controls the default permissions for new files.</li>
+      <li>Use <code>sudo</code> intentionally, not as a reflex for every permission error.</li>
+      <li>Never <code>chmod 777</code> unless you truly understand and accept the consequences.</li>
+      <li>SSH keys require strict permissions: 600 for private, 644 for public.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- Navigation -->
+  <!-- ============================================================ -->
+
+  <div class="page-nav">
+    <a href="../05-search-filtering/index.html">&larr; 5. Search &amp; Filtering</a>
+    <a href="../07-processes/index.html">7. Processes &amp; Jobs &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

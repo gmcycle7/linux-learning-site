@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 10: Archives &amp; Compression — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Getting Started</span>
+    <a class="sidebar__link" href="../../index.html">Home</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing Files</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions &amp; Ownership</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking Basics</a>
+    <a class="sidebar__link active" href="../10-archives/index.html">10. Archives &amp; Compression</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Real-World Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Command Comparisons</a>
+  </div>
+
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+
+  <div class="sidebar__section">
+    <span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index (A-Z)</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Practice Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <div class="breadcrumb">
+    <a href="../../index.html">Home</a>
+    <span class="sep">/</span>
+    <span>Chapter 10: Archives &amp; Compression</span>
+  </div>
+
+  <h1>Chapter 10: Archives &amp; Compression</h1>
+
+  <p>Archives and compression are fundamental to working with Linux. You will encounter <code>.tar.gz</code> files when downloading software, use <code>zip</code> files when sharing with non-Linux users, and create backups using <code>tar</code>. This chapter teaches you to create, inspect, and extract archives in every common format.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">What You Will Learn</div>
+    <p>How to create and extract archives with tar, compress files with gzip/bzip2/xz, work with zip files, and choose the right format for each situation.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="archive-vs-compression">Archive vs Compression</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Archive vs Compression</div>
+    <p>These are two separate concepts that are often combined:</p>
+    <p><strong>Archiving</strong> = bundling multiple files and directories into a single file. Think of it like putting documents into a folder. The size does not change. Tool: <code>tar</code></p>
+    <p><strong>Compression</strong> = making a file smaller by encoding data more efficiently. Think of it like vacuum-sealing a bag. The number of items does not change, but the size shrinks. Tools: <code>gzip</code>, <code>bzip2</code>, <code>xz</code></p>
+    <p><strong>Archive + Compression</strong> = bundling files together AND making the bundle smaller. This is what <code>.tar.gz</code> does &mdash; first <code>tar</code> creates the archive, then <code>gzip</code> compresses it.</p>
+    <div class="diagram">
+      <pre>file1.txt (10 KB)  ─┐
+file2.txt (20 KB)   ├── tar ──→ archive.tar (30 KB) ──→ gzip ──→ archive.tar.gz (8 KB)
+file3.txt ( 5 KB)  ─┘          (same size, one file)            (smaller, one file)
+
+     Multiple files          Archive (no compression)      Archive + Compression</pre>
+    </div>
+    <p>The exception is <code>zip</code>, which archives and compresses in one step. It is the standard on Windows but less common in the Linux world.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="tar">tar &mdash; Tape Archive</h2>
+
+  <p><strong>What it does:</strong> <code>tar</code> creates, extracts, and lists archive files. Despite the name ("tape archive"), it is used everywhere &mdash; not just tapes. It is the most important archiving tool on Linux.</p>
+
+  <p><strong>Why it matters:</strong> Almost every piece of Linux software is distributed as a <code>.tar.gz</code> or <code>.tar.xz</code> file. Backups, deployments, and file transfers all use tar.</p>
+
+  <h3>Understanding tar Flags</h3>
+
+  <p>The flags follow a pattern. You always need one <strong>action</strong> flag, and you usually add <strong>modifiers</strong>:</p>
+
+  <table>
+    <thead><tr><th>Flag</th><th>Type</th><th>Meaning</th><th>Mnemonic</th></tr></thead>
+    <tbody>
+      <tr><td><code>-c</code></td><td>Action</td><td><strong>C</strong>reate an archive</td><td><strong>C</strong>reate</td></tr>
+      <tr><td><code>-x</code></td><td>Action</td><td>E<strong>x</strong>tract an archive</td><td>e<strong>X</strong>tract</td></tr>
+      <tr><td><code>-t</code></td><td>Action</td><td>Lis<strong>t</strong> contents (without extracting)</td><td>lis<strong>T</strong></td></tr>
+      <tr><td><code>-f FILE</code></td><td>Modifier</td><td>Specify the archive <strong>f</strong>ilename</td><td><strong>F</strong>ile</td></tr>
+      <tr><td><code>-v</code></td><td>Modifier</td><td><strong>V</strong>erbose (show files as they are processed)</td><td><strong>V</strong>erbose</td></tr>
+      <tr><td><code>-z</code></td><td>Compression</td><td>Use g<strong>z</strong>ip compression (.tar.gz)</td><td>g<strong>Z</strong>ip</td></tr>
+      <tr><td><code>-j</code></td><td>Compression</td><td>Use bzip2 compression (.tar.bz2)</td><td>bzip2 (j for "j"am)</td></tr>
+      <tr><td><code>-J</code></td><td>Compression</td><td>Use xz compression (.tar.xz)</td><td>xz (capital J)</td></tr>
+      <tr><td><code>-C DIR</code></td><td>Modifier</td><td>Change to DIR before extracting</td><td><strong>C</strong>hange directory</td></tr>
+      <tr><td><code>--exclude=PATTERN</code></td><td>Modifier</td><td>Exclude files matching pattern</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Common Flag Combinations Cheat Table</h3>
+
+  <table>
+    <thead><tr><th>Task</th><th>Command</th><th>Mnemonic</th></tr></thead>
+    <tbody>
+      <tr><td>Create .tar</td><td><code>tar -cf archive.tar files/</code></td><td><strong>C</strong>reate <strong>F</strong>ile</td></tr>
+      <tr><td>Create .tar.gz</td><td><code>tar -czf archive.tar.gz files/</code></td><td><strong>C</strong>reate g<strong>Z</strong>ip <strong>F</strong>ile</td></tr>
+      <tr><td>Create .tar.bz2</td><td><code>tar -cjf archive.tar.bz2 files/</code></td><td><strong>C</strong>reate bzip2(<strong>J</strong>) <strong>F</strong>ile</td></tr>
+      <tr><td>Create .tar.xz</td><td><code>tar -cJf archive.tar.xz files/</code></td><td><strong>C</strong>reate <strong>J</strong>(xz) <strong>F</strong>ile</td></tr>
+      <tr><td>Extract .tar</td><td><code>tar -xf archive.tar</code></td><td>e<strong>X</strong>tract <strong>F</strong>ile</td></tr>
+      <tr><td>Extract .tar.gz</td><td><code>tar -xzf archive.tar.gz</code></td><td>e<strong>X</strong>tract g<strong>Z</strong>ip <strong>F</strong>ile</td></tr>
+      <tr><td>Extract .tar.bz2</td><td><code>tar -xjf archive.tar.bz2</code></td><td>e<strong>X</strong>tract bzip2(<strong>J</strong>) <strong>F</strong>ile</td></tr>
+      <tr><td>Extract .tar.xz</td><td><code>tar -xJf archive.tar.xz</code></td><td>e<strong>X</strong>tract <strong>J</strong>(xz) <strong>F</strong>ile</td></tr>
+      <tr><td>List .tar.gz contents</td><td><code>tar -tzf archive.tar.gz</code></td><td>lis<strong>T</strong> g<strong>Z</strong>ip <strong>F</strong>ile</td></tr>
+      <tr><td>Extract to specific dir</td><td><code>tar -xzf archive.tar.gz -C /dest/</code></td><td>e<strong>X</strong>tract to <strong>C</strong>hange dir</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Modern tar auto-detects compression</div>
+    <p>On modern systems, <code>tar -xf archive.tar.gz</code> works without specifying <code>-z</code>. Tar will auto-detect the compression format. However, when <em>creating</em> archives, you must specify the compression flag.</p>
+  </div>
+
+  <h3>Examples: Creating Archives</h3>
+
+  <pre><span class="prompt">$</span> tar -cf backup.tar documents/
+<span class="comment"># Create an uncompressed tar archive</span></pre>
+
+  <pre><span class="prompt">$</span> tar -cvf backup.tar documents/
+<span class="comment"># Create with verbose output (lists each file)</span>
+<span class="output">documents/
+documents/report.txt
+documents/notes.md
+documents/images/
+documents/images/photo.jpg</span></pre>
+
+  <pre><span class="prompt">$</span> tar -czf backup.tar.gz documents/
+<span class="comment"># Create a gzip-compressed archive (.tar.gz)</span></pre>
+
+  <pre><span class="prompt">$</span> tar -cjf backup.tar.bz2 documents/
+<span class="comment"># Create a bzip2-compressed archive (.tar.bz2)</span></pre>
+
+  <pre><span class="prompt">$</span> tar -cJf backup.tar.xz documents/
+<span class="comment"># Create an xz-compressed archive (.tar.xz) — best compression</span></pre>
+
+  <pre><span class="prompt">$</span> tar -czf project-backup.tar.gz --exclude='.git' --exclude='node_modules' project/
+<span class="comment"># Exclude .git and node_modules directories</span></pre>
+
+  <pre><span class="prompt">$</span> tar -czf backup-$(date +%Y%m%d).tar.gz /home/alice/
+<span class="comment"># Create a dated backup: backup-20260331.tar.gz</span></pre>
+
+  <h3>Examples: Listing Contents</h3>
+
+  <pre><span class="prompt">$</span> tar -tf archive.tar
+<span class="comment"># List all files in an uncompressed archive</span>
+<span class="output">documents/
+documents/report.txt
+documents/notes.md
+documents/images/
+documents/images/photo.jpg</span></pre>
+
+  <pre><span class="prompt">$</span> tar -tzf archive.tar.gz
+<span class="comment"># List files in a gzip archive</span></pre>
+
+  <pre><span class="prompt">$</span> tar -tvf archive.tar.gz
+<span class="comment"># List with details (permissions, size, date)</span>
+<span class="output">drwxr-xr-x alice/alice     0 2026-03-31 14:00 documents/
+-rw-r--r-- alice/alice  2456 2026-03-30 10:15 documents/report.txt
+-rw-r--r-- alice/alice   893 2026-03-29 16:30 documents/notes.md
+drwxr-xr-x alice/alice     0 2026-03-28 09:00 documents/images/
+-rw-r--r-- alice/alice 45231 2026-03-28 09:00 documents/images/photo.jpg</span></pre>
+
+  <pre><span class="prompt">$</span> tar -tzf archive.tar.gz | head -10
+<span class="comment"># Peek at the first 10 entries</span></pre>
+
+  <pre><span class="prompt">$</span> tar -tzf archive.tar.gz | wc -l
+<span class="output">127</span>
+<span class="comment"># Count how many files are in the archive</span></pre>
+
+  <h3>Examples: Extracting Archives</h3>
+
+  <pre><span class="prompt">$</span> tar -xf archive.tar
+<span class="comment"># Extract to current directory</span></pre>
+
+  <pre><span class="prompt">$</span> tar -xzf archive.tar.gz
+<span class="comment"># Extract gzip archive</span></pre>
+
+  <pre><span class="prompt">$</span> tar -xvzf archive.tar.gz
+<span class="comment"># Extract with verbose output</span></pre>
+
+  <pre><span class="prompt">$</span> tar -xzf archive.tar.gz -C /opt/
+<span class="comment"># Extract to a specific directory</span></pre>
+
+  <pre><span class="prompt">$</span> tar -xzf archive.tar.gz documents/report.txt
+<span class="comment"># Extract only a specific file from the archive</span></pre>
+
+  <pre><span class="prompt">$</span> tar -xzf archive.tar.gz --wildcards '*.txt'
+<span class="comment"># Extract only .txt files</span></pre>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Security Warning: Do Not Extract Untrusted Archives Blindly</div>
+    <p>A malicious tar archive can contain files with absolute paths (like <code>/etc/passwd</code>) or relative paths with <code>../../</code> that overwrite files outside the extraction directory. <strong>Always inspect first:</strong></p>
+    <pre><span class="comment"># ALWAYS list contents before extracting an untrusted archive:</span>
+<span class="prompt">$</span> tar -tzf suspicious.tar.gz | head -20
+<span class="comment"># Look for paths starting with / or containing ../</span>
+<span class="comment"># If you see those, DO NOT extract or use --one-top-level:</span>
+<span class="prompt">$</span> tar -xzf suspicious.tar.gz --one-top-level=safe-dir/</pre>
+    <p>The <code>--one-top-level</code> flag forces everything into a single directory, preventing path traversal attacks.</p>
+  </div>
+
+  <h3>More tar Examples</h3>
+
+  <pre><span class="prompt">$</span> tar -czf - documents/ | ssh alice@server "cat > /backup/docs.tar.gz"
+<span class="comment"># Create archive and pipe directly to remote server via SSH</span></pre>
+
+  <pre><span class="prompt">$</span> tar -czf backup.tar.gz -T filelist.txt
+<span class="comment"># Create archive from a list of files</span></pre>
+
+  <pre><span class="prompt">$</span> tar -uf archive.tar newfile.txt
+<span class="comment"># Append a file to an existing (uncompressed) archive</span></pre>
+
+  <pre><span class="prompt">$</span> tar --diff -f archive.tar
+<span class="comment"># Compare archive contents with the filesystem</span></pre>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Common Mistake</div>
+      <pre><span class="prompt">$</span> tar -czf *.tar.gz project/
+<span class="comment"># Glob expands *.tar.gz before tar sees it!</span>
+<span class="comment"># If old archives exist, this will NOT work as expected.</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct</div>
+      <pre><span class="prompt">$</span> tar -czf project-backup.tar.gz project/
+<span class="comment"># Always specify the exact filename for the archive.</span></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="gzip">gzip / gunzip &mdash; Compress &amp; Decompress .gz Files</h2>
+
+  <p><strong>What it does:</strong> <code>gzip</code> compresses a single file, replacing it with a <code>.gz</code> version. <code>gunzip</code> (or <code>gzip -d</code>) decompresses it back.</p>
+
+  <p><strong>Why it matters:</strong> <code>gzip</code> is the most common compression format on Linux. It is fast and offers a good balance of speed and compression ratio. The <code>.tar.gz</code> format uses gzip for compression.</p>
+
+  <h3>Flags Reference</h3>
+  <table>
+    <thead><tr><th>Flag</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>-d</code></td><td>Decompress (same as <code>gunzip</code>)</td></tr>
+      <tr><td><code>-k</code></td><td>Keep the original file (do not delete it)</td></tr>
+      <tr><td><code>-v</code></td><td>Verbose (show compression ratio)</td></tr>
+      <tr><td><code>-l</code></td><td>List compression info for a .gz file</td></tr>
+      <tr><td><code>-r</code></td><td>Recursively compress files in a directory</td></tr>
+      <tr><td><code>-1</code> to <code>-9</code></td><td>Compression level (1=fastest/least, 9=slowest/most). Default is 6.</td></tr>
+      <tr><td><code>-c</code></td><td>Write to stdout (useful for piping)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> gzip file.txt
+<span class="comment"># Compresses file.txt → file.txt.gz (original is deleted!)</span></pre>
+
+  <pre><span class="prompt">$</span> gzip -k file.txt
+<span class="comment"># Compress but keep the original file</span></pre>
+
+  <pre><span class="prompt">$</span> gunzip file.txt.gz
+<span class="comment"># Decompress file.txt.gz → file.txt (gz file is deleted)</span></pre>
+
+  <pre><span class="prompt">$</span> gzip -d file.txt.gz
+<span class="comment"># Same as gunzip</span></pre>
+
+  <pre><span class="prompt">$</span> gzip -dk file.txt.gz
+<span class="comment"># Decompress and keep the .gz file</span></pre>
+
+  <pre><span class="prompt">$</span> gzip -v file.txt
+<span class="output">file.txt:	 72.3% -- replaced with file.txt.gz</span></pre>
+
+  <pre><span class="prompt">$</span> gzip -l file.txt.gz
+<span class="output">  compressed  uncompressed  ratio  uncompressed_name
+       12345         45678  73.0%  file.txt</span></pre>
+
+  <pre><span class="prompt">$</span> gzip -9 largefile.log
+<span class="comment"># Maximum compression (slower but smaller)</span></pre>
+
+  <pre><span class="prompt">$</span> gzip -1 largefile.log
+<span class="comment"># Fastest compression (larger but quicker)</span></pre>
+
+  <pre><span class="prompt">$</span> zcat file.txt.gz
+<span class="comment"># View compressed file contents without decompressing</span></pre>
+
+  <pre><span class="prompt">$</span> zgrep "error" logfile.gz
+<span class="comment"># Search inside a compressed file without decompressing</span></pre>
+
+  <pre><span class="prompt">$</span> cat file.txt | gzip -c > file.txt.gz
+<span class="comment"># Compress from stdin to a file</span></pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">gzip Deletes the Original</div>
+    <p>By default, <code>gzip file.txt</code> replaces <code>file.txt</code> with <code>file.txt.gz</code> &mdash; the original is gone. Use <code>-k</code> (keep) to preserve the original.</p>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert__title">gzip Only Compresses Single Files</div>
+    <p><code>gzip</code> compresses one file at a time. It cannot compress a directory. That is why we combine it with <code>tar</code>: <code>tar</code> bundles the directory into one file, then <code>gzip</code> compresses that file. The result is <code>.tar.gz</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="zip">zip / unzip &mdash; Create &amp; Extract .zip Files</h2>
+
+  <p><strong>What it does:</strong> <code>zip</code> creates <code>.zip</code> archives (combining archiving and compression in one step). <code>unzip</code> extracts them. The <code>.zip</code> format is universal &mdash; supported on Windows, macOS, and Linux.</p>
+
+  <p><strong>Why it matters:</strong> When sharing files with non-Linux users, <code>.zip</code> is the most compatible format. Every operating system can open zip files without additional software.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> zip archive.zip file1.txt file2.txt file3.txt
+<span class="comment"># Zip multiple files</span>
+<span class="output">  adding: file1.txt (deflated 62%)
+  adding: file2.txt (deflated 58%)
+  adding: file3.txt (deflated 71%)</span></pre>
+
+  <pre><span class="prompt">$</span> zip -r project.zip project/
+<span class="comment"># Zip a directory recursively (-r is required for directories!)</span></pre>
+
+  <pre><span class="prompt">$</span> unzip archive.zip
+<span class="comment"># Extract to current directory</span>
+<span class="output">Archive:  archive.zip
+  inflating: file1.txt
+  inflating: file2.txt
+  inflating: file3.txt</span></pre>
+
+  <pre><span class="prompt">$</span> unzip archive.zip -d /opt/extracted/
+<span class="comment"># Extract to a specific directory</span></pre>
+
+  <pre><span class="prompt">$</span> unzip -l archive.zip
+<span class="comment"># List contents without extracting</span>
+<span class="output">Archive:  archive.zip
+  Length      Date    Time    Name
+---------  ---------- -----   ----
+     2456  2026-03-31 14:00   file1.txt
+     1893  2026-03-31 14:00   file2.txt
+     4521  2026-03-31 14:00   file3.txt
+---------                     -------
+     8870                     3 files</span></pre>
+
+  <pre><span class="prompt">$</span> unzip archive.zip file1.txt
+<span class="comment"># Extract only a specific file</span></pre>
+
+  <pre><span class="prompt">$</span> zip -e secure.zip sensitive-data.txt
+<span class="comment"># Create a password-protected zip file</span>
+<span class="output">Enter password:
+Verify password:</span></pre>
+
+  <pre><span class="prompt">$</span> zip -u archive.zip newfile.txt
+<span class="comment"># Update: add new file or replace modified file in existing zip</span></pre>
+
+  <pre><span class="prompt">$</span> zip -r project.zip project/ -x "project/.git/*" "project/node_modules/*"
+<span class="comment"># Zip directory excluding certain paths</span></pre>
+
+  <pre><span class="prompt">$</span> unzip -o archive.zip
+<span class="comment"># Overwrite existing files without prompting</span></pre>
+
+  <pre><span class="prompt">$</span> unzip -t archive.zip
+<span class="comment"># Test archive integrity (do not extract)</span>
+<span class="output">    testing: file1.txt                OK
+    testing: file2.txt                OK
+    testing: file3.txt                OK
+No errors detected in compressed data of archive.zip.</span></pre>
+
+  <pre><span class="prompt">$</span> zip -9 -r archive.zip project/
+<span class="comment"># Maximum compression</span></pre>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Common Mistake</div>
+      <pre><span class="prompt">$</span> zip archive.zip project/
+<span class="comment"># Without -r, only the empty directory is zipped!</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct</div>
+      <pre><span class="prompt">$</span> zip -r archive.zip project/
+<span class="comment"># -r includes all files and subdirectories</span></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="xz">xz &mdash; High Compression</h2>
+
+  <p><strong>What it does:</strong> <code>xz</code> provides the highest compression ratios of the common Linux compression tools. It produces <code>.xz</code> files and is used for <code>.tar.xz</code> archives.</p>
+
+  <p><strong>Why it matters:</strong> Many Linux distributions use <code>.tar.xz</code> for their software packages because it achieves significantly smaller files than gzip. The tradeoff is that compression (not decompression) is slower and uses more memory.</p>
+
+  <h3>Examples</h3>
+
+  <pre><span class="prompt">$</span> xz file.txt
+<span class="comment"># Compress file.txt → file.txt.xz (original is deleted)</span></pre>
+
+  <pre><span class="prompt">$</span> xz -k file.txt
+<span class="comment"># Compress and keep original</span></pre>
+
+  <pre><span class="prompt">$</span> xz -d file.txt.xz
+<span class="comment"># Decompress (or use unxz)</span></pre>
+
+  <pre><span class="prompt">$</span> unxz file.txt.xz
+<span class="comment"># Same as xz -d</span></pre>
+
+  <pre><span class="prompt">$</span> xz -dk file.txt.xz
+<span class="comment"># Decompress and keep the .xz file</span></pre>
+
+  <pre><span class="prompt">$</span> xz -v file.txt
+<span class="output">file.txt (1/1)
+  100 %        2,345 B / 12,678 B = 0.185   1.2 MiB/s     0:00</span></pre>
+
+  <pre><span class="prompt">$</span> xz -l file.txt.xz
+<span class="comment"># Show compression info</span>
+<span class="output">Strms  Blocks   Compressed Uncompressed  Ratio  Check   Filename
+    1       1      2,345 B     12,678 B  0.185  CRC64   file.txt.xz</span></pre>
+
+  <pre><span class="prompt">$</span> xz -9 largefile.log
+<span class="comment"># Maximum compression (very slow but smallest output)</span></pre>
+
+  <pre><span class="prompt">$</span> xz -0 largefile.log
+<span class="comment"># Fastest compression (still better than gzip at same speed)</span></pre>
+
+  <pre><span class="prompt">$</span> xzcat file.txt.xz
+<span class="comment"># View contents without decompressing</span></pre>
+
+  <pre><span class="prompt">$</span> xz -T 4 largefile.log
+<span class="comment"># Use 4 threads for faster compression</span></pre>
+
+  <pre><span class="prompt">$</span> xz -T 0 largefile.log
+<span class="comment"># Use all available CPU threads</span></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="comparison">Compression Format Comparison</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Format</th>
+        <th>Extension</th>
+        <th>Compression Speed</th>
+        <th>Decompression Speed</th>
+        <th>Compression Ratio</th>
+        <th>CPU/Memory Usage</th>
+        <th>Compatibility</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>gzip</strong></td>
+        <td><code>.tar.gz</code> / <code>.tgz</code></td>
+        <td>Fast</td>
+        <td>Fast</td>
+        <td>Good</td>
+        <td>Low</td>
+        <td>Universal (everywhere on Linux)</td>
+      </tr>
+      <tr>
+        <td><strong>bzip2</strong></td>
+        <td><code>.tar.bz2</code> / <code>.tbz2</code></td>
+        <td>Slow</td>
+        <td>Moderate</td>
+        <td>Better than gzip</td>
+        <td>Moderate</td>
+        <td>Common on Linux, less elsewhere</td>
+      </tr>
+      <tr>
+        <td><strong>xz</strong></td>
+        <td><code>.tar.xz</code> / <code>.txz</code></td>
+        <td>Very Slow</td>
+        <td>Fast</td>
+        <td>Best</td>
+        <td>High (compression)</td>
+        <td>Standard for distro packages</td>
+      </tr>
+      <tr>
+        <td><strong>zip</strong></td>
+        <td><code>.zip</code></td>
+        <td>Fast</td>
+        <td>Fast</td>
+        <td>Good (similar to gzip)</td>
+        <td>Low</td>
+        <td>Best (Windows, macOS, Linux)</td>
+      </tr>
+      <tr>
+        <td><strong>zstd</strong></td>
+        <td><code>.tar.zst</code></td>
+        <td>Very Fast</td>
+        <td>Very Fast</td>
+        <td>Very Good</td>
+        <td>Low to Moderate</td>
+        <td>Growing (newer tool)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Which Format Should You Use?</div>
+    <ul>
+      <li><strong>General purpose / speed matters:</strong> <code>.tar.gz</code> &mdash; the safe default</li>
+      <li><strong>Smallest file size:</strong> <code>.tar.xz</code> &mdash; when you compress once and distribute many times (like software releases)</li>
+      <li><strong>Sharing with Windows/macOS users:</strong> <code>.zip</code> &mdash; the universal format</li>
+      <li><strong>Modern fast compression:</strong> <code>.tar.zst</code> &mdash; if all recipients have zstd installed</li>
+      <li><strong>Avoid bzip2</strong> for new projects &mdash; xz is better in almost every way</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="real-world">Real-World Scenarios</h2>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Backup a project, excluding build artifacts</span>
+tar -czf ~/backups/myproject-$(date +%Y%m%d).tar.gz \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='__pycache__' \
+  --exclude='*.pyc' \
+  ~/projects/myproject/</pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Download and extract a software release</span>
+wget https://example.com/app-2.0.tar.gz
+tar -tzf app-2.0.tar.gz | head -5  <span class="comment"># inspect first!</span>
+tar -xzf app-2.0.tar.gz -C /opt/</pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Compress all log files older than 7 days</span>
+find /var/log -name "*.log" -mtime +7 -exec gzip -v {} \;</pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Create a zip for a colleague on Windows</span>
+zip -r report-march.zip report/ attachments/ summary.pdf</pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Archive and stream to a remote server without saving locally</span>
+tar -czf - /data/important/ | ssh alice@backup-server "cat > /backups/data-$(date +%F).tar.gz"</pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Compare sizes of different compression methods</span>
+ls -lh data.tar
+<span class="output">-rw-r--r-- 1 alice alice 500M Mar 31 14:00 data.tar</span>
+gzip -k data.tar &amp;&amp; ls -lh data.tar.gz
+<span class="output">-rw-r--r-- 1 alice alice 125M Mar 31 14:01 data.tar.gz</span>
+xz -k data.tar &amp;&amp; ls -lh data.tar.xz
+<span class="output">-rw-r--r-- 1 alice alice  78M Mar 31 14:03 data.tar.xz</span></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Practice Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Archive Workout</div>
+    <p>Create a test directory structure and practice archiving:</p>
+    <ol>
+      <li>Create a directory <code>~/archive-practice/</code> with at least 5 files of various types inside it.</li>
+      <li>Create a <code>.tar.gz</code> archive of the directory.</li>
+      <li>List the contents of the archive without extracting.</li>
+      <li>Extract the archive to <code>/tmp/test-extract/</code>.</li>
+      <li>Create a <code>.zip</code> of the same directory (with <code>-r</code>).</li>
+      <li>Compare the sizes of the <code>.tar.gz</code> and <code>.zip</code> files.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="comment"># 1. Create test files</span>
+<span class="prompt">$</span> mkdir -p ~/archive-practice
+<span class="prompt">$</span> cd ~/archive-practice
+<span class="prompt">$</span> echo "Report content" > report.txt
+<span class="prompt">$</span> echo "Log data" > app.log
+<span class="prompt">$</span> echo '{"key":"value"}' > config.json
+<span class="prompt">$</span> dd if=/dev/urandom of=data.bin bs=1K count=100 2>/dev/null
+<span class="prompt">$</span> echo "#!/bin/bash" > script.sh
+
+<span class="comment"># 2. Create .tar.gz</span>
+<span class="prompt">$</span> tar -czf ~/archive-practice.tar.gz -C ~/ archive-practice/
+
+<span class="comment"># 3. List contents</span>
+<span class="prompt">$</span> tar -tzf ~/archive-practice.tar.gz
+
+<span class="comment"># 4. Extract to /tmp</span>
+<span class="prompt">$</span> mkdir -p /tmp/test-extract
+<span class="prompt">$</span> tar -xzf ~/archive-practice.tar.gz -C /tmp/test-extract/
+
+<span class="comment"># 5. Create zip</span>
+<span class="prompt">$</span> zip -r ~/archive-practice.zip ~/archive-practice/
+
+<span class="comment"># 6. Compare sizes</span>
+<span class="prompt">$</span> ls -lh ~/archive-practice.tar.gz ~/archive-practice.zip</pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Compression Comparison</div>
+    <p>Compare compression methods on the same data:</p>
+    <ol>
+      <li>Create a large text file: <code>yes "Hello World" | head -100000 > bigtext.txt</code></li>
+      <li>Compress it with <code>gzip -k</code>, <code>bzip2 -k</code> (if available), and <code>xz -k</code>.</li>
+      <li>Compare the resulting file sizes. Which is smallest?</li>
+      <li>Time each compression: <code>time gzip -k bigtext.txt</code> (rename between tests). Which is fastest?</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="prompt">$</span> yes "Hello World" | head -100000 > bigtext.txt
+<span class="prompt">$</span> ls -lh bigtext.txt
+<span class="output">-rw-r--r-- 1 alice alice 1.2M Mar 31 14:00 bigtext.txt</span>
+
+<span class="prompt">$</span> gzip -k bigtext.txt
+<span class="prompt">$</span> ls -lh bigtext.txt.gz
+<span class="output">-rw-r--r-- 1 alice alice  2.5K Mar 31 14:00 bigtext.txt.gz</span>
+
+<span class="prompt">$</span> xz -k bigtext.txt
+<span class="prompt">$</span> ls -lh bigtext.txt.xz
+<span class="output">-rw-r--r-- 1 alice alice  1.1K Mar 31 14:00 bigtext.txt.xz</span>
+
+<span class="comment"># xz produces the smallest file</span>
+<span class="comment"># gzip is fastest to compress</span>
+<span class="comment"># Highly repetitive data (like "Hello World" repeated) compresses extremely well</span></pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Knowledge Check</h2>
+
+  <div class="quiz">
+    <div class="quiz__question">You receive a file called <code>data.tar.bz2</code>. Which command extracts it?</div>
+    <div class="quiz__options">
+      <label><input type="radio" name="q1" value="a"> <code>tar -xzf data.tar.bz2</code></label>
+      <label><input type="radio" name="q1" value="b"> <code>tar -xjf data.tar.bz2</code></label>
+      <label><input type="radio" name="q1" value="c"> <code>unzip data.tar.bz2</code></label>
+      <label><input type="radio" name="q1" value="d"> <code>gzip -d data.tar.bz2</code></label>
+    </div>
+    <button class="quiz__check" onclick="this.nextElementSibling.classList.toggle('show')">Show Answer</button>
+    <div class="quiz__answer"><strong>B.</strong> <code>tar -xjf data.tar.bz2</code> is correct. The <code>-j</code> flag specifies bzip2 decompression. Option A uses <code>-z</code> which is for gzip. On modern systems, <code>tar -xf data.tar.bz2</code> (without any compression flag) also works because tar auto-detects the format.</div>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="summary">Chapter Summary</h2>
+
+  <table>
+    <thead><tr><th>Task</th><th>Command</th></tr></thead>
+    <tbody>
+      <tr><td>Create .tar.gz</td><td><code>tar -czf archive.tar.gz dir/</code></td></tr>
+      <tr><td>Extract .tar.gz</td><td><code>tar -xzf archive.tar.gz</code></td></tr>
+      <tr><td>List .tar.gz contents</td><td><code>tar -tzf archive.tar.gz</code></td></tr>
+      <tr><td>Create .tar.xz</td><td><code>tar -cJf archive.tar.xz dir/</code></td></tr>
+      <tr><td>Compress a file</td><td><code>gzip -k file.txt</code></td></tr>
+      <tr><td>Decompress .gz</td><td><code>gunzip file.txt.gz</code> or <code>gzip -d</code></td></tr>
+      <tr><td>Create .zip</td><td><code>zip -r archive.zip dir/</code></td></tr>
+      <tr><td>Extract .zip</td><td><code>unzip archive.zip</code></td></tr>
+      <tr><td>Compress with xz</td><td><code>xz -k file.txt</code></td></tr>
+      <tr><td>Inspect before extract</td><td><code>tar -tzf archive.tar.gz | head</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2 id="more-tar-examples">More Practical tar Examples</h2>
+
+  <h3>1. Archive Excluding Certain Files</h3>
+
+  <pre><span class="prompt">$</span> tar -czf project.tar.gz project/ --exclude='*.log' --exclude='*.tmp'
+<span class="comment"># Exclude all .log and .tmp files from the archive</span></pre>
+
+  <pre><span class="prompt">$</span> tar -czf project.tar.gz project/ \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='__pycache__' \
+  --exclude='*.pyc' \
+  --exclude='.env'
+<span class="comment"># Exclude common development clutter
+# This keeps the archive small and avoids bundling secrets (.env)</span></pre>
+
+  <pre><span class="prompt">$</span> tar -czf website.tar.gz /var/www/html/ --exclude='uploads/cache/*'
+<span class="comment"># Exclude only the cache subdirectory inside uploads</span></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Exclude patterns use relative paths</div>
+    <p>Patterns in <code>--exclude</code> are matched against the path as stored in the archive, not the full filesystem path. Use <code>tar -tzf</code> to check what paths look like inside the archive if you are unsure.</p>
+  </div>
+
+  <h3>2. Archive with Date in Filename</h3>
+
+  <pre><span class="prompt">$</span> tar -czf backup-$(date +%Y%m%d).tar.gz /home/alice/documents/
+<span class="comment"># Creates: backup-20260331.tar.gz</span></pre>
+
+  <pre><span class="prompt">$</span> tar -czf backup-$(date +%Y%m%d-%H%M%S).tar.gz /home/alice/documents/
+<span class="comment"># Creates: backup-20260331-143025.tar.gz (with time for multiple daily backups)</span></pre>
+
+  <pre><span class="prompt">$</span> tar -czf "project-$(date +%F).tar.gz" project/
+<span class="comment"># Creates: project-2026-03-31.tar.gz  (%F = %Y-%m-%d)</span></pre>
+
+  <pre><span class="prompt">$</span> BACKUP_NAME="myapp-$(date +%Y%m%d-%H%M).tar.gz"
+<span class="prompt">$</span> tar -czf "$BACKUP_NAME" /opt/myapp/
+<span class="prompt">$</span> echo "Backup saved as $BACKUP_NAME"
+<span class="output">Backup saved as myapp-20260331-1430.tar.gz</span></pre>
+
+  <h3>3. Archive and Split into Parts</h3>
+
+  <p>Large archives can be split into smaller parts for easier transfer (e.g., when a file sharing service has a size limit).</p>
+
+  <pre><span class="prompt">$</span> tar -czf - largedir/ | split -b 100M - largedir-backup.tar.gz.part-
+<span class="comment"># Creates 100 MB chunks:
+#   largedir-backup.tar.gz.part-aa
+#   largedir-backup.tar.gz.part-ab
+#   largedir-backup.tar.gz.part-ac
+#   ...</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># To reassemble and extract:</span>
+cat largedir-backup.tar.gz.part-* | tar -xzf -
+<span class="comment"># Concatenates all parts back together and extracts</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Split into a specific number of files instead of by size:</span>
+tar -czf - bigproject/ | split -n 5 - bigproject.tar.gz.part-
+<span class="comment"># Splits into exactly 5 equal parts</span></pre>
+
+  <h3>4. List Contents Before Extracting</h3>
+
+  <p>Always inspect an archive before extracting, especially if you did not create it yourself.</p>
+
+  <pre><span class="prompt">$</span> tar -tzf download.tar.gz | head -20
+<span class="comment"># Preview the first 20 entries</span>
+<span class="output">myapp-2.0/
+myapp-2.0/README.md
+myapp-2.0/src/
+myapp-2.0/src/main.c
+myapp-2.0/Makefile</span></pre>
+
+  <pre><span class="prompt">$</span> tar -tzf download.tar.gz | grep -c "/"
+<span class="output">47</span>
+<span class="comment"># Count how many entries are in the archive</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Check if archive has a single top-level directory (well-behaved):</span>
+tar -tzf download.tar.gz | head -1
+<span class="output">myapp-2.0/</span>
+<span class="comment"># Good — everything is inside myapp-2.0/</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Check for dangerous paths (absolute or path traversal):</span>
+tar -tzf suspicious.tar.gz | grep -E "^/|\.\./"
+<span class="comment"># If this produces output, the archive may overwrite system files!</span></pre>
+
+  <h3>5. Extract Specific Files from Archive</h3>
+
+  <pre><span class="prompt">$</span> tar -xzf project.tar.gz project/README.md
+<span class="comment"># Extract only README.md (must use the exact path shown by -t)</span></pre>
+
+  <pre><span class="prompt">$</span> tar -xzf project.tar.gz --wildcards '*.conf'
+<span class="comment"># Extract all .conf files from anywhere in the archive</span></pre>
+
+  <pre><span class="prompt">$</span> tar -xzf project.tar.gz --wildcards 'project/src/*.c' -C /tmp/review/
+<span class="comment"># Extract only C source files into /tmp/review/</span></pre>
+
+  <pre><span class="prompt">$</span> tar -xzf backup.tar.gz --wildcards '*/config/*'
+<span class="comment"># Extract only files inside any config/ directory</span></pre>
+
+  <h3>6. Incremental Backups with tar</h3>
+
+  <p>Incremental backups save only the files that changed since the last backup. This is much faster and uses less space than full backups every time.</p>
+
+  <pre><span class="prompt">$</span> <span class="comment"># First backup (full/level-0) — creates a snapshot file</span>
+tar --listed-incremental=/home/alice/backup.snar \
+    -czf /backups/full-$(date +%Y%m%d).tar.gz \
+    /home/alice/documents/
+<span class="comment"># backup.snar stores metadata about what was backed up</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Second backup (incremental/level-1) — only changed files</span>
+tar --listed-incremental=/home/alice/backup.snar \
+    -czf /backups/incr-$(date +%Y%m%d).tar.gz \
+    /home/alice/documents/
+<span class="comment"># Only files modified since the full backup are included
+# The .snar file is updated automatically</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># To restore: apply full backup first, then each incremental in order</span>
+tar --listed-incremental=/dev/null -xzf /backups/full-20260331.tar.gz -C /restore/
+tar --listed-incremental=/dev/null -xzf /backups/incr-20260401.tar.gz -C /restore/
+tar --listed-incremental=/dev/null -xzf /backups/incr-20260402.tar.gz -C /restore/</pre>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Keep the snapshot file safe</div>
+    <p>The <code>.snar</code> file is essential for incremental backups. If you lose it, tar cannot determine what changed, and you will need to start a new full backup. Store it alongside your backup archives.</p>
+  </div>
+
+  <h3>7. Compressing with Different Levels</h3>
+
+  <p>You can control the compression level by passing environment variables or by compressing in a separate step.</p>
+
+  <pre><span class="prompt">$</span> GZIP=-9 tar -czf max-compressed.tar.gz largedir/
+<span class="comment"># Maximum gzip compression (slowest but smallest)</span></pre>
+
+  <pre><span class="prompt">$</span> GZIP=-1 tar -czf fast-compressed.tar.gz largedir/
+<span class="comment"># Fastest gzip compression (largest but quickest)</span></pre>
+
+  <pre><span class="prompt">$</span> XZ_OPT=-9 tar -cJf max-compressed.tar.xz largedir/
+<span class="comment"># Maximum xz compression</span></pre>
+
+  <pre><span class="prompt">$</span> XZ_OPT='-T4 -6' tar -cJf threaded.tar.xz largedir/
+<span class="comment"># xz with 4 threads at compression level 6</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Or compress in a separate step for more control:</span>
+tar -cf archive.tar largedir/
+gzip -9 archive.tar
+<span class="comment"># Result: archive.tar.gz with maximum compression</span></pre>
+
+  <h3>8. Using tar with Pipes (Remote Backup via SSH)</h3>
+
+  <p>One of the most powerful tar features is piping to/from other commands. This lets you transfer files between machines without creating a local archive first.</p>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Send a directory to a remote server:</span>
+tar -czf - /home/alice/project/ | ssh alice@server "cat > /backups/project.tar.gz"
+<span class="comment"># The "-" means "write to stdout" instead of a file
+# The archive streams directly over SSH to the remote machine</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Copy a directory to a remote server and extract it there:</span>
+tar -czf - /home/alice/project/ | ssh alice@server "tar -xzf - -C /opt/"
+<span class="comment"># Archives locally, streams over SSH, extracts remotely
+# No intermediate file is created on either machine</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Pull a directory FROM a remote server:</span>
+ssh alice@server "tar -czf - /var/www/html/" | tar -xzf - -C /tmp/
+<span class="comment"># Remote server archives and sends, local machine receives and extracts</span></pre>
+
+  <pre><span class="prompt">$</span> <span class="comment"># Copy between two remote servers (using local machine as a bridge):</span>
+ssh alice@server1 "tar -czf - /data/" | ssh alice@server2 "tar -xzf - -C /data/"
+<span class="comment"># Data flows: server1 → your machine → server2</span></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Why pipes are powerful</div>
+    <p>When you use <code>tar -czf -</code>, the archive is never saved to disk. It streams directly through the pipe. This means you do not need free disk space for a temporary archive, and the transfer starts immediately without waiting for compression to finish.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="archive-recipes">Common Archive Recipes</h2>
+
+  <p>Quick reference for everyday archiving tasks:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Task</th>
+        <th>Command</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Backup home directory</td>
+        <td><code>tar -czf /backup/home-$(date +%F).tar.gz --exclude='.cache' --exclude='.local/share/Trash' /home/alice/</code></td>
+        <td>Excludes cache and trash to save space</td>
+      </tr>
+      <tr>
+        <td>Archive website files</td>
+        <td><code>tar -czf /backup/www-$(date +%F).tar.gz /var/www/html/</code></td>
+        <td>Run as root or with sudo to preserve permissions</td>
+      </tr>
+      <tr>
+        <td>Create dated backup</td>
+        <td><code>tar -czf project-$(date +%Y%m%d-%H%M%S).tar.gz project/</code></td>
+        <td>Timestamp prevents overwriting previous backups</td>
+      </tr>
+      <tr>
+        <td>Transfer folder to another machine</td>
+        <td><code>tar -czf - mydir/ | ssh user@host "tar -xzf - -C /dest/"</code></td>
+        <td>No intermediate file; streams directly over SSH</td>
+      </tr>
+      <tr>
+        <td>Backup database dump + config</td>
+        <td><code>mysqldump mydb > db.sql && tar -czf db-backup-$(date +%F).tar.gz db.sql /etc/mysql/</code></td>
+        <td>Combines database export and config in one archive</td>
+      </tr>
+      <tr>
+        <td>Archive logs older than 30 days</td>
+        <td><code>find /var/log -name "*.log" -mtime +30 | tar -czf old-logs.tar.gz -T -</code></td>
+        <td><code>-T -</code> reads file list from stdin</td>
+      </tr>
+      <tr>
+        <td>Quick project snapshot</td>
+        <td><code>tar -czf ~/snapshots/$(basename $PWD)-$(date +%H%M).tar.gz .</code></td>
+        <td>Saves snapshot of current directory with time stamp</td>
+      </tr>
+      <tr>
+        <td>Backup with verification</td>
+        <td><code>tar -czf backup.tar.gz dir/ && tar -tzf backup.tar.gz > /dev/null && echo "OK"</code></td>
+        <td>Creates archive then verifies it is not corrupt</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2 id="more-exercises">More Practice Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Exclude and Split</div>
+    <p>Practice creating archives with exclusions and splitting them:</p>
+    <ol>
+      <li>Create a project directory with subdirectories: <code>src/</code>, <code>build/</code>, <code>logs/</code>, <code>node_modules/</code>.</li>
+      <li>Put a few files in each subdirectory.</li>
+      <li>Create a <code>.tar.gz</code> archive of the project, excluding <code>build/</code>, <code>logs/</code>, and <code>node_modules/</code>.</li>
+      <li>List the contents of the archive to verify the excluded directories are not present.</li>
+      <li>Now create an archive of the full project and split it into 1 MB chunks.</li>
+      <li>Reassemble the chunks and extract to <code>/tmp/reassembled/</code>.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="comment"># 1-2. Create project structure with files</span>
+<span class="prompt">$</span> mkdir -p ~/testproject/{src,build,logs,node_modules}
+<span class="prompt">$</span> echo "main code" > ~/testproject/src/main.c
+<span class="prompt">$</span> echo "build artifact" > ~/testproject/build/output.o
+<span class="prompt">$</span> echo "log entry" > ~/testproject/logs/app.log
+<span class="prompt">$</span> echo "module data" > ~/testproject/node_modules/dep.js
+<span class="prompt">$</span> echo "readme" > ~/testproject/README.md
+
+<span class="comment"># 3. Archive with exclusions</span>
+<span class="prompt">$</span> tar -czf ~/testproject-clean.tar.gz \
+    --exclude='build' --exclude='logs' --exclude='node_modules' \
+    -C ~/ testproject/
+
+<span class="comment"># 4. Verify exclusions</span>
+<span class="prompt">$</span> tar -tzf ~/testproject-clean.tar.gz
+<span class="output">testproject/
+testproject/src/
+testproject/src/main.c
+testproject/README.md</span>
+
+<span class="comment"># 5. Create full archive and split into 1 MB parts</span>
+<span class="prompt">$</span> tar -czf - -C ~/ testproject/ | split -b 1M - ~/testproject-split.tar.gz.part-
+
+<span class="comment"># 6. Reassemble and extract</span>
+<span class="prompt">$</span> mkdir -p /tmp/reassembled
+<span class="prompt">$</span> cat ~/testproject-split.tar.gz.part-* | tar -xzf - -C /tmp/reassembled/
+<span class="prompt">$</span> ls /tmp/reassembled/testproject/</pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 4: Remote Backup Simulation</div>
+    <p>Practice using tar with pipes (you can simulate this locally):</p>
+    <ol>
+      <li>Create a directory <code>~/important-data/</code> with several files.</li>
+      <li>Use <code>tar -czf -</code> to pipe the archive into another <code>tar -xzf -</code> that extracts to <code>/tmp/mirror/</code>.</li>
+      <li>Compare the contents of both directories with <code>diff -r</code>.</li>
+      <li>Now use <code>tar -czf -</code> piped to <code>split</code> to create 512K chunks, then reassemble and extract.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="comment"># 1. Create source data</span>
+<span class="prompt">$</span> mkdir -p ~/important-data
+<span class="prompt">$</span> echo "financial report Q1" > ~/important-data/report.txt
+<span class="prompt">$</span> echo '{"db":"prod","port":5432}' > ~/important-data/config.json
+<span class="prompt">$</span> dd if=/dev/urandom of=~/important-data/data.bin bs=1K count=500 2>/dev/null
+
+<span class="comment"># 2. Pipe tar to tar (simulates network transfer)</span>
+<span class="prompt">$</span> mkdir -p /tmp/mirror
+<span class="prompt">$</span> tar -czf - -C ~/ important-data/ | tar -xzf - -C /tmp/mirror/
+
+<span class="comment"># 3. Verify the copy is identical</span>
+<span class="prompt">$</span> diff -r ~/important-data/ /tmp/mirror/important-data/
+<span class="comment"># No output = directories are identical</span>
+
+<span class="comment"># 4. Split into chunks, reassemble, extract</span>
+<span class="prompt">$</span> tar -czf - -C ~/ important-data/ | split -b 512K - /tmp/data-part-
+<span class="prompt">$</span> ls -lh /tmp/data-part-*
+<span class="prompt">$</span> mkdir -p /tmp/from-chunks
+<span class="prompt">$</span> cat /tmp/data-part-* | tar -xzf - -C /tmp/from-chunks/
+<span class="prompt">$</span> diff -r ~/important-data/ /tmp/from-chunks/important-data/</pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 5: Incremental Backup Practice</div>
+    <p>Practice incremental backups with tar:</p>
+    <ol>
+      <li>Create a directory <code>~/incr-test/</code> with 3 files.</li>
+      <li>Create a full (level-0) backup using <code>--listed-incremental</code>.</li>
+      <li>Add 2 new files and modify 1 existing file.</li>
+      <li>Create an incremental (level-1) backup.</li>
+      <li>List the contents of both archives. The incremental should be smaller.</li>
+      <li>Restore from both backups into <code>/tmp/restored/</code> and verify all 5 files are present.</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><span class="comment"># 1. Create initial files</span>
+<span class="prompt">$</span> mkdir -p ~/incr-test
+<span class="prompt">$</span> echo "file one" > ~/incr-test/one.txt
+<span class="prompt">$</span> echo "file two" > ~/incr-test/two.txt
+<span class="prompt">$</span> echo "file three" > ~/incr-test/three.txt
+
+<span class="comment"># 2. Full backup</span>
+<span class="prompt">$</span> tar --listed-incremental=~/incr-test.snar \
+    -czf ~/full-backup.tar.gz -C ~/ incr-test/
+
+<span class="comment"># 3. Modify data</span>
+<span class="prompt">$</span> echo "file four" > ~/incr-test/four.txt
+<span class="prompt">$</span> echo "file five" > ~/incr-test/five.txt
+<span class="prompt">$</span> echo "modified file one" > ~/incr-test/one.txt
+
+<span class="comment"># 4. Incremental backup</span>
+<span class="prompt">$</span> tar --listed-incremental=~/incr-test.snar \
+    -czf ~/incr-backup.tar.gz -C ~/ incr-test/
+
+<span class="comment"># 5. Compare archive contents</span>
+<span class="prompt">$</span> echo "--- Full backup ---" && tar -tzf ~/full-backup.tar.gz
+<span class="prompt">$</span> echo "--- Incremental ---" && tar -tzf ~/incr-backup.tar.gz
+<span class="prompt">$</span> ls -lh ~/full-backup.tar.gz ~/incr-backup.tar.gz
+<span class="comment"># Incremental archive should be smaller</span>
+
+<span class="comment"># 6. Restore (full first, then incremental)</span>
+<span class="prompt">$</span> mkdir -p /tmp/restored
+<span class="prompt">$</span> tar --listed-incremental=/dev/null -xzf ~/full-backup.tar.gz -C /tmp/restored/
+<span class="prompt">$</span> tar --listed-incremental=/dev/null -xzf ~/incr-backup.tar.gz -C /tmp/restored/
+<span class="prompt">$</span> ls /tmp/restored/incr-test/
+<span class="output">five.txt  four.txt  one.txt  three.txt  two.txt</span>
+<span class="prompt">$</span> cat /tmp/restored/incr-test/one.txt
+<span class="output">modified file one</span></pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="wrong-vs-correct">Wrong vs Correct: Common tar Mistakes</h2>
+
+  <p>These are mistakes that almost everyone makes at least once. Learn from them here instead of in production.</p>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Forgetting the -f flag</div>
+      <pre><span class="prompt">$</span> tar -cz backup.tar.gz mydir/
+<span class="comment"># Without -f, tar does not know "backup.tar.gz" is the filename.
+# It treats "backup.tar.gz" as a file to archive!
+# Result: an archive written to stdout (garbage on screen).</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct: Always include -f</div>
+      <pre><span class="prompt">$</span> tar -czf backup.tar.gz mydir/
+<span class="comment"># -f tells tar the next argument is the archive filename.</span></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Putting -f before compression flag</div>
+      <pre><span class="prompt">$</span> tar -cfz backup.tar.gz mydir/
+<span class="comment"># -f grabs the NEXT argument as the filename.
+# Here -f sees "z" as the filename, not "backup.tar.gz"!
+# Creates a file literally named "z".</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct: Put -f last (before the filename)</div>
+      <pre><span class="prompt">$</span> tar -czf backup.tar.gz mydir/
+<span class="comment"># -f is last among the grouped flags, so "backup.tar.gz" is correctly
+# interpreted as the filename.</span></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Extracting without checking directory</div>
+      <pre><span class="prompt">$</span> cd /
+<span class="prompt">$</span> tar -xzf /tmp/backup.tar.gz
+<span class="comment"># Extracts into / (root!) — files could scatter everywhere
+# or overwrite system files if the archive has absolute paths.</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct: Always specify or verify the target directory</div>
+      <pre><span class="prompt">$</span> mkdir -p /tmp/extracted
+<span class="prompt">$</span> tar -xzf /tmp/backup.tar.gz -C /tmp/extracted/
+<span class="comment"># -C ensures files are extracted to a safe, known location.</span></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Overwriting the source with the archive</div>
+      <pre><span class="prompt">$</span> tar -czf mydir/backup.tar.gz mydir/
+<span class="comment"># The archive is INSIDE the directory being archived!
+# tar will try to archive its own output file — this causes
+# errors or a corrupted archive.</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct: Save the archive outside the source directory</div>
+      <pre><span class="prompt">$</span> tar -czf /tmp/backup.tar.gz mydir/
+<span class="comment"># Archive is stored outside of mydir/, avoiding the loop.</span></pre>
+    </div>
+  </div>
+
+  <div class="wrong-right">
+    <div class="wrong-example">
+      <div class="wrong-right__label">Wrong: Using the wrong compression flag</div>
+      <pre><span class="prompt">$</span> tar -czf backup.tar.xz mydir/
+<span class="comment"># The filename says .xz but -z means gzip compression!
+# The file is actually gzip-compressed despite the .xz extension.
+# Anyone trying to open it with xz will get errors.</span></pre>
+    </div>
+    <div class="right-example">
+      <div class="wrong-right__label">Correct: Match the flag to the extension</div>
+      <pre><span class="prompt">$</span> tar -cJf backup.tar.xz mydir/
+<span class="comment"># -J = xz compression, matching the .tar.xz extension.
+# -z = gzip (.tar.gz), -j = bzip2 (.tar.bz2), -J = xz (.tar.xz)</span></pre>
+    </div>
+  </div>
+
+  <!-- ============================================================ -->
+  <div class="page-nav">
+    <a href="../09-networking/index.html">&larr; Chapter 9: Networking Basics</a>
+    <a href="../11-packages/index.html">Chapter 11: Package Management &rarr;</a>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; Chapter 10: Archives &amp; Compression
+  </div>
+
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

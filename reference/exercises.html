@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice Exercises — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../pages/06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../pages/09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../pages/10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../pages/13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../pages/15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="command-index.html">Command Index</a>
+    <a class="sidebar__link" href="glossary.html">Glossary</a>
+    <a class="sidebar__link" href="top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link active" href="exercises.html">Exercises</a>
+    <a class="sidebar__link" href="daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <h1>Practice Exercises</h1>
+
+  <p>The best way to learn Linux is to practice. These exercises are organized by difficulty and cover the most important topics from this guide. Each exercise has clear instructions, the expected outcome, and a collapsible answer you can check after trying on your own.</p>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">How to use these exercises</div>
+    <p>Open a terminal and try each exercise before looking at the answer. If you get stuck, re-read the relevant chapter linked in each exercise. Typing the commands yourself (not copy-pasting) builds muscle memory.</p>
+  </div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Practice safely</div>
+    <p>Use a test directory (e.g., <code>~/linux-practice/</code>) for all exercises. Do not run commands against system files or directories unless the exercise specifically instructs it (e.g., reading <code>/etc/passwd</code>). Never use <code>sudo</code> unless the exercise requires it.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Beginner Exercises</h2>
+  <!-- ================================================================ -->
+
+  <p>These exercises cover basic navigation, file management, and fundamental commands. You should be comfortable with Chapters 1 through 4 before attempting these.</p>
+
+  <!-- Exercise B1 -->
+  <div class="exercise">
+    <h3>Exercise B1: Navigate and List Files</h3>
+    <p><strong>Task:</strong> Navigate to your home directory, print the current working directory, and list all files including hidden ones in long format.</p>
+    <p><strong>Expected outcome:</strong> You should see your home directory path and a detailed listing showing hidden files (starting with <code>.</code>), permissions, owner, size, and modification dates.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> cd ~
+<span class="prompt">$</span> pwd
+<span class="output">/home/yourusername</span>
+
+<span class="prompt">$</span> ls -la
+<span class="output">total 48</span>
+<span class="output">drwxr-xr-x 6 user user 4096 Mar 31 09:00 .</span>
+<span class="output">drwxr-xr-x 3 root root 4096 Jan 15 08:00 ..</span>
+<span class="output">-rw------- 1 user user 1234 Mar 30 22:00 .bash_history</span>
+<span class="output">-rw-r--r-- 1 user user  220 Jan 15 08:00 .bashrc</span>
+<span class="output">drwxr-xr-x 2 user user 4096 Mar 28 14:00 Documents</span>
+<span class="output">drwxr-xr-x 2 user user 4096 Mar 25 10:00 Downloads</span>
+<span class="output">...</span></pre></div>
+      <p><strong>Key points:</strong> <code>cd ~</code> takes you home. <code>ls -la</code> combines <code>-l</code> (long format) and <code>-a</code> (show all, including hidden). Entries starting with <code>.</code> are hidden files.</p>
+    </details>
+  </div>
+
+  <!-- Exercise B2 -->
+  <div class="exercise">
+    <h3>Exercise B2: Create a Directory Structure</h3>
+    <p><strong>Task:</strong> Create the following directory structure in one command:</p>
+    <div class="code-block"><pre>project/
+├── src/
+├── docs/
+└── tests/</pre></div>
+    <p>Then verify the structure exists using <code>ls</code>.</p>
+    <p><strong>Expected outcome:</strong> A <code>project</code> directory containing three subdirectories: <code>src</code>, <code>docs</code>, and <code>tests</code>.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> mkdir -p project/{src,docs,tests}
+<span class="prompt">$</span> ls project/
+<span class="output">docs  src  tests</span>
+
+<span class="prompt"># Or verify with tree if installed:</span>
+<span class="prompt">$</span> tree project/
+<span class="output">project/</span>
+<span class="output">├── docs</span>
+<span class="output">├── src</span>
+<span class="output">└── tests</span></pre></div>
+      <p><strong>Key points:</strong> <code>mkdir -p</code> creates parent directories as needed. Brace expansion <code>{src,docs,tests}</code> creates multiple directories at once. No spaces after commas inside braces.</p>
+    </details>
+  </div>
+
+  <!-- Exercise B3 -->
+  <div class="exercise">
+    <h3>Exercise B3: Create, Copy, Move, and Delete Files</h3>
+    <p><strong>Task:</strong> Create 5 files named <code>file1.txt</code> through <code>file5.txt</code>. Copy <code>file1.txt</code> and <code>file2.txt</code> to a new directory called <code>backup/</code>. Move <code>file3.txt</code> to <code>backup/</code>. Delete <code>file4.txt</code>. List the contents of both directories.</p>
+    <p><strong>Expected outcome:</strong> The current directory has <code>file1.txt</code>, <code>file2.txt</code>, <code>file5.txt</code>. The <code>backup/</code> directory has <code>file1.txt</code>, <code>file2.txt</code>, <code>file3.txt</code>.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> touch file1.txt file2.txt file3.txt file4.txt file5.txt
+<span class="prompt">$</span> mkdir backup
+<span class="prompt">$</span> cp file1.txt file2.txt backup/
+<span class="prompt">$</span> mv file3.txt backup/
+<span class="prompt">$</span> rm file4.txt
+
+<span class="prompt">$</span> ls
+<span class="output">backup  file1.txt  file2.txt  file5.txt</span>
+
+<span class="prompt">$</span> ls backup/
+<span class="output">file1.txt  file2.txt  file3.txt</span></pre></div>
+      <p><strong>Key points:</strong> <code>touch</code> creates empty files. <code>cp</code> copies (original remains). <code>mv</code> moves (original is gone from the source). <code>rm</code> permanently deletes.</p>
+    </details>
+  </div>
+
+  <!-- Exercise B4 -->
+  <div class="exercise">
+    <h3>Exercise B4: View First and Last Lines of a File</h3>
+    <p><strong>Task:</strong> Display the first 5 lines and the last 5 lines of the <code>/etc/passwd</code> file.</p>
+    <p><strong>Expected outcome:</strong> You should see the first 5 user accounts (usually starting with <code>root</code>) and the last 5 accounts in the file.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> head -5 /etc/passwd
+<span class="output">root:x:0:0:root:/root:/bin/bash</span>
+<span class="output">daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin</span>
+<span class="output">bin:x:2:2:bin:/bin:/usr/sbin/nologin</span>
+<span class="output">sys:x:3:3:sys:/dev:/usr/sbin/nologin</span>
+<span class="output">sync:x:4:65534:sync:/bin:/bin/sync</span>
+
+<span class="prompt">$</span> tail -5 /etc/passwd
+<span class="output">sshd:x:110:65534::/run/sshd:/usr/sbin/nologin</span>
+<span class="output">user:x:1000:1000:User:/home/user:/bin/bash</span>
+<span class="output">...</span></pre></div>
+      <p><strong>Key points:</strong> <code>head -n</code> shows the first <em>n</em> lines. <code>tail -n</code> shows the last <em>n</em> lines. You can also use <code>head -n 5</code> as the long form.</p>
+    </details>
+  </div>
+
+  <!-- Exercise B5 -->
+  <div class="exercise">
+    <h3>Exercise B5: Find Your User Information</h3>
+    <p><strong>Task:</strong> Find your username, your user ID (UID), your primary group ID (GID), and all the groups you belong to.</p>
+    <p><strong>Expected outcome:</strong> Your username, a numeric UID (typically 1000 for the first user), and a list of groups.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> whoami
+<span class="output">yourusername</span>
+
+<span class="prompt">$</span> id
+<span class="output">uid=1000(yourusername) gid=1000(yourusername) groups=1000(yourusername),4(adm),27(sudo),...</span>
+
+<span class="prompt"># Just the UID:</span>
+<span class="prompt">$</span> id -u
+<span class="output">1000</span>
+
+<span class="prompt"># Just the groups:</span>
+<span class="prompt">$</span> groups
+<span class="output">yourusername adm sudo www-data</span></pre></div>
+      <p><strong>Key points:</strong> <code>whoami</code> shows your username. <code>id</code> shows UID, GID, and all groups. <code>groups</code> lists group names only.</p>
+    </details>
+  </div>
+
+  <!-- Exercise B6 -->
+  <div class="exercise">
+    <h3>Exercise B6: Read and Search Command History</h3>
+    <p><strong>Task:</strong> Display your last 10 commands from history. Then search your history for any command containing <code>ls</code>.</p>
+    <p><strong>Expected outcome:</strong> A numbered list of your 10 most recent commands, followed by a filtered list of commands containing "ls".</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> history 10
+<span class="output">  995  cd ~</span>
+<span class="output">  996  ls -la</span>
+<span class="output">  997  mkdir project</span>
+<span class="output">  998  touch file1.txt</span>
+<span class="output">  999  ls</span>
+<span class="output"> 1000  history 10</span>
+
+<span class="prompt">$</span> history | grep ls
+<span class="output">  996  ls -la</span>
+<span class="output">  999  ls</span>
+<span class="output"> 1001  history | grep ls</span>
+
+<span class="prompt"># Interactive search: press Ctrl+R, then type "ls"</span>
+<span class="prompt">(reverse-i-search)`ls': ls -la</span></pre></div>
+      <p><strong>Key points:</strong> <code>history N</code> shows the last N entries. Pipe to <code>grep</code> to filter. <kbd>Ctrl+R</kbd> opens reverse incremental search for interactive use.</p>
+    </details>
+  </div>
+
+  <!-- Exercise B7 -->
+  <div class="exercise">
+    <h3>Exercise B7: Create and View a File with Content</h3>
+    <p><strong>Task:</strong> Create a file called <code>notes.txt</code> containing three lines: "Line 1: Hello", "Line 2: World", "Line 3: Done". Display its contents and count the number of lines, words, and characters.</p>
+    <p><strong>Expected outcome:</strong> The file contents displayed, followed by line/word/character counts.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Method 1: Using echo with -e for newlines</span>
+<span class="prompt">$</span> echo -e "Line 1: Hello\nLine 2: World\nLine 3: Done" > notes.txt
+
+<span class="prompt"># Method 2: Using a here document</span>
+<span class="prompt">$</span> cat &lt;&lt;EOF > notes.txt
+Line 1: Hello
+Line 2: World
+Line 3: Done
+EOF
+
+<span class="prompt">$</span> cat notes.txt
+<span class="output">Line 1: Hello</span>
+<span class="output">Line 2: World</span>
+<span class="output">Line 3: Done</span>
+
+<span class="prompt">$</span> wc notes.txt
+<span class="output"> 3  9 42 notes.txt</span>
+
+<span class="prompt"># 3 lines, 9 words, 42 characters</span></pre></div>
+      <p><strong>Key points:</strong> <code>echo -e</code> interprets escape sequences like <code>\n</code>. Here documents (<code>&lt;&lt;EOF</code>) allow multi-line input. <code>wc</code> shows lines, words, and bytes by default.</p>
+    </details>
+  </div>
+
+  <!-- Exercise B8 -->
+  <div class="exercise">
+    <h3>Exercise B8: Check Disk Space and Memory</h3>
+    <p><strong>Task:</strong> Check how much disk space is available on your system (in human-readable format) and how much RAM is being used.</p>
+    <p><strong>Expected outcome:</strong> Disk usage per filesystem with sizes in GB/MB, and memory usage showing total, used, and available RAM.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> df -h
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="output">/dev/sda1       500G  120G  355G  26% /</span>
+<span class="output">tmpfs           7.8G   24M  7.8G   1% /dev/shm</span>
+<span class="output">...</span>
+
+<span class="prompt">$</span> free -h
+<span class="output">              total        used        free      shared  buff/cache   available</span>
+<span class="output">Mem:           15Gi       4.2Gi       8.1Gi       256Mi       3.1Gi        10Gi</span>
+<span class="output">Swap:         2.0Gi          0B       2.0Gi</span></pre></div>
+      <p><strong>Key points:</strong> <code>df -h</code> shows disk filesystem usage. <code>free -h</code> shows RAM usage. The <code>-h</code> flag means human-readable (KB, MB, GB instead of bytes).</p>
+    </details>
+  </div>
+
+  <!-- Exercise B9 -->
+  <div class="exercise">
+    <h3>Exercise B9: Use Man Pages</h3>
+    <p><strong>Task:</strong> Use the man page for the <code>cp</code> command to find out what the <code>-p</code> flag does. Then use <code>cp -p</code> to copy a file while preserving its timestamps.</p>
+    <p><strong>Expected outcome:</strong> You should find that <code>-p</code> preserves mode, ownership, and timestamps. The copied file should have the same modification time as the original.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> man cp
+<span class="prompt"># Search for -p by pressing / then typing -p then Enter</span>
+<span class="prompt"># You'll find: -p  same as --preserve=mode,ownership,timestamps</span>
+<span class="prompt"># Press q to quit man</span>
+
+<span class="prompt">$</span> touch -t 202301150900 original.txt   # Create file with specific timestamp
+<span class="prompt">$</span> ls -l original.txt
+<span class="output">-rw-r--r-- 1 user user 0 Jan 15  2023 original.txt</span>
+
+<span class="prompt">$</span> cp -p original.txt copy_preserved.txt
+<span class="prompt">$</span> cp original.txt copy_normal.txt
+
+<span class="prompt">$</span> ls -l original.txt copy_preserved.txt copy_normal.txt
+<span class="output">-rw-r--r-- 1 user user 0 Mar 31 10:00 copy_normal.txt</span>
+<span class="output">-rw-r--r-- 1 user user 0 Jan 15  2023 copy_preserved.txt</span>
+<span class="output">-rw-r--r-- 1 user user 0 Jan 15  2023 original.txt</span></pre></div>
+      <p><strong>Key points:</strong> In <code>man</code>, press <code>/</code> to search, <code>n</code> for next match, <code>q</code> to quit. <code>cp -p</code> preserves timestamps. Without <code>-p</code>, the copy gets the current time.</p>
+    </details>
+  </div>
+
+  <!-- Exercise B10 -->
+  <div class="exercise">
+    <h3>Exercise B10: Understand File Permissions</h3>
+    <p><strong>Task:</strong> Create a file and a directory. Check their default permissions. Change the file to be readable by everyone but writable only by the owner. Make the directory accessible only to the owner.</p>
+    <p><strong>Expected outcome:</strong> The file has <code>-rw-r--r--</code> (644) permissions. The directory has <code>drwx------</code> (700) permissions.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> touch myfile.txt
+<span class="prompt">$</span> mkdir mydir
+
+<span class="prompt"># Check default permissions</span>
+<span class="prompt">$</span> ls -la myfile.txt mydir
+<span class="output">-rw-rw-r-- 1 user user 0 Mar 31 10:00 myfile.txt</span>
+<span class="output">drwxrwxr-x 2 user user 4096 Mar 31 10:00 mydir</span>
+
+<span class="prompt"># Set file: owner rw, group r, others r (644)</span>
+<span class="prompt">$</span> chmod 644 myfile.txt
+
+<span class="prompt"># Set directory: owner only (700)</span>
+<span class="prompt">$</span> chmod 700 mydir
+
+<span class="prompt">$</span> ls -la myfile.txt mydir
+<span class="output">-rw-r--r-- 1 user user 0 Mar 31 10:00 myfile.txt</span>
+<span class="output">drwx------ 2 user user 4096 Mar 31 10:00 mydir</span></pre></div>
+      <p><strong>Key points:</strong> 6 = rw (4+2), 4 = r (read only), 0 = no access. 7 = rwx (4+2+1). First digit = owner, second = group, third = others.</p>
+    </details>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Intermediate Exercises</h2>
+  <!-- ================================================================ -->
+
+  <p>These exercises combine multiple commands and concepts. You should be comfortable with Chapters 5 through 10 before attempting these.</p>
+
+  <!-- Exercise I1 -->
+  <div class="exercise">
+    <h3>Exercise I1: Find Large Log Files</h3>
+    <p><strong>Task:</strong> Find all <code>.log</code> files in <code>/var/log</code> that are larger than 1 MB. Sort them by size, largest first.</p>
+    <p><strong>Expected outcome:</strong> A list of log files larger than 1 MB with their sizes, sorted from largest to smallest.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Method 1: Using find with -size</span>
+<span class="prompt">$</span> sudo find /var/log -name "*.log" -size +1M -exec ls -lh {} \; | sort -k5 -hr
+<span class="output">-rw-r----- 1 syslog adm 25M Mar 31 09:00 /var/log/syslog</span>
+<span class="output">-rw-r----- 1 syslog adm 12M Mar 30 23:59 /var/log/kern.log</span>
+<span class="output">-rw-r--r-- 1 root   root 3.5M Mar 31 08:00 /var/log/dpkg.log</span>
+
+<span class="prompt"># Method 2: Using find with -printf for cleaner output</span>
+<span class="prompt">$</span> sudo find /var/log -name "*.log" -size +1M -printf "%s %p\n" | sort -nr | \
+  awk '{printf "%.1fM %s\n", $1/1048576, $2}'
+<span class="output">25.0M /var/log/syslog</span>
+<span class="output">12.0M /var/log/kern.log</span>
+<span class="output">3.5M /var/log/dpkg.log</span></pre></div>
+      <p><strong>Key points:</strong> <code>find -size +1M</code> matches files larger than 1 megabyte. <code>-exec</code> runs a command on each result. <code>sort -hr</code> sorts human-readable sizes in reverse.</p>
+    </details>
+  </div>
+
+  <!-- Exercise I2 -->
+  <div class="exercise">
+    <h3>Exercise I2: Count Lines in Multiple Files</h3>
+    <p><strong>Task:</strong> Create a test directory with 5 <code>.txt</code> files containing varying numbers of lines. Count the number of lines in each file and display the total across all files.</p>
+    <p><strong>Expected outcome:</strong> Line counts for each file and a grand total.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Setup: create test files</span>
+<span class="prompt">$</span> mkdir -p ~/practice/textfiles && cd ~/practice/textfiles
+<span class="prompt">$</span> seq 10 > a.txt
+<span class="prompt">$</span> seq 25 > b.txt
+<span class="prompt">$</span> seq 50 > c.txt
+<span class="prompt">$</span> seq 100 > d.txt
+<span class="prompt">$</span> seq 5 > e.txt
+
+<span class="prompt"># Count lines in all .txt files</span>
+<span class="prompt">$</span> wc -l *.txt
+<span class="output">  10 a.txt</span>
+<span class="output">  25 b.txt</span>
+<span class="output">  50 c.txt</span>
+<span class="output"> 100 d.txt</span>
+<span class="output">   5 e.txt</span>
+<span class="output"> 190 total</span>
+
+<span class="prompt"># Just the total:</span>
+<span class="prompt">$</span> cat *.txt | wc -l
+<span class="output">190</span></pre></div>
+      <p><strong>Key points:</strong> <code>wc -l</code> counts lines. When given multiple files, <code>wc</code> shows each count plus a total. <code>seq N</code> generates numbers from 1 to N, one per line.</p>
+    </details>
+  </div>
+
+  <!-- Exercise I3 -->
+  <div class="exercise">
+    <h3>Exercise I3: Create a Compressed Backup</h3>
+    <p><strong>Task:</strong> Create a directory called <code>my-project</code> with several files in it. Create a compressed <code>.tar.gz</code> archive of the entire directory. Then list the archive contents without extracting. Finally, extract it to a different location.</p>
+    <p><strong>Expected outcome:</strong> A <code>.tar.gz</code> file, a listing of its contents, and a successful extraction to a new location.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Setup</span>
+<span class="prompt">$</span> mkdir -p ~/practice/my-project
+<span class="prompt">$</span> echo "readme content" > ~/practice/my-project/README.md
+<span class="prompt">$</span> echo "main code" > ~/practice/my-project/main.py
+<span class="prompt">$</span> echo "config here" > ~/practice/my-project/config.yaml
+
+<span class="prompt"># Create the archive</span>
+<span class="prompt">$</span> cd ~/practice
+<span class="prompt">$</span> tar -czvf my-project-backup.tar.gz my-project/
+<span class="output">my-project/</span>
+<span class="output">my-project/README.md</span>
+<span class="output">my-project/main.py</span>
+<span class="output">my-project/config.yaml</span>
+
+<span class="prompt"># List contents without extracting</span>
+<span class="prompt">$</span> tar -tzvf my-project-backup.tar.gz
+<span class="output">drwxr-xr-x user/user   0 2026-03-31 10:00 my-project/</span>
+<span class="output">-rw-r--r-- user/user  15 2026-03-31 10:00 my-project/README.md</span>
+<span class="output">-rw-r--r-- user/user  10 2026-03-31 10:00 my-project/main.py</span>
+<span class="output">-rw-r--r-- user/user  12 2026-03-31 10:00 my-project/config.yaml</span>
+
+<span class="prompt"># Extract to a different location</span>
+<span class="prompt">$</span> mkdir ~/practice/restored
+<span class="prompt">$</span> tar -xzvf my-project-backup.tar.gz -C ~/practice/restored/
+<span class="prompt">$</span> ls ~/practice/restored/my-project/
+<span class="output">config.yaml  main.py  README.md</span></pre></div>
+      <p><strong>Key points:</strong> <code>-c</code> = create, <code>-x</code> = extract, <code>-t</code> = list, <code>-z</code> = gzip compression, <code>-v</code> = verbose, <code>-f</code> = filename. <code>-C</code> specifies the extraction directory.</p>
+    </details>
+  </div>
+
+  <!-- Exercise I4 -->
+  <div class="exercise">
+    <h3>Exercise I4: Find Recently Modified Files</h3>
+    <p><strong>Task:</strong> Find all files in your home directory (not subdirectories) that were modified in the last 24 hours. Show them with their modification times.</p>
+    <p><strong>Expected outcome:</strong> A list of recently modified files with timestamps.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Find files modified in last 24 hours (maxdepth 1 = no subdirectories)</span>
+<span class="prompt">$</span> find ~ -maxdepth 1 -type f -mtime -1 -exec ls -lh {} \;
+<span class="output">-rw------- 1 user user 12K Mar 31 09:45 /home/user/.bash_history</span>
+<span class="output">-rw-r--r-- 1 user user  55 Mar 31 08:30 /home/user/.lesshst</span>
+
+<span class="prompt"># Alternative: using -mmin for minutes (last 60 minutes)</span>
+<span class="prompt">$</span> find ~ -maxdepth 1 -type f -mmin -60
+
+<span class="prompt"># Using -newer to find files modified after a reference file</span>
+<span class="prompt">$</span> touch -t 202603310000 /tmp/reference    # midnight today
+<span class="prompt">$</span> find ~ -maxdepth 1 -type f -newer /tmp/reference</pre></div>
+      <p><strong>Key points:</strong> <code>-mtime -1</code> means modified less than 1 day ago. <code>-mmin -60</code> means modified less than 60 minutes ago. <code>-maxdepth 1</code> prevents descending into subdirectories. <code>-type f</code> matches only regular files.</p>
+    </details>
+  </div>
+
+  <!-- Exercise I5 -->
+  <div class="exercise">
+    <h3>Exercise I5: Find the Five Most Common Words in a File</h3>
+    <p><strong>Task:</strong> Create a text file with at least 20 words (some repeated). Write a single pipe chain that finds the 5 most common words and displays them with their counts.</p>
+    <p><strong>Expected outcome:</strong> A ranked list of the top 5 words with occurrence counts.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Create a test file</span>
+<span class="prompt">$</span> cat &lt;&lt;EOF > words.txt
+the quick brown fox jumps over the lazy dog
+the dog chased the fox around the yard
+the fox was quick but the dog was quicker
+quick fox quick dog the end
+EOF
+
+<span class="prompt"># Find top 5 most common words</span>
+<span class="prompt">$</span> cat words.txt | tr -s ' ' '\n' | tr '[:upper:]' '[:lower:]' | sort | uniq -c | sort -rn | head -5
+<span class="output">      8 the</span>
+<span class="output">      4 quick</span>
+<span class="output">      4 fox</span>
+<span class="output">      3 dog</span>
+<span class="output">      2 was</span></pre></div>
+      <p><strong>Pipeline explained:</strong></p>
+      <ol>
+        <li><code>tr -s ' ' '\n'</code> &mdash; replace spaces with newlines (one word per line)</li>
+        <li><code>tr '[:upper:]' '[:lower:]'</code> &mdash; convert to lowercase</li>
+        <li><code>sort</code> &mdash; sort alphabetically (required for <code>uniq</code>)</li>
+        <li><code>uniq -c</code> &mdash; count consecutive identical lines</li>
+        <li><code>sort -rn</code> &mdash; sort numerically in reverse (highest first)</li>
+        <li><code>head -5</code> &mdash; take the top 5</li>
+      </ol>
+    </details>
+  </div>
+
+  <!-- Exercise I6 -->
+  <div class="exercise">
+    <h3>Exercise I6: Search for a Pattern Across Files</h3>
+    <p><strong>Task:</strong> Create a directory with 5 different files. Put the word "ERROR" in 3 of them. Use <code>grep</code> to find all files containing "ERROR", display matching lines with line numbers, and count total matches.</p>
+    <p><strong>Expected outcome:</strong> The filenames, line numbers, and matching lines, plus a total count.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Setup</span>
+<span class="prompt">$</span> mkdir -p ~/practice/logs && cd ~/practice/logs
+<span class="prompt">$</span> echo -e "INFO: started\nERROR: disk full\nINFO: done" > server.log
+<span class="prompt">$</span> echo -e "DEBUG: init\nINFO: running" > debug.log
+<span class="prompt">$</span> echo -e "ERROR: timeout\nERROR: retry failed" > network.log
+<span class="prompt">$</span> echo -e "INFO: backup complete" > backup.log
+<span class="prompt">$</span> echo -e "WARN: slow query\nERROR: deadlock" > database.log
+
+<span class="prompt"># Find files containing ERROR with line numbers</span>
+<span class="prompt">$</span> grep -n "ERROR" *.log
+<span class="output">database.log:2:ERROR: deadlock</span>
+<span class="output">network.log:1:ERROR: timeout</span>
+<span class="output">network.log:2:ERROR: retry failed</span>
+<span class="output">server.log:2:ERROR: disk full</span>
+
+<span class="prompt"># List only filenames that match</span>
+<span class="prompt">$</span> grep -l "ERROR" *.log
+<span class="output">database.log</span>
+<span class="output">network.log</span>
+<span class="output">server.log</span>
+
+<span class="prompt"># Count total matches</span>
+<span class="prompt">$</span> grep -c "ERROR" *.log
+<span class="output">backup.log:0</span>
+<span class="output">database.log:1</span>
+<span class="output">debug.log:0</span>
+<span class="output">network.log:2</span>
+<span class="output">server.log:1</span>
+
+<span class="prompt"># Grand total:</span>
+<span class="prompt">$</span> grep -c "ERROR" *.log | awk -F: '{sum+=$2} END{print sum}'
+<span class="output">4</span></pre></div>
+      <p><strong>Key points:</strong> <code>-n</code> shows line numbers. <code>-l</code> lists only matching filenames. <code>-c</code> counts matches per file. <code>-r</code> searches recursively in directories.</p>
+    </details>
+  </div>
+
+  <!-- Exercise I7 -->
+  <div class="exercise">
+    <h3>Exercise I7: Process Management</h3>
+    <p><strong>Task:</strong> Start a long-running command in the background. Check that it is running. Bring it to the foreground. Suspend it. Resume it in the background. Then stop it.</p>
+    <p><strong>Expected outcome:</strong> You should demonstrate the full lifecycle of a background process.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Start a long-running process in the background</span>
+<span class="prompt">$</span> sleep 300 &amp;
+<span class="output">[1] 12345</span>
+
+<span class="prompt"># Check it is running</span>
+<span class="prompt">$</span> jobs
+<span class="output">[1]+  Running                 sleep 300 &amp;</span>
+
+<span class="prompt">$</span> ps aux | grep "sleep 300"
+<span class="output">user     12345  0.0  0.0   8076   580 pts/0    S    10:00   0:00 sleep 300</span>
+
+<span class="prompt"># Bring it to the foreground</span>
+<span class="prompt">$</span> fg %1
+<span class="output">sleep 300</span>
+
+<span class="prompt"># Suspend it with Ctrl+Z</span>
+<span class="output">^Z</span>
+<span class="output">[1]+  Stopped                 sleep 300</span>
+
+<span class="prompt"># Resume it in the background</span>
+<span class="prompt">$</span> bg %1
+<span class="output">[1]+ sleep 300 &amp;</span>
+
+<span class="prompt"># Stop it</span>
+<span class="prompt">$</span> kill %1
+<span class="output">[1]+  Terminated              sleep 300</span>
+
+<span class="prompt"># Verify it is gone</span>
+<span class="prompt">$</span> jobs
+<span class="prompt"># (no output - no running jobs)</span></pre></div>
+      <p><strong>Key points:</strong> <code>&amp;</code> starts in background. <code>jobs</code> lists background jobs. <code>fg</code> brings to foreground. <kbd>Ctrl+Z</kbd> suspends. <code>bg</code> resumes in background. <code>kill</code> terminates.</p>
+    </details>
+  </div>
+
+  <!-- Exercise I8 -->
+  <div class="exercise">
+    <h3>Exercise I8: Disk Usage Analysis</h3>
+    <p><strong>Task:</strong> Find the 5 largest files and the 5 largest directories in your home directory.</p>
+    <p><strong>Expected outcome:</strong> Two sorted lists showing the biggest space consumers.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Top 5 largest files in home directory (recursive)</span>
+<span class="prompt">$</span> find ~ -type f -exec du -h {} + 2>/dev/null | sort -rh | head -5
+<span class="output">250M    /home/user/Downloads/ubuntu.iso</span>
+<span class="output">85M     /home/user/.cache/mozilla/firefox/profile/cache2/entries</span>
+<span class="output">42M     /home/user/Documents/database-dump.sql</span>
+<span class="output">28M     /home/user/.local/share/Trash/files/old-video.mp4</span>
+<span class="output">15M     /home/user/projects/node_modules/somepkg/dist/bundle.js</span>
+
+<span class="prompt"># Top 5 largest directories (depth 1)</span>
+<span class="prompt">$</span> du -h --max-depth=1 ~ 2>/dev/null | sort -rh | head -5
+<span class="output">2.1G    /home/user</span>
+<span class="output">850M    /home/user/.cache</span>
+<span class="output">420M    /home/user/Downloads</span>
+<span class="output">310M    /home/user/projects</span>
+<span class="output">180M    /home/user/Documents</span></pre></div>
+      <p><strong>Key points:</strong> <code>du -h</code> shows disk usage in human-readable format. <code>--max-depth=1</code> limits how deep to go. <code>sort -rh</code> sorts human-readable sizes in reverse. <code>2>/dev/null</code> hides permission errors.</p>
+    </details>
+  </div>
+
+  <!-- Exercise I9 -->
+  <div class="exercise">
+    <h3>Exercise I9: Text Processing Pipeline</h3>
+    <p><strong>Task:</strong> Use <code>/etc/passwd</code> to extract a list of all user shells (the last field) and count how many users use each shell. Sort by count.</p>
+    <p><strong>Expected outcome:</strong> A list of shells with how many users are assigned to each.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt">$</span> cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn
+<span class="output">     17 /usr/sbin/nologin</span>
+<span class="output">      4 /bin/false</span>
+<span class="output">      2 /bin/bash</span>
+<span class="output">      1 /bin/sync</span>
+<span class="output">      1 /usr/bin/zsh</span>
+
+<span class="prompt"># Alternative using awk:</span>
+<span class="prompt">$</span> awk -F: '{print $7}' /etc/passwd | sort | uniq -c | sort -rn</pre></div>
+      <p><strong>Key points:</strong> <code>cut -d: -f7</code> extracts the 7th field using <code>:</code> as delimiter. <code>awk -F:</code> does the same thing. <code>sort | uniq -c</code> counts unique entries. Most system accounts use <code>/usr/sbin/nologin</code> (cannot log in).</p>
+    </details>
+  </div>
+
+  <!-- Exercise I10 -->
+  <div class="exercise">
+    <h3>Exercise I10: Network Diagnostics</h3>
+    <p><strong>Task:</strong> Check if you have internet connectivity, find your IP address, see which DNS servers you are using, and check if port 443 (HTTPS) is open on google.com.</p>
+    <p><strong>Expected outcome:</strong> Ping results, your IP address, DNS server list, and port connectivity result.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Check internet connectivity</span>
+<span class="prompt">$</span> ping -c 3 google.com
+<span class="output">PING google.com (142.250.80.46) 56(84) bytes of data.</span>
+<span class="output">64 bytes from lax17s55-in-f14.1e100.net: icmp_seq=1 ttl=117 time=10.2 ms</span>
+<span class="output">64 bytes from lax17s55-in-f14.1e100.net: icmp_seq=2 ttl=117 time=9.8 ms</span>
+<span class="output">64 bytes from lax17s55-in-f14.1e100.net: icmp_seq=3 ttl=117 time=10.1 ms</span>
+
+<span class="prompt"># Find your IP address</span>
+<span class="prompt">$</span> ip addr show | grep "inet " | grep -v 127.0.0.1
+<span class="output">    inet 192.168.1.100/24 brd 192.168.1.255 scope global dynamic eth0</span>
+
+<span class="prompt"># Or just the IP:</span>
+<span class="prompt">$</span> hostname -I
+<span class="output">192.168.1.100</span>
+
+<span class="prompt"># Check DNS servers</span>
+<span class="prompt">$</span> cat /etc/resolv.conf
+<span class="output">nameserver 8.8.8.8</span>
+<span class="output">nameserver 8.8.4.4</span>
+
+<span class="prompt"># Check if port 443 is open on google.com</span>
+<span class="prompt">$</span> nc -zv google.com 443
+<span class="output">Connection to google.com 443 port [tcp/https] succeeded!</span>
+
+<span class="prompt"># Alternative if nc is not installed:</span>
+<span class="prompt">$</span> curl -Is https://google.com | head -1
+<span class="output">HTTP/2 301</span></pre></div>
+      <p><strong>Key points:</strong> <code>ping -c 3</code> sends 3 packets. <code>ip addr</code> shows network interfaces. <code>hostname -I</code> shows IP addresses. <code>nc -zv</code> tests port connectivity. <code>curl -Is</code> fetches headers only.</p>
+    </details>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Advanced Exercises</h2>
+  <!-- ================================================================ -->
+
+  <p>These exercises require combining multiple skills and writing scripts. You should be comfortable with Chapters 11 and 12 before attempting these.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Take your time</div>
+    <p>Advanced exercises may take 15 to 30 minutes each. It is normal to need multiple attempts. Read the hints before looking at the answer.</p>
+  </div>
+
+  <!-- Exercise A1 -->
+  <div class="exercise">
+    <h3>Exercise A1: Disk Usage Monitor Script</h3>
+    <p><strong>Task:</strong> Write a bash script called <code>disk-check.sh</code> that:</p>
+    <ol>
+      <li>Checks the disk usage percentage of the root filesystem (<code>/</code>).</li>
+      <li>If usage is above 80%, prints a warning message with the current usage.</li>
+      <li>If usage is above 90%, prints a critical alert.</li>
+      <li>If usage is below 80%, prints an "all clear" message.</li>
+    </ol>
+    <p><strong>Hint:</strong> Use <code>df</code> to get the usage percentage, <code>awk</code> to extract it, and <code>if</code> statements to check thresholds.</p>
+    <p><strong>Expected outcome:</strong> A working script that displays appropriate messages based on disk usage.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre>#!/bin/bash
+# disk-check.sh - Monitor disk usage and warn if high
+
+# Get the usage percentage of the root filesystem (remove the % sign)
+usage=$(df / | awk 'NR==2 {print $5}' | tr -d '%')
+
+echo "Current disk usage: ${usage}%"
+
+if [ "$usage" -ge 90 ]; then
+    echo "CRITICAL: Disk usage is at ${usage}%! Immediate action required!"
+    echo "Top 10 largest directories:"
+    du -h --max-depth=1 / 2>/dev/null | sort -rh | head -10
+elif [ "$usage" -ge 80 ]; then
+    echo "WARNING: Disk usage is at ${usage}%. Consider cleaning up."
+    echo "Suggestions:"
+    echo "  - Clear package cache: sudo apt clean"
+    echo "  - Remove old kernels: sudo apt autoremove"
+    echo "  - Check /tmp: du -sh /tmp"
+    echo "  - Check logs: du -sh /var/log"
+else
+    echo "OK: Disk usage is healthy at ${usage}%."
+fi</pre></div>
+      <div class="code-block"><pre><span class="prompt">$</span> chmod +x disk-check.sh
+<span class="prompt">$</span> ./disk-check.sh
+<span class="output">Current disk usage: 26%</span>
+<span class="output">OK: Disk usage is healthy at 26%.</span></pre></div>
+      <p><strong>Key points:</strong> <code>df /</code> gets root filesystem info. <code>awk 'NR==2'</code> gets the second line (data, not header). <code>tr -d '%'</code> removes the percent sign for numeric comparison. <code>-ge</code> means "greater than or equal to" in bash.</p>
+    </details>
+  </div>
+
+  <!-- Exercise A2 -->
+  <div class="exercise">
+    <h3>Exercise A2: Find and Kill Processes by User</h3>
+    <p><strong>Task:</strong> Write a command (or short script) that lists all processes owned by a specific user, shows their PID, CPU usage, memory usage, and command. Then demonstrate how to kill all processes by that user (use a test user, not root).</p>
+    <p><strong>Hint:</strong> Use <code>ps</code> with user filtering, and <code>pkill</code> or <code>killall</code> for termination.</p>
+    <p><strong>Expected outcome:</strong> A process listing filtered by user, and a safe method to terminate those processes.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># List all processes by a specific user</span>
+<span class="prompt">$</span> ps -u username -o pid,pcpu,pmem,cmd --sort=-pcpu
+<span class="output">    PID %CPU %MEM CMD</span>
+<span class="output">  12345  2.3  1.5 /usr/bin/python3 app.py</span>
+<span class="output">  12346  0.5  0.8 /usr/bin/node server.js</span>
+<span class="output">  12347  0.1  0.3 bash</span>
+
+<span class="prompt"># Count processes by user</span>
+<span class="prompt">$</span> ps -u username --no-headers | wc -l
+<span class="output">3</span>
+
+<span class="prompt"># Kill all processes by user (CAREFUL - do not use on your own account!)</span>
+<span class="prompt"># Method 1: pkill (sends SIGTERM by default)</span>
+<span class="prompt">$</span> sudo pkill -u username
+
+<span class="prompt"># Method 2: Force kill if SIGTERM does not work</span>
+<span class="prompt">$</span> sudo pkill -9 -u username
+
+<span class="prompt"># Method 3: Using killall with a specific command</span>
+<span class="prompt">$</span> sudo killall -u username python3
+
+<span class="prompt"># Safe approach: list first, then kill specific PIDs</span>
+<span class="prompt">$</span> ps -u username -o pid --no-headers
+<span class="output">12345</span>
+<span class="output">12346</span>
+<span class="prompt">$</span> kill 12345 12346</pre></div>
+      <p><strong>Key points:</strong> Always list processes first before killing. <code>pkill -u</code> kills by username. <code>kill</code> sends SIGTERM (graceful). <code>kill -9</code> sends SIGKILL (force). Never kill processes for root or your own session carelessly.</p>
+    </details>
+  </div>
+
+  <!-- Exercise A3 -->
+  <div class="exercise">
+    <h3>Exercise A3: Set Up SSH Key-Based Authentication</h3>
+    <p><strong>Task:</strong> Generate an SSH key pair, explain the purpose of each file created, and describe the steps to set up passwordless SSH login to a remote server.</p>
+    <p><strong>Hint:</strong> Use <code>ssh-keygen</code> and <code>ssh-copy-id</code>.</p>
+    <p><strong>Expected outcome:</strong> A key pair generated, understanding of public vs. private keys, and a working passwordless login procedure.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Step 1: Generate an SSH key pair</span>
+<span class="prompt">$</span> ssh-keygen -t ed25519 -C "your_email@example.com"
+<span class="output">Generating public/private ed25519 key pair.</span>
+<span class="output">Enter file in which to save the key (/home/user/.ssh/id_ed25519): [Enter]</span>
+<span class="output">Enter passphrase (empty for no passphrase): [Enter or set a passphrase]</span>
+<span class="output">Your identification has been saved in /home/user/.ssh/id_ed25519</span>
+<span class="output">Your public key has been saved in /home/user/.ssh/id_ed25519.pub</span>
+
+<span class="prompt"># Step 2: Understand the files</span>
+<span class="prompt">$</span> ls -la ~/.ssh/
+<span class="output">-rw-------  1 user user  411 Mar 31 10:00 id_ed25519       # PRIVATE key (NEVER share)</span>
+<span class="output">-rw-r--r--  1 user user   97 Mar 31 10:00 id_ed25519.pub   # PUBLIC key (safe to share)</span>
+
+<span class="prompt"># Step 3: Copy the public key to the remote server</span>
+<span class="prompt">$</span> ssh-copy-id user@remote-server.com
+<span class="output">Number of key(s) added: 1</span>
+
+<span class="prompt"># Step 4: Test passwordless login</span>
+<span class="prompt">$</span> ssh user@remote-server.com
+<span class="output"># You should connect without being asked for a password</span>
+
+<span class="prompt"># Manual method (if ssh-copy-id is not available):</span>
+<span class="prompt">$</span> cat ~/.ssh/id_ed25519.pub | ssh user@remote-server.com "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys && chmod 700 ~/.ssh"</pre></div>
+      <p><strong>Key concepts:</strong></p>
+      <ul>
+        <li><strong>Private key</strong> (<code>id_ed25519</code>): stays on your machine. Permissions must be <code>600</code>. Never share it.</li>
+        <li><strong>Public key</strong> (<code>id_ed25519.pub</code>): placed on remote servers in <code>~/.ssh/authorized_keys</code>.</li>
+        <li><strong>ed25519</strong> is the recommended algorithm (faster and more secure than RSA).</li>
+        <li>A passphrase adds an extra layer of security to your private key.</li>
+      </ul>
+    </details>
+  </div>
+
+  <!-- Exercise A4 -->
+  <div class="exercise">
+    <h3>Exercise A4: Create an Alias System for Common Workflows</h3>
+    <p><strong>Task:</strong> Create a set of useful aliases and shell functions in your <code>~/.bashrc</code> for common workflows: quick navigation, git shortcuts, log viewing, and system checks. Reload the configuration and test them.</p>
+    <p><strong>Expected outcome:</strong> Working aliases and functions that speed up your daily workflow.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Add these to ~/.bashrc</span>
+<span class="prompt">$</span> cat &lt;&lt;'EOF' >> ~/.bashrc
+
+# === Custom Aliases ===
+
+# Navigation shortcuts
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias projects='cd ~/projects'
+alias docs='cd ~/Documents'
+
+# Listing improvements
+alias ll='ls -lah'
+alias la='ls -A'
+alias lt='ls -lht'         # Sort by time, newest first
+alias lsize='ls -lhS'      # Sort by size, largest first
+
+# Safety nets
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+
+# Git shortcuts
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit -m'
+alias gp='git push'
+alias gl='git log --oneline -10'
+alias gd='git diff'
+
+# System info
+alias myip='hostname -I'
+alias ports='ss -tuln'
+alias meminfo='free -h'
+alias diskinfo='df -h'
+
+# Quick log viewing
+alias syslog='sudo tail -f /var/log/syslog'
+alias authlog='sudo tail -f /var/log/auth.log'
+
+# Functions
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+extract() {
+    if [ -f "$1" ]; then
+        case "$1" in
+            *.tar.bz2) tar xjf "$1" ;;
+            *.tar.gz)  tar xzf "$1" ;;
+            *.tar.xz)  tar xf "$1"  ;;
+            *.bz2)     bunzip2 "$1"  ;;
+            *.gz)       gunzip "$1"  ;;
+            *.tar)     tar xf "$1"   ;;
+            *.zip)     unzip "$1"    ;;
+            *.7z)      7z x "$1"     ;;
+            *) echo "Cannot extract '$1'" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}
+EOF
+
+<span class="prompt"># Reload the configuration</span>
+<span class="prompt">$</span> source ~/.bashrc
+
+<span class="prompt"># Test the aliases</span>
+<span class="prompt">$</span> ll
+<span class="prompt">$</span> mkcd ~/practice/new-test-dir
+<span class="prompt">$</span> pwd
+<span class="output">/home/user/practice/new-test-dir</span></pre></div>
+      <p><strong>Key points:</strong> Aliases go in <code>~/.bashrc</code> (or <code>~/.bash_aliases</code>). Functions handle more complex logic than aliases. <code>source ~/.bashrc</code> reloads without restarting the terminal. Use single quotes in alias definitions to prevent premature expansion.</p>
+    </details>
+  </div>
+
+  <!-- Exercise A5 -->
+  <div class="exercise">
+    <h3>Exercise A5: Log File Analyzer Script</h3>
+    <p><strong>Task:</strong> Write a bash script that analyzes a log file and produces a summary report including:</p>
+    <ol>
+      <li>Total number of lines</li>
+      <li>Number of ERROR, WARNING, and INFO entries</li>
+      <li>The 5 most frequent error messages</li>
+      <li>The hour of the day with the most log entries</li>
+    </ol>
+    <p><strong>Hint:</strong> Use <code>grep -c</code>, <code>awk</code>, <code>sort</code>, <code>uniq -c</code>, and <code>head</code>.</p>
+    <p><strong>Expected outcome:</strong> A working script that produces a formatted log analysis report.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre>#!/bin/bash
+# log-analyzer.sh - Analyze a log file and produce a summary
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 &lt;logfile&gt;"
+    exit 1
+fi
+
+LOGFILE="$1"
+
+if [ ! -f "$LOGFILE" ]; then
+    echo "Error: File '$LOGFILE' not found."
+    exit 1
+fi
+
+echo "========================================"
+echo "  Log Analysis Report"
+echo "  File: $LOGFILE"
+echo "  Date: $(date)"
+echo "========================================"
+echo ""
+
+# Total lines
+total=$(wc -l < "$LOGFILE")
+echo "Total log entries: $total"
+echo ""
+
+# Count by severity
+errors=$(grep -c "ERROR" "$LOGFILE")
+warnings=$(grep -c "WARN" "$LOGFILE")
+infos=$(grep -c "INFO" "$LOGFILE")
+echo "Severity Breakdown:"
+echo "  ERROR:   $errors"
+echo "  WARNING: $warnings"
+echo "  INFO:    $infos"
+echo ""
+
+# Top 5 error messages
+echo "Top 5 Most Frequent Error Messages:"
+grep "ERROR" "$LOGFILE" | sed 's/.*ERROR[: ]*//' | sort | uniq -c | sort -rn | head -5 | \
+    while read count msg; do
+        printf "  %4d  %s\n" "$count" "$msg"
+    done
+echo ""
+
+# Busiest hour
+echo "Busiest Hours (top 5):"
+awk '{print substr($0, 1, 13)}' "$LOGFILE" | grep -oE '[0-9]{2}:' | sort | uniq -c | sort -rn | head -5 | \
+    while read count hour; do
+        printf "  %4d entries at %s00\n" "$count" "$hour"
+    done
+echo ""
+echo "========================================"</pre></div>
+      <div class="code-block"><pre><span class="prompt"># Create a test log file</span>
+<span class="prompt">$</span> for i in $(seq 1 100); do
+  hour=$(printf "%02d" $((RANDOM % 24)))
+  level=$(shuf -e INFO INFO INFO WARN ERROR -n1)
+  msg=$(shuf -e "disk full" "timeout" "connected" "retry" "success" -n1)
+  echo "2026-03-31 ${hour}:$((RANDOM%60)):00 ${level}: ${msg}"
+done > test.log
+
+<span class="prompt">$</span> chmod +x log-analyzer.sh
+<span class="prompt">$</span> ./log-analyzer.sh test.log</pre></div>
+    </details>
+  </div>
+
+  <!-- Exercise A6 -->
+  <div class="exercise">
+    <h3>Exercise A6: Automated Backup Script with Rotation</h3>
+    <p><strong>Task:</strong> Write a script that creates a timestamped backup of a given directory, compresses it, and keeps only the 5 most recent backups (deleting older ones).</p>
+    <p><strong>Expected outcome:</strong> A working backup script with automatic rotation.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre>#!/bin/bash
+# backup.sh - Create compressed backup with rotation
+
+SOURCE_DIR="${1:-.}"            # Directory to backup (default: current)
+BACKUP_DIR="${2:-$HOME/backups}" # Where to store backups
+KEEP=5                          # Number of backups to keep
+
+# Validate source directory
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo "Error: Source directory '$SOURCE_DIR' does not exist."
+    exit 1
+fi
+
+# Create backup directory if needed
+mkdir -p "$BACKUP_DIR"
+
+# Create backup filename with timestamp
+DIRNAME=$(basename "$(realpath "$SOURCE_DIR")")
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="${BACKUP_DIR}/${DIRNAME}_${TIMESTAMP}.tar.gz"
+
+# Create the backup
+echo "Backing up '$SOURCE_DIR' to '$BACKUP_FILE'..."
+tar -czf "$BACKUP_FILE" -C "$(dirname "$SOURCE_DIR")" "$DIRNAME"
+
+if [ $? -eq 0 ]; then
+    SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
+    echo "Backup created successfully ($SIZE)"
+else
+    echo "Error: Backup failed!"
+    exit 1
+fi
+
+# Rotation: keep only the most recent backups
+BACKUP_COUNT=$(ls -1 "${BACKUP_DIR}/${DIRNAME}_"*.tar.gz 2>/dev/null | wc -l)
+if [ "$BACKUP_COUNT" -gt "$KEEP" ]; then
+    DELETE_COUNT=$((BACKUP_COUNT - KEEP))
+    echo "Rotating: removing $DELETE_COUNT old backup(s)..."
+    ls -1t "${BACKUP_DIR}/${DIRNAME}_"*.tar.gz | tail -n "$DELETE_COUNT" | xargs rm -f
+fi
+
+echo "Current backups ($BACKUP_COUNT, keeping $KEEP):"
+ls -lh "${BACKUP_DIR}/${DIRNAME}_"*.tar.gz</pre></div>
+      <div class="code-block"><pre><span class="prompt">$</span> chmod +x backup.sh
+<span class="prompt">$</span> ./backup.sh ~/projects/my-app ~/backups
+<span class="output">Backing up '/home/user/projects/my-app' to '/home/user/backups/my-app_20260331_100000.tar.gz'...</span>
+<span class="output">Backup created successfully (2.3M)</span>
+<span class="output">Current backups (1, keeping 5):</span>
+<span class="output">-rw-r--r-- 1 user user 2.3M Mar 31 10:00 /home/user/backups/my-app_20260331_100000.tar.gz</span></pre></div>
+    </details>
+  </div>
+
+  <!-- Exercise A7 -->
+  <div class="exercise">
+    <h3>Exercise A7: Cron Job for Scheduled Tasks</h3>
+    <p><strong>Task:</strong> Set up a cron job that runs the disk check script (from Exercise A1) every day at 8:00 AM and appends the output to a log file. List your cron jobs to verify.</p>
+    <p><strong>Expected outcome:</strong> A working crontab entry and understanding of cron syntax.</p>
+
+    <details>
+      <summary>Show Answer</summary>
+      <div class="code-block"><pre><span class="prompt"># Edit your crontab</span>
+<span class="prompt">$</span> crontab -e
+
+<span class="prompt"># Add this line (runs at 8:00 AM every day):</span>
+<span class="output">0 8 * * * /home/user/scripts/disk-check.sh >> /home/user/logs/disk-check.log 2>&amp;1</span>
+
+<span class="prompt"># Cron syntax explained:</span>
+<span class="prompt"># ┌───────────── minute (0-59)</span>
+<span class="prompt"># │ ┌───────────── hour (0-23)</span>
+<span class="prompt"># │ │ ┌───────────── day of month (1-31)</span>
+<span class="prompt"># │ │ │ ┌───────────── month (1-12)</span>
+<span class="prompt"># │ │ │ │ ┌───────────── day of week (0-7, 0 and 7 = Sunday)</span>
+<span class="prompt"># │ │ │ │ │</span>
+<span class="prompt"># 0 8 * * * command</span>
+
+<span class="prompt"># Verify your crontab</span>
+<span class="prompt">$</span> crontab -l
+<span class="output">0 8 * * * /home/user/scripts/disk-check.sh >> /home/user/logs/disk-check.log 2>&amp;1</span>
+
+<span class="prompt"># Other useful cron schedules:</span>
+<span class="prompt"># Every 30 minutes:      */30 * * * *</span>
+<span class="prompt"># Every Monday at 9 AM:  0 9 * * 1</span>
+<span class="prompt"># First of every month:  0 0 1 * *</span>
+<span class="prompt"># Every weekday at 6 PM: 0 18 * * 1-5</span></pre></div>
+      <p><strong>Key points:</strong> Use <code>crontab -e</code> to edit, <code>crontab -l</code> to list. Always use full paths in cron jobs. Redirect output to a log file for debugging. <code>2>&amp;1</code> captures both stdout and stderr.</p>
+    </details>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Progress Tracker</h2>
+  <!-- ================================================================ -->
+
+  <div class="concept-box">
+    <h3>Track Your Progress</h3>
+    <p>Mark exercises as you complete them. Come back and redo exercises you found difficult.</p>
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Exercise</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Topic</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Difficulty</th>
+          <th style="text-align:center; padding:8px; border-bottom:2px solid var(--border);">Chapters</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B1</td><td style="padding:6px; border-bottom:1px solid var(--border);">Navigate and list</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">2</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B2</td><td style="padding:6px; border-bottom:1px solid var(--border);">Directory structure</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">3</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B3</td><td style="padding:6px; border-bottom:1px solid var(--border);">File operations</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">3</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B4</td><td style="padding:6px; border-bottom:1px solid var(--border);">Viewing files</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">4</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B5</td><td style="padding:6px; border-bottom:1px solid var(--border);">User information</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">1, 6</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B6</td><td style="padding:6px; border-bottom:1px solid var(--border);">History</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">2</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B7</td><td style="padding:6px; border-bottom:1px solid var(--border);">Create and view files</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">3, 4</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B8</td><td style="padding:6px; border-bottom:1px solid var(--border);">System info</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">8</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B9</td><td style="padding:6px; border-bottom:1px solid var(--border);">Man pages</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">2</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">B10</td><td style="padding:6px; border-bottom:1px solid var(--border);">Permissions</td><td style="padding:6px; border-bottom:1px solid var(--border);">Beginner</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">6</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I1</td><td style="padding:6px; border-bottom:1px solid var(--border);">Find large files</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">5</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I2</td><td style="padding:6px; border-bottom:1px solid var(--border);">Count lines</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">4</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I3</td><td style="padding:6px; border-bottom:1px solid var(--border);">Compressed backup</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">10</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I4</td><td style="padding:6px; border-bottom:1px solid var(--border);">Recently modified</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">5</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I5</td><td style="padding:6px; border-bottom:1px solid var(--border);">Word frequency</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">4, 5</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I6</td><td style="padding:6px; border-bottom:1px solid var(--border);">grep patterns</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">5</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I7</td><td style="padding:6px; border-bottom:1px solid var(--border);">Process management</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">7</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I8</td><td style="padding:6px; border-bottom:1px solid var(--border);">Disk usage</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">8</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I9</td><td style="padding:6px; border-bottom:1px solid var(--border);">Text processing</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">4, 5</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">I10</td><td style="padding:6px; border-bottom:1px solid var(--border);">Network diagnostics</td><td style="padding:6px; border-bottom:1px solid var(--border);">Intermediate</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">9</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">A1</td><td style="padding:6px; border-bottom:1px solid var(--border);">Disk monitor script</td><td style="padding:6px; border-bottom:1px solid var(--border);">Advanced</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">8, 12</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">A2</td><td style="padding:6px; border-bottom:1px solid var(--border);">Process management</td><td style="padding:6px; border-bottom:1px solid var(--border);">Advanced</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">7</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">A3</td><td style="padding:6px; border-bottom:1px solid var(--border);">SSH keys</td><td style="padding:6px; border-bottom:1px solid var(--border);">Advanced</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">9</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">A4</td><td style="padding:6px; border-bottom:1px solid var(--border);">Aliases and functions</td><td style="padding:6px; border-bottom:1px solid var(--border);">Advanced</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">12</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">A5</td><td style="padding:6px; border-bottom:1px solid var(--border);">Log analyzer script</td><td style="padding:6px; border-bottom:1px solid var(--border);">Advanced</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">5, 12</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">A6</td><td style="padding:6px; border-bottom:1px solid var(--border);">Backup with rotation</td><td style="padding:6px; border-bottom:1px solid var(--border);">Advanced</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">10, 12</td></tr>
+        <tr><td style="padding:6px; border-bottom:1px solid var(--border);">A7</td><td style="padding:6px; border-bottom:1px solid var(--border);">Cron jobs</td><td style="padding:6px; border-bottom:1px solid var(--border);">Advanced</td><td style="padding:6px; border-bottom:1px solid var(--border); text-align:center;">12</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert__title">What to do next</div>
+    <p>Once you have completed all exercises, try combining them. For example: write a script that runs the disk check, creates a backup if disk usage is low, and emails you the results via a cron job. Real-world Linux usage is all about combining simple commands into powerful workflows.</p>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

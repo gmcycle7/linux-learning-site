@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux Fundamentals — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo"><span class="logo-icon">&#127427;</span> Linux Learning Guide</a>
+  <div class="topbar__search"><span class="search-icon">&#128269;</span><input type="text" placeholder="Search commands, topics..." aria-label="Search"><div class="search-results"></div></div>
+</header>
+<div class="layout">
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link active" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+<main class="main">
+  <div class="breadcrumb"><a href="../../index.html">Home</a> <span class="sep">&rsaquo;</span> Linux Fundamentals</div>
+
+  <!-- =========================================================
+       CHAPTER 1 — LINUX FUNDAMENTALS
+       ========================================================= -->
+
+  <h1>Chapter 1: Linux Fundamentals</h1>
+
+  <p>Welcome to the very first chapter of the Linux Learning Guide. Before you type a single command, it is essential to understand <strong>what Linux actually is</strong>, how it is structured, and why millions of developers, companies, and devices rely on it every day. This chapter builds the mental foundation you will use throughout every subsequent lesson.</p>
+
+  <div class="alert alert-info">
+    <strong>No prior experience required.</strong> This chapter assumes you have never used Linux before. Every concept is explained from scratch with analogies, diagrams, and examples.
+  </div>
+
+  <!-- ==========================================================
+       SECTION 1 — WHAT IS LINUX?
+       ========================================================== -->
+
+  <h2 id="what-is-linux">1.1 What is Linux?</h2>
+
+  <p><strong>Linux</strong> is an <em>operating system</em> &mdash; the foundational software that sits between you and your computer's hardware. Just as Windows runs your PC or macOS runs your Mac, Linux runs computers too. But Linux is fundamentally different in one crucial way: <strong>it is completely free and open source</strong>. Anyone in the world can view, modify, and distribute its source code.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: The Restaurant Analogy</div>
+    <p>Think of your computer as a <strong>restaurant</strong>:</p>
+    <ul>
+      <li><strong>The hardware</strong> (CPU, RAM, disk) is the <strong>kitchen</strong> &mdash; where the real work happens.</li>
+      <li><strong>The operating system (Linux)</strong> is the <strong>manager</strong> &mdash; it takes your orders, tells the kitchen what to cook, and brings the food back to you.</li>
+      <li><strong>Applications</strong> (web browser, text editor) are the <strong>menu items</strong> &mdash; the things you actually want.</li>
+      <li><strong>You</strong> are the <strong>customer</strong> &mdash; you give orders and receive results.</li>
+    </ul>
+    <p>Without the manager (operating system), the kitchen has no idea what to cook and you cannot get your food. Linux <em>is</em> that manager.</p>
+  </div>
+
+  <h3>Why Does Linux Matter?</h3>
+
+  <p>Linux is not just "another operating system." It runs an extraordinary share of the world's computing infrastructure:</p>
+
+  <ul>
+    <li><strong>Servers:</strong> Over 90% of the world's top 500 supercomputers run Linux. Most web servers (including the ones that power Google, Amazon, Facebook, and Netflix) run Linux.</li>
+    <li><strong>Mobile Phones:</strong> Android, the most popular mobile operating system on Earth, is built on the Linux kernel.</li>
+    <li><strong>Cloud Computing:</strong> The vast majority of cloud instances on AWS, Google Cloud, and Azure run Linux.</li>
+    <li><strong>IoT &amp; Embedded Devices:</strong> Smart TVs, routers, refrigerators, cars, and even Mars rovers use Linux.</li>
+    <li><strong>Development:</strong> Most software developers use Linux as their primary development environment, either directly or through tools like WSL (Windows Subsystem for Linux).</li>
+  </ul>
+
+  <div class="alert alert-tip">
+    <strong>Career tip:</strong> Knowing Linux is one of the most valuable skills in tech. Nearly every DevOps, system administration, cloud engineering, and backend development role requires Linux knowledge.
+  </div>
+
+  <h3>A Brief History</h3>
+
+  <p>In 1991, a Finnish university student named <strong>Linus Torvalds</strong> started building a free operating system kernel as a hobby project. He posted a now-famous message to a Usenet newsgroup:</p>
+
+  <blockquote>
+    "I'm doing a (free) operating system (just a hobby, won't be big and professional like GNU) for 386(486) AT clones."
+  </blockquote>
+
+  <p>That "hobby" became <strong>Linux</strong>, and it grew thanks to thousands of contributors worldwide. Combined with the <strong>GNU project</strong> (which provided essential tools like compilers, shells, and utilities), it became a fully functional operating system often referred to as <strong>GNU/Linux</strong>.</p>
+
+  <h3>Open Source: What Does It Mean?</h3>
+
+  <p>When software is <strong>open source</strong>, its source code is publicly available. Anyone can:</p>
+
+  <ol>
+    <li><strong>Read</strong> the code to understand exactly what the software does.</li>
+    <li><strong>Modify</strong> it to fix bugs or add features.</li>
+    <li><strong>Distribute</strong> their modified version to others.</li>
+    <li><strong>Use</strong> it for any purpose, including commercial use, at no cost.</li>
+  </ol>
+
+  <p>This is in contrast to <strong>proprietary</strong> (closed-source) software like Windows or macOS, where the source code is secret and controlled by a single company.</p>
+
+  <!-- ==========================================================
+       SECTION 2 — LINUX DISTRIBUTIONS
+       ========================================================== -->
+
+  <h2 id="distributions">1.2 Linux Distributions</h2>
+
+  <p>Unlike Windows, which comes in a single flavor from Microsoft, Linux comes in many different <strong>distributions</strong> (commonly called <strong>distros</strong>). A distribution is a complete operating system built around the Linux kernel, bundled with a package manager, desktop environment, and a curated set of software.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Ice Cream Flavors</div>
+    <p>Think of the Linux kernel as the <strong>base ice cream</strong>. A distribution is a <strong>flavor</strong> &mdash; vanilla, chocolate, strawberry &mdash; each made from the same base but with different toppings, sweetness levels, and target audiences. Ubuntu is like a crowd-pleasing vanilla: easy, popular, and widely available. Arch Linux is like an exotic, DIY flavor: you assemble it yourself and customize every ingredient.</p>
+  </div>
+
+  <h3>Popular Distributions</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Distribution</th>
+        <th>Based On</th>
+        <th>Difficulty</th>
+        <th>Package Manager</th>
+        <th>Best For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Ubuntu</strong></td>
+        <td>Debian</td>
+        <td>Beginner</td>
+        <td>apt</td>
+        <td>Desktops, servers, learning Linux</td>
+      </tr>
+      <tr>
+        <td><strong>Linux Mint</strong></td>
+        <td>Ubuntu</td>
+        <td>Beginner</td>
+        <td>apt</td>
+        <td>Windows switchers, everyday desktop use</td>
+      </tr>
+      <tr>
+        <td><strong>Debian</strong></td>
+        <td>&mdash; (independent)</td>
+        <td>Intermediate</td>
+        <td>apt</td>
+        <td>Stability-focused servers, advanced desktops</td>
+      </tr>
+      <tr>
+        <td><strong>Fedora</strong></td>
+        <td>&mdash; (independent)</td>
+        <td>Intermediate</td>
+        <td>dnf</td>
+        <td>Developers who want cutting-edge software</td>
+      </tr>
+      <tr>
+        <td><strong>CentOS / Rocky / Alma</strong></td>
+        <td>RHEL</td>
+        <td>Intermediate</td>
+        <td>dnf / yum</td>
+        <td>Enterprise servers, production workloads</td>
+      </tr>
+      <tr>
+        <td><strong>Arch Linux</strong></td>
+        <td>&mdash; (independent)</td>
+        <td>Advanced</td>
+        <td>pacman</td>
+        <td>Power users who want full control</td>
+      </tr>
+      <tr>
+        <td><strong>openSUSE</strong></td>
+        <td>&mdash; (independent)</td>
+        <td>Intermediate</td>
+        <td>zypper</td>
+        <td>System administrators, enterprise environments</td>
+      </tr>
+      <tr>
+        <td><strong>Kali Linux</strong></td>
+        <td>Debian</td>
+        <td>Advanced</td>
+        <td>apt</td>
+        <td>Penetration testing, security research</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <strong>Recommendation for beginners:</strong> Start with <strong>Ubuntu</strong> or <strong>Linux Mint</strong>. They have the largest communities, the most tutorials, and the friendliest installation process. You can always switch later once you are comfortable.
+  </div>
+
+  <h3>Distribution Families</h3>
+
+  <p>Most distributions belong to one of three major families, which determines their package manager and general philosophy:</p>
+
+  <ul>
+    <li><strong>Debian family</strong> (uses <code>apt</code> / <code>.deb</code> packages): Debian, Ubuntu, Linux Mint, Pop!_OS, Kali Linux</li>
+    <li><strong>Red Hat family</strong> (uses <code>dnf</code> or <code>yum</code> / <code>.rpm</code> packages): RHEL, CentOS, Rocky Linux, Fedora, AlmaLinux</li>
+    <li><strong>Arch family</strong> (uses <code>pacman</code>): Arch Linux, Manjaro, EndeavourOS</li>
+  </ul>
+
+  <p>Knowing which family your distro belongs to is important because commands for installing software, managing services, and configuring the system can differ between families.</p>
+
+  <!-- ==========================================================
+       SECTION 3 — KERNEL vs SHELL vs TERMINAL
+       ========================================================== -->
+
+  <h2 id="kernel-shell-terminal">1.3 Kernel vs Shell vs Terminal</h2>
+
+  <p>Three terms that beginners often confuse are <strong>kernel</strong>, <strong>shell</strong>, and <strong>terminal</strong>. They are related but serve entirely different roles. Understanding the distinction will help you reason about everything that follows in this guide.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: The Layers of Linux</div>
+    <div class="diagram">
+<pre>
+  +------------------------------------------------------+
+  |                       YOU (User)                      |
+  +------------------------------------------------------+
+                           |
+                     You type commands
+                           |
+                           v
+  +------------------------------------------------------+
+  |                  TERMINAL EMULATOR                    |
+  |          (the window on your screen: GNOME            |
+  |           Terminal, Konsole, xterm, etc.)              |
+  +------------------------------------------------------+
+                           |
+                  Passes your text to...
+                           |
+                           v
+  +------------------------------------------------------+
+  |                      SHELL                            |
+  |          (the interpreter: bash, zsh, fish)           |
+  |     Parses commands, expands variables, manages       |
+  |     pipes and redirections, runs programs             |
+  +------------------------------------------------------+
+                           |
+                  Requests actions from...
+                           |
+                           v
+  +------------------------------------------------------+
+  |                      KERNEL                           |
+  |          (the core of the operating system)           |
+  |     Manages CPU, memory, devices, file systems,       |
+  |     processes, networking, security                   |
+  +------------------------------------------------------+
+                           |
+                  Talks directly to...
+                           |
+                           v
+  +------------------------------------------------------+
+  |                     HARDWARE                          |
+  |          (CPU, RAM, disk, network card, GPU)          |
+  +------------------------------------------------------+
+</pre>
+    </div>
+  </div>
+
+  <h3>The Kernel</h3>
+
+  <p>The <strong>kernel</strong> is the absolute core of the Linux operating system. It is the first program loaded when you boot your computer, and it remains running until you shut down. The kernel has four primary responsibilities:</p>
+
+  <ol>
+    <li><strong>Process management:</strong> Deciding which programs get CPU time and when.</li>
+    <li><strong>Memory management:</strong> Allocating RAM to programs and reclaiming it when they finish.</li>
+    <li><strong>Device management:</strong> Communicating with hardware (disks, network cards, USB devices) through drivers.</li>
+    <li><strong>File system management:</strong> Organizing data on disks into files and directories.</li>
+  </ol>
+
+  <p>You almost never interact with the kernel directly. Instead, you use <strong>programs</strong> (like the shell) that make requests to the kernel on your behalf through <strong>system calls</strong>.</p>
+
+  <pre><span class="comment"># Check your kernel version</span>
+<span class="prompt">$</span> uname -r
+<span class="output">5.15.0-91-generic</span>
+
+<span class="comment"># See detailed kernel information</span>
+<span class="prompt">$</span> uname -a
+<span class="output">Linux myhost 5.15.0-91-generic #101-Ubuntu SMP x86_64 GNU/Linux</span></pre>
+
+  <h3>The Shell</h3>
+
+  <p>The <strong>shell</strong> is a program that reads the commands you type, interprets them, and executes them. It is your primary interface to the operating system. The shell is <em>not</em> the window you see on screen &mdash; it is the invisible interpreter running inside that window.</p>
+
+  <p>Common shells include:</p>
+
+  <ul>
+    <li><strong>bash</strong> (Bourne Again Shell) &mdash; the default on most Linux distributions. This is the shell we use throughout this guide.</li>
+    <li><strong>zsh</strong> (Z Shell) &mdash; the default on macOS since Catalina. Popular for its advanced features and plugins (Oh My Zsh).</li>
+    <li><strong>fish</strong> (Friendly Interactive Shell) &mdash; known for user-friendly features like auto-suggestions and syntax highlighting out of the box.</li>
+    <li><strong>sh</strong> (Bourne Shell) &mdash; the original Unix shell. Very minimal.</li>
+    <li><strong>dash</strong> &mdash; a lightweight POSIX shell often used for system scripts.</li>
+  </ul>
+
+  <pre><span class="comment"># Which shell are you currently using?</span>
+<span class="prompt">$</span> echo $SHELL
+<span class="output">/bin/bash</span>
+
+<span class="comment"># List all available shells on your system</span>
+<span class="prompt">$</span> cat /etc/shells
+<span class="output">/bin/sh
+/bin/bash
+/usr/bin/bash
+/bin/zsh
+/usr/bin/zsh</span></pre>
+
+  <h3>The Terminal (Terminal Emulator)</h3>
+
+  <p>The <strong>terminal emulator</strong> is the graphical window (application) that you open on your desktop to access the shell. It draws the text on your screen, handles your keyboard input, and sends it to the shell running inside it.</p>
+
+  <p>Popular terminal emulators include:</p>
+
+  <ul>
+    <li><strong>GNOME Terminal</strong> &mdash; default on Ubuntu and many GNOME-based distros.</li>
+    <li><strong>Konsole</strong> &mdash; default on KDE-based distros.</li>
+    <li><strong>xterm</strong> &mdash; one of the oldest terminal emulators.</li>
+    <li><strong>Alacritty</strong> &mdash; a modern, GPU-accelerated terminal.</li>
+    <li><strong>Windows Terminal</strong> &mdash; used with WSL on Windows.</li>
+    <li><strong>iTerm2</strong> &mdash; popular on macOS.</li>
+  </ul>
+
+  <div class="alert alert-info">
+    <strong>Key distinction:</strong> The terminal is the <em>window</em>. The shell is the <em>program running inside the window</em>. You can run different shells inside the same terminal, and you can run the same shell inside different terminals.
+  </div>
+
+  <!-- ==========================================================
+       SECTION 4 — FILESYSTEM OVERVIEW
+       ========================================================== -->
+
+  <h2 id="filesystem">1.4 The Linux Filesystem Hierarchy</h2>
+
+  <p>In Windows, you have drives like <code>C:\</code>, <code>D:\</code>, etc. Linux does things very differently. There is a single <strong>root directory</strong> called <code>/</code> (just a forward slash), and <em>everything</em> in the system lives under it &mdash; all files, all devices, all mounted drives. This unified structure is called the <strong>Filesystem Hierarchy Standard (FHS)</strong>.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: The Upside-Down Tree</div>
+    <p>Think of the Linux filesystem as an <strong>upside-down tree</strong>. The root (<code>/</code>) is at the top, and branches (directories) extend downward. Every file and folder on the entire system is a "leaf" or "branch" hanging from this single root.</p>
+    <div class="diagram">
+<pre>
+                              /                         (root - the trunk)
+            __________________|__________________
+           |     |     |     |     |     |      |
+         /bin  /etc  /home  /usr  /var  /tmp  /dev
+                       |            |     |
+                    /home/         /usr/ /var/
+                    alice          |     |
+                    bob          /usr/  /var/log
+                                 bin    /var/www
+                                 lib
+                                 share
+</pre>
+    </div>
+  </div>
+
+  <h3>Key Directories Explained</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Directory</th>
+        <th>Name</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/</code></td>
+        <td>Root</td>
+        <td>The top-level directory. Everything on the system is under <code>/</code>. Do <strong>not</strong> confuse this with <code>/root</code> (the root user's home directory).</td>
+      </tr>
+      <tr>
+        <td><code>/home</code></td>
+        <td>Home</td>
+        <td>Contains personal directories for each user. For example, user "alice" has <code>/home/alice</code>. This is where your documents, downloads, and personal configuration files live.</td>
+      </tr>
+      <tr>
+        <td><code>/etc</code></td>
+        <td>Et cetera / Configuration</td>
+        <td>System-wide configuration files. Hostname settings, network configuration, user accounts, service configurations &mdash; all live here. Example: <code>/etc/hostname</code>, <code>/etc/passwd</code>.</td>
+      </tr>
+      <tr>
+        <td><code>/var</code></td>
+        <td>Variable</td>
+        <td>Data that changes frequently at runtime: log files (<code>/var/log</code>), mail spools, web server content (<code>/var/www</code>), database files, caches.</td>
+      </tr>
+      <tr>
+        <td><code>/usr</code></td>
+        <td>Unix System Resources</td>
+        <td>User-installed programs, libraries, and documentation. <code>/usr/bin</code> holds most user commands. <code>/usr/lib</code> holds libraries. <code>/usr/share</code> holds architecture-independent data.</td>
+      </tr>
+      <tr>
+        <td><code>/tmp</code></td>
+        <td>Temporary</td>
+        <td>Temporary files that may be deleted on reboot. Any user can write here. Programs use it for scratch space.</td>
+      </tr>
+      <tr>
+        <td><code>/bin</code></td>
+        <td>Binaries</td>
+        <td>Essential command binaries available to all users: <code>ls</code>, <code>cp</code>, <code>mv</code>, <code>cat</code>, <code>bash</code>. On modern systems, often a symlink to <code>/usr/bin</code>.</td>
+      </tr>
+      <tr>
+        <td><code>/sbin</code></td>
+        <td>System Binaries</td>
+        <td>Essential system administration commands: <code>fdisk</code>, <code>iptables</code>, <code>reboot</code>. Usually requires root privileges to use.</td>
+      </tr>
+      <tr>
+        <td><code>/opt</code></td>
+        <td>Optional</td>
+        <td>Third-party software that doesn't follow the standard directory layout. Commercial software, custom-compiled applications, and some large packages install here.</td>
+      </tr>
+      <tr>
+        <td><code>/dev</code></td>
+        <td>Devices</td>
+        <td>Special files that represent hardware devices. <code>/dev/sda</code> is your first hard disk. <code>/dev/null</code> is a "black hole" that discards anything written to it. In Linux, <em>everything is a file</em>, including devices.</td>
+      </tr>
+      <tr>
+        <td><code>/proc</code></td>
+        <td>Process Information</td>
+        <td>A virtual filesystem that provides information about running processes and the kernel. <code>/proc/cpuinfo</code> shows CPU details. <code>/proc/meminfo</code> shows memory usage. These files don't actually exist on disk.</td>
+      </tr>
+      <tr>
+        <td><code>/root</code></td>
+        <td>Root Home</td>
+        <td>The home directory of the <strong>root</strong> (superuser) account. Not to be confused with <code>/</code> (the root of the filesystem).</td>
+      </tr>
+      <tr>
+        <td><code>/boot</code></td>
+        <td>Boot</td>
+        <td>Files needed to start the system: the Linux kernel image, bootloader configuration (GRUB), and initial RAM disk.</td>
+      </tr>
+      <tr>
+        <td><code>/lib</code></td>
+        <td>Libraries</td>
+        <td>Shared libraries needed by programs in <code>/bin</code> and <code>/sbin</code>. On modern systems, often a symlink to <code>/usr/lib</code>.</td>
+      </tr>
+      <tr>
+        <td><code>/mnt</code></td>
+        <td>Mount</td>
+        <td>Temporary mount point for manually mounting filesystems (e.g., a USB drive).</td>
+      </tr>
+      <tr>
+        <td><code>/media</code></td>
+        <td>Media</td>
+        <td>Auto-mount point for removable media like USB drives and CDs.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-warning">
+    <strong>Important:</strong> Never randomly modify files under <code>/etc</code>, <code>/bin</code>, <code>/sbin</code>, or <code>/boot</code> unless you understand exactly what you are doing. Incorrect changes to system configuration files can make your system unbootable.
+  </div>
+
+  <!-- ==========================================================
+       SECTION 5 — ABSOLUTE vs RELATIVE PATHS
+       ========================================================== -->
+
+  <h2 id="paths">1.5 Absolute vs Relative Paths</h2>
+
+  <p>Every file and directory in Linux has an <strong>address</strong> called a <strong>path</strong>. There are two ways to specify a path:</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Home Address vs Directions</div>
+    <p>An <strong>absolute path</strong> is like a full street address: "123 Main Street, Springfield, IL, USA." No matter where you are in the world, that address takes you to the same place.</p>
+    <p>A <strong>relative path</strong> is like giving directions from where you currently stand: "Go two blocks north, then turn left." The destination depends on <em>where you start from</em>.</p>
+  </div>
+
+  <h3>Absolute Paths</h3>
+
+  <p>An absolute path <strong>always starts with <code>/</code></strong> (the root directory). It specifies the complete route from the very top of the filesystem to the target file or directory. Absolute paths are unambiguous &mdash; they work the same no matter where you currently are.</p>
+
+  <pre><span class="comment"># Absolute paths always start with /</span>
+/home/alice/documents/report.txt
+/etc/nginx/nginx.conf
+/var/log/syslog
+/usr/bin/python3
+/tmp/scratch.txt</pre>
+
+  <h3>Relative Paths</h3>
+
+  <p>A relative path <strong>does not start with <code>/</code></strong>. It is interpreted relative to your <strong>current working directory</strong> (the directory you are currently "in"). Two special symbols are crucial:</p>
+
+  <ul>
+    <li><code>.</code> (single dot) &mdash; refers to the <strong>current directory</strong>.</li>
+    <li><code>..</code> (double dot) &mdash; refers to the <strong>parent directory</strong> (one level up).</li>
+  </ul>
+
+  <h3>Examples: Seeing Both in Action</h3>
+
+  <pre><span class="comment"># First, let's see where we are</span>
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span>
+
+<span class="comment"># --- ABSOLUTE PATH EXAMPLES ---</span>
+
+<span class="comment"># Go to an absolute path (works from anywhere)</span>
+<span class="prompt">$</span> cd /var/log
+
+<span class="comment"># List files using an absolute path</span>
+<span class="prompt">$</span> ls /home/alice/documents
+
+<span class="comment"># Copy a file using absolute paths</span>
+<span class="prompt">$</span> cp /home/alice/notes.txt /tmp/notes-backup.txt
+
+<span class="comment"># --- RELATIVE PATH EXAMPLES ---</span>
+
+<span class="comment"># Assume we are in /home/alice</span>
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span>
+
+<span class="comment"># Go into a subdirectory (relative)</span>
+<span class="prompt">$</span> cd documents
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice/documents</span>
+
+<span class="comment"># Go up one level (parent directory)</span>
+<span class="prompt">$</span> cd ..
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span>
+
+<span class="comment"># Go up two levels</span>
+<span class="prompt">$</span> cd ../..
+<span class="prompt">$</span> pwd
+<span class="output">/</span>
+
+<span class="comment"># Reference a file in the current directory</span>
+<span class="prompt">$</span> cat ./notes.txt
+
+<span class="comment"># Reference a file in a sibling directory</span>
+<span class="comment"># (If you are in /home/alice/documents, go up, then into pictures)</span>
+<span class="prompt">$</span> ls ../pictures
+
+<span class="comment"># Chain relative paths</span>
+<span class="prompt">$</span> cat ../bob/shared/readme.txt</pre>
+
+  <h3>Comparison Table</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Current Directory</th>
+        <th>Target</th>
+        <th>Absolute Path</th>
+        <th>Relative Path</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/home/alice</code></td>
+        <td>alice's documents folder</td>
+        <td><code>/home/alice/documents</code></td>
+        <td><code>documents</code> or <code>./documents</code></td>
+      </tr>
+      <tr>
+        <td><code>/home/alice/documents</code></td>
+        <td>alice's home directory</td>
+        <td><code>/home/alice</code></td>
+        <td><code>..</code></td>
+      </tr>
+      <tr>
+        <td><code>/home/alice</code></td>
+        <td>bob's home directory</td>
+        <td><code>/home/bob</code></td>
+        <td><code>../bob</code></td>
+      </tr>
+      <tr>
+        <td><code>/var/log</code></td>
+        <td>the syslog file</td>
+        <td><code>/var/log/syslog</code></td>
+        <td><code>syslog</code> or <code>./syslog</code></td>
+      </tr>
+      <tr>
+        <td><code>/home/alice/documents</code></td>
+        <td>the system log</td>
+        <td><code>/var/log/syslog</code></td>
+        <td><code>../../../var/log/syslog</code></td>
+      </tr>
+      <tr>
+        <td><code>/usr/bin</code></td>
+        <td>the /etc directory</td>
+        <td><code>/etc</code></td>
+        <td><code>../../etc</code></td>
+      </tr>
+      <tr>
+        <td><code>/</code></td>
+        <td>the tmp directory</td>
+        <td><code>/tmp</code></td>
+        <td><code>tmp</code> or <code>./tmp</code></td>
+      </tr>
+      <tr>
+        <td><code>/home/alice/pictures</code></td>
+        <td>a file in documents</td>
+        <td><code>/home/alice/documents/file.txt</code></td>
+        <td><code>../documents/file.txt</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-warning">
+    <strong>Common mistake:</strong> Typing <code>cd home/alice</code> when you mean <code>cd /home/alice</code>. Without the leading <code>/</code>, the shell looks for a directory named "home" <em>inside your current directory</em>, which probably does not exist. Always be conscious of whether you need an absolute or relative path.
+  </div>
+
+  <div class="alert alert-tip">
+    <strong>When to use which?</strong> Use <strong>absolute paths</strong> in scripts and configuration files (so they work regardless of where the script is run). Use <strong>relative paths</strong> for quick navigation when you are working interactively in the terminal.
+  </div>
+
+  <!-- ==========================================================
+       SECTION 6 — HIDDEN FILES
+       ========================================================== -->
+
+  <h2 id="hidden-files">1.6 Hidden Files and Directories</h2>
+
+  <p>In Linux, any file or directory whose name begins with a <strong>dot</strong> (<code>.</code>) is considered <strong>hidden</strong>. Hidden files are not shown by default when you list the contents of a directory with <code>ls</code>. They are commonly used for configuration files and application data that you don't need to see day-to-day.</p>
+
+  <pre><span class="comment"># Normal ls does NOT show hidden files</span>
+<span class="prompt">$</span> ls
+<span class="output">documents  downloads  pictures  videos</span>
+
+<span class="comment"># Use -a (all) to see hidden files too</span>
+<span class="prompt">$</span> ls -a
+<span class="output">.  ..  .bashrc  .profile  .ssh  .config  .local  documents  downloads  pictures  videos</span>
+
+<span class="comment"># Use -la for a detailed list including hidden files</span>
+<span class="prompt">$</span> ls -la
+<span class="output">total 48
+drwxr-xr-x  8 alice alice 4096 Jan 15 10:30 .
+drwxr-xr-x  4 root  root  4096 Jan 10 08:00 ..
+-rw-r--r--  1 alice alice  220 Jan 10 08:00 .bash_logout
+-rw-r--r--  1 alice alice 3771 Jan 10 08:00 .bashrc
+drwx------  2 alice alice 4096 Jan 12 14:20 .ssh
+drwxr-xr-x  3 alice alice 4096 Jan 13 09:15 .config
+-rw-r--r--  1 alice alice  807 Jan 10 08:00 .profile
+drwxr-xr-x  2 alice alice 4096 Jan 15 10:30 documents
+drwxr-xr-x  2 alice alice 4096 Jan 14 16:00 downloads
+drwxr-xr-x  2 alice alice 4096 Jan 13 12:00 pictures
+drwxr-xr-x  2 alice alice 4096 Jan 11 20:00 videos</span></pre>
+
+  <h3>Common Hidden Files and Directories</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>File / Directory</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>.bashrc</code></td>
+        <td>Bash shell configuration. Runs every time you open a new terminal. Used to set aliases, environment variables, and customize your prompt.</td>
+      </tr>
+      <tr>
+        <td><code>.bash_profile</code></td>
+        <td>Runs once when you log in (login shells). Often sources <code>.bashrc</code>.</td>
+      </tr>
+      <tr>
+        <td><code>.bash_logout</code></td>
+        <td>Runs when you log out of a login shell. Used for cleanup tasks.</td>
+      </tr>
+      <tr>
+        <td><code>.profile</code></td>
+        <td>General login profile used by many shells, not just bash.</td>
+      </tr>
+      <tr>
+        <td><code>.bash_history</code></td>
+        <td>A record of every command you have typed. Be careful &mdash; it may contain sensitive information.</td>
+      </tr>
+      <tr>
+        <td><code>.ssh/</code></td>
+        <td>Contains your SSH keys (<code>id_rsa</code>, <code>id_ed25519</code>), known hosts, and SSH configuration. <strong>Never share your private keys.</strong></td>
+      </tr>
+      <tr>
+        <td><code>.config/</code></td>
+        <td>Application-specific configuration files (following the XDG Base Directory specification).</td>
+      </tr>
+      <tr>
+        <td><code>.local/</code></td>
+        <td>User-specific data files, including installed packages (<code>.local/bin</code>) and application data (<code>.local/share</code>).</td>
+      </tr>
+      <tr>
+        <td><code>.gitconfig</code></td>
+        <td>Git version control configuration (username, email, aliases).</td>
+      </tr>
+      <tr>
+        <td><code>.vimrc</code></td>
+        <td>Configuration file for the Vim text editor.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <strong>Tip:</strong> To create a hidden file or directory, simply start its name with a dot: <code>touch .my-secret-file</code> or <code>mkdir .my-hidden-dir</code>. To "unhide" it, rename it to remove the leading dot.
+  </div>
+
+  <div class="alert alert-danger">
+    <strong>Security warning:</strong> Never share or commit your <code>.ssh/</code> private keys, <code>.bash_history</code>, or any file containing passwords or API tokens. Hidden does not mean secure &mdash; it just means "not shown by default."
+  </div>
+
+  <!-- ==========================================================
+       SECTION 7 — ENVIRONMENT VARIABLES
+       ========================================================== -->
+
+  <h2 id="environment-variables">1.7 Environment Variables</h2>
+
+  <p><strong>Environment variables</strong> are named values stored in your shell session that programs can read to configure their behavior. They are one of the primary ways Linux passes configuration to programs. Think of them as global settings for your terminal session.</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Name Tags</div>
+    <p>Imagine every environment variable is a <strong>name tag</strong> pinned to a bulletin board. The tag says something like <code>HOME = /home/alice</code>. Any program that needs to know where your home directory is can look at the bulletin board and read that tag. You can add new tags, change existing ones, or remove them.</p>
+  </div>
+
+  <h3>Viewing Environment Variables</h3>
+
+  <pre><span class="comment"># Print a specific variable with echo and $</span>
+<span class="prompt">$</span> echo $HOME
+<span class="output">/home/alice</span>
+
+<span class="prompt">$</span> echo $USER
+<span class="output">alice</span>
+
+<span class="prompt">$</span> echo $SHELL
+<span class="output">/bin/bash</span>
+
+<span class="prompt">$</span> echo $PATH
+<span class="output">/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</span>
+
+<span class="prompt">$</span> echo $PWD
+<span class="output">/home/alice</span>
+
+<span class="prompt">$</span> echo $HOSTNAME
+<span class="output">myserver</span>
+
+<span class="prompt">$</span> echo $LANG
+<span class="output">en_US.UTF-8</span>
+
+<span class="prompt">$</span> echo $TERM
+<span class="output">xterm-256color</span>
+
+<span class="comment"># List ALL environment variables</span>
+<span class="prompt">$</span> env
+<span class="output">HOME=/home/alice
+USER=alice
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+LANG=en_US.UTF-8
+TERM=xterm-256color
+... (many more)</span>
+
+<span class="comment"># Another way to see all variables (including shell variables)</span>
+<span class="prompt">$</span> printenv</pre>
+
+  <h3>Important Environment Variables</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Variable</th>
+        <th>Meaning</th>
+        <th>Example Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>$HOME</code></td>
+        <td>Your home directory</td>
+        <td><code>/home/alice</code></td>
+      </tr>
+      <tr>
+        <td><code>$USER</code></td>
+        <td>Your username</td>
+        <td><code>alice</code></td>
+      </tr>
+      <tr>
+        <td><code>$SHELL</code></td>
+        <td>Your default shell</td>
+        <td><code>/bin/bash</code></td>
+      </tr>
+      <tr>
+        <td><code>$PATH</code></td>
+        <td>Directories the shell searches for commands (colon-separated)</td>
+        <td><code>/usr/local/bin:/usr/bin:/bin</code></td>
+      </tr>
+      <tr>
+        <td><code>$PWD</code></td>
+        <td>Present working directory</td>
+        <td><code>/home/alice/documents</code></td>
+      </tr>
+      <tr>
+        <td><code>$OLDPWD</code></td>
+        <td>Previous working directory (used by <code>cd -</code>)</td>
+        <td><code>/home/alice</code></td>
+      </tr>
+      <tr>
+        <td><code>$EDITOR</code></td>
+        <td>Default text editor</td>
+        <td><code>nano</code> or <code>vim</code></td>
+      </tr>
+      <tr>
+        <td><code>$LANG</code></td>
+        <td>System locale (language/encoding)</td>
+        <td><code>en_US.UTF-8</code></td>
+      </tr>
+      <tr>
+        <td><code>$HOSTNAME</code></td>
+        <td>The machine's hostname</td>
+        <td><code>webserver01</code></td>
+      </tr>
+      <tr>
+        <td><code>$TERM</code></td>
+        <td>Terminal type</td>
+        <td><code>xterm-256color</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Setting Environment Variables</h3>
+
+  <pre><span class="comment"># Set a variable for the current session only</span>
+<span class="prompt">$</span> MY_NAME="Alice"
+<span class="prompt">$</span> echo $MY_NAME
+<span class="output">Alice</span>
+
+<span class="comment"># Export it so child processes (programs you run) can see it</span>
+<span class="prompt">$</span> export MY_NAME="Alice"
+
+<span class="comment"># Set and export in one step</span>
+<span class="prompt">$</span> export PROJECT_DIR="/home/alice/projects/webapp"
+
+<span class="comment"># Unset (remove) a variable</span>
+<span class="prompt">$</span> unset MY_NAME
+<span class="prompt">$</span> echo $MY_NAME
+<span class="output">(empty - nothing printed)</span></pre>
+
+  <h3>The PATH Variable (Critical Concept)</h3>
+
+  <p>The <code>$PATH</code> variable is arguably the most important environment variable. When you type a command like <code>python3</code>, the shell does <em>not</em> magically know where the program lives. Instead, it searches through each directory listed in <code>$PATH</code> (from left to right) until it finds a matching executable.</p>
+
+  <pre><span class="prompt">$</span> echo $PATH
+<span class="output">/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</span>
+
+<span class="comment"># The shell searches these directories, in order:
+# 1. /usr/local/sbin
+# 2. /usr/local/bin
+# 3. /usr/sbin
+# 4. /usr/bin
+# 5. /sbin
+# 6. /bin</span>
+
+<span class="comment"># Find which exact file runs when you type a command</span>
+<span class="prompt">$</span> which python3
+<span class="output">/usr/bin/python3</span>
+
+<span class="prompt">$</span> which ls
+<span class="output">/usr/bin/ls</span>
+
+<span class="comment"># Add a new directory to PATH (e.g., your personal scripts folder)</span>
+<span class="prompt">$</span> export PATH="$HOME/bin:$PATH"</pre>
+
+  <div class="alert alert-tip">
+    <strong>Making variables permanent:</strong> Variables set with <code>export</code> only last until you close the terminal. To make them permanent, add the <code>export</code> line to your <code>~/.bashrc</code> file. We will cover this in detail in Chapter 12 (Shell &amp; Scripting).
+  </div>
+
+  <!-- ==========================================================
+       SECTION 8 — HOME DIRECTORY
+       ========================================================== -->
+
+  <h2 id="home-directory">1.8 The Home Directory</h2>
+
+  <p>Every user on a Linux system has a <strong>home directory</strong>: a personal space for storing files, configurations, and data. It is the directory you land in when you first open a terminal or log in via SSH.</p>
+
+  <h3>Three Ways to Reference Home</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Notation</th>
+        <th>Type</th>
+        <th>Example (for user alice)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>~</code></td>
+        <td>Tilde shortcut (shell expansion)</td>
+        <td><code>~</code> expands to <code>/home/alice</code></td>
+      </tr>
+      <tr>
+        <td><code>$HOME</code></td>
+        <td>Environment variable</td>
+        <td><code>$HOME</code> evaluates to <code>/home/alice</code></td>
+      </tr>
+      <tr>
+        <td><code>/home/alice</code></td>
+        <td>Absolute path</td>
+        <td>The literal full path</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <pre><span class="comment"># All three take you to the same place</span>
+<span class="prompt">$</span> cd ~
+<span class="prompt">$</span> cd $HOME
+<span class="prompt">$</span> cd /home/alice
+
+<span class="comment"># Just "cd" with no arguments also goes home!</span>
+<span class="prompt">$</span> cd
+<span class="prompt">$</span> pwd
+<span class="output">/home/alice</span>
+
+<span class="comment"># Use ~ in paths</span>
+<span class="prompt">$</span> ls ~/documents
+<span class="output">report.txt  notes.txt  budget.xlsx</span>
+
+<span class="comment"># Copy a file to your home directory</span>
+<span class="prompt">$</span> cp /tmp/data.csv ~/
+
+<span class="comment"># Reference another user's home directory</span>
+<span class="prompt">$</span> ls ~bob
+<span class="output">(shows bob's home directory, if you have permission)</span></pre>
+
+  <div class="alert alert-info">
+    <strong>Convention:</strong> Normal users have home directories under <code>/home/username</code>. The root user's home directory is <code>/root</code> (not <code>/home/root</code>). This is a deliberate design choice to keep the root account separate.
+  </div>
+
+  <h3>What Lives in Your Home Directory?</h3>
+
+  <p>Your home directory typically contains:</p>
+
+  <ul>
+    <li><strong>Personal files:</strong> Documents, downloads, pictures, videos, music.</li>
+    <li><strong>Configuration files:</strong> Hidden files like <code>.bashrc</code>, <code>.gitconfig</code>, <code>.ssh/</code>.</li>
+    <li><strong>Application data:</strong> <code>.config/</code>, <code>.local/</code>, browser profiles, editor settings.</li>
+    <li><strong>Project directories:</strong> Code repositories, scripts, work files.</li>
+  </ul>
+
+  <p>Your home directory is your personal space. You have full read/write permissions here. Other users cannot access your files unless you explicitly grant them permission (covered in Chapter 6: Permissions).</p>
+
+  <!-- ==========================================================
+       SECTION 9 — ROOT USER vs NORMAL USER
+       ========================================================== -->
+
+  <h2 id="root-vs-normal">1.9 Root User vs Normal User</h2>
+
+  <p>Linux has a strict <strong>permission model</strong> based on users and groups. The most important distinction is between <strong>normal users</strong> and the <strong>root user</strong> (also called the superuser).</p>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Tenant vs Building Manager</div>
+    <p>Imagine a large apartment building:</p>
+    <ul>
+      <li>A <strong>normal user</strong> is like a <strong>tenant</strong>. You have full access to your own apartment (home directory), but you cannot enter other apartments, rewire the building's electricity, or change the locks on the front door.</li>
+      <li>The <strong>root user</strong> is like the <strong>building manager</strong>. They have a master key that opens every door. They can enter any apartment, modify any system, install or remove anything. With great power comes great responsibility &mdash; a careless manager could accidentally flood the entire building.</li>
+    </ul>
+  </div>
+
+  <h3>How to Tell Which User You Are</h3>
+
+  <p>The shell prompt itself tells you whether you are a normal user or root:</p>
+
+  <pre><span class="comment"># Normal user prompt ends with $</span>
+<span class="output">alice@myhost:~$</span>
+
+<span class="comment"># Root user prompt ends with #</span>
+<span class="output">root@myhost:~#</span></pre>
+
+  <pre><span class="comment"># Check your username</span>
+<span class="prompt">$</span> whoami
+<span class="output">alice</span>
+
+<span class="comment"># Check your user ID (UID) — root is always 0</span>
+<span class="prompt">$</span> id
+<span class="output">uid=1000(alice) gid=1000(alice) groups=1000(alice),27(sudo)</span></pre>
+
+  <h3>Comparison: Normal User vs Root</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Aspect</th>
+        <th>Normal User</th>
+        <th>Root User</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>UID</td>
+        <td>1000+ (typically)</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>Prompt symbol</td>
+        <td><code>$</code></td>
+        <td><code>#</code></td>
+      </tr>
+      <tr>
+        <td>Home directory</td>
+        <td><code>/home/username</code></td>
+        <td><code>/root</code></td>
+      </tr>
+      <tr>
+        <td>Can install system packages</td>
+        <td>No (needs sudo)</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>Can modify system files</td>
+        <td>No (needs sudo)</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>Can create/delete users</td>
+        <td>No (needs sudo)</td>
+        <td>Yes</td>
+      </tr>
+      <tr>
+        <td>Can access all files</td>
+        <td>Only own files + permitted files</td>
+        <td>Every file on the system</td>
+      </tr>
+      <tr>
+        <td>Risk level</td>
+        <td>Low (mistakes affect only your files)</td>
+        <td>High (mistakes can destroy the system)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Using <code>sudo</code> (Superuser Do)</h3>
+
+  <p>Instead of logging in as root (which is dangerous), Linux provides the <code>sudo</code> command. It lets an authorized normal user execute a <strong>single command</strong> with root privileges. After the command finishes, you return to your normal user context.</p>
+
+  <pre><span class="comment"># This will fail as a normal user — permission denied</span>
+<span class="prompt">$</span> apt update
+<span class="output">E: Could not open lock file /var/lib/apt/lists/lock - open (13: Permission denied)</span>
+
+<span class="comment"># Use sudo to run it with root privileges</span>
+<span class="prompt">$</span> sudo apt update
+<span class="output">[sudo] password for alice:
+Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+...
+Reading package lists... Done</span>
+
+<span class="comment"># Install a package (requires root)</span>
+<span class="prompt">$</span> sudo apt install htop
+
+<span class="comment"># Edit a system configuration file</span>
+<span class="prompt">$</span> sudo nano /etc/hostname
+
+<span class="comment"># Restart a service</span>
+<span class="prompt">$</span> sudo systemctl restart nginx
+
+<span class="comment"># Check who can use sudo on this system</span>
+<span class="prompt">$</span> sudo cat /etc/sudoers</pre>
+
+  <div class="alert alert-danger">
+    <strong>DANGER: Never run everything as root.</strong> Working as the root user full-time is like walking through a china shop with a sledgehammer. A simple typo can have catastrophic consequences:
+    <ul>
+      <li><code>rm -rf /</code> &mdash; deletes <em>everything</em> on your system. Unrecoverable.</li>
+      <li><code>chmod -R 777 /</code> &mdash; makes every file on the system readable, writable, and executable by everyone. A massive security breach.</li>
+      <li><code>chown -R alice /</code> &mdash; changes ownership of every file to alice, breaking system services.</li>
+    </ul>
+    <p>Always use <code>sudo</code> for individual commands instead of logging in as root. This limits the blast radius of mistakes.</p>
+  </div>
+
+  <div class="alert alert-warning">
+    <strong>The "sudo" habit:</strong> Before typing <code>sudo</code>, ask yourself: "Do I actually <em>need</em> root privileges for this?" If you are editing your own files, navigating directories, or running personal scripts, you do <strong>not</strong> need sudo. Only use it for system-level actions like installing packages, modifying system configs, or managing services.
+  </div>
+
+  <h3>Switching to Root (When Necessary)</h3>
+
+  <pre><span class="comment"># Open a root shell (use sparingly)</span>
+<span class="prompt">$</span> sudo -i
+<span class="output">root@myhost:~#</span>
+
+<span class="comment"># Or using su (switch user)</span>
+<span class="prompt">$</span> su -
+<span class="output">Password:
+root@myhost:~#</span>
+
+<span class="comment"># Exit root shell and return to normal user</span>
+<span class="output">root@myhost:~#</span> exit
+<span class="prompt">$</span></pre>
+
+  <!-- ==========================================================
+       SECTION 10 — KEY CONCEPTS SUMMARY
+       ========================================================== -->
+
+  <h2 id="summary">1.10 Chapter Summary</h2>
+
+  <p>Here is a quick reference of everything covered in this chapter:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>Key Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Linux</td>
+        <td>Free, open-source operating system. Runs servers, phones, cloud, IoT.</td>
+      </tr>
+      <tr>
+        <td>Distributions</td>
+        <td>Different "flavors" of Linux (Ubuntu, Fedora, Arch, etc.) with different package managers and philosophies.</td>
+      </tr>
+      <tr>
+        <td>Kernel</td>
+        <td>Core of the OS. Manages hardware, memory, processes. You rarely interact with it directly.</td>
+      </tr>
+      <tr>
+        <td>Shell</td>
+        <td>Command interpreter (bash, zsh). Reads and executes your commands.</td>
+      </tr>
+      <tr>
+        <td>Terminal</td>
+        <td>The window application that provides a text interface to the shell.</td>
+      </tr>
+      <tr>
+        <td>Filesystem</td>
+        <td>Single root (<code>/</code>). Key dirs: <code>/home</code>, <code>/etc</code>, <code>/var</code>, <code>/usr</code>, <code>/tmp</code>, <code>/bin</code>.</td>
+      </tr>
+      <tr>
+        <td>Absolute path</td>
+        <td>Starts with <code>/</code>. Full address from root. Example: <code>/home/alice/file.txt</code></td>
+      </tr>
+      <tr>
+        <td>Relative path</td>
+        <td>No leading <code>/</code>. Relative to current directory. Uses <code>.</code> and <code>..</code></td>
+      </tr>
+      <tr>
+        <td>Hidden files</td>
+        <td>Start with a dot (<code>.</code>). Shown with <code>ls -a</code>. Used for configs.</td>
+      </tr>
+      <tr>
+        <td>Environment variables</td>
+        <td>Named values (<code>$HOME</code>, <code>$PATH</code>, <code>$USER</code>). Set with <code>export</code>. Viewed with <code>echo</code> or <code>env</code>.</td>
+      </tr>
+      <tr>
+        <td>Home directory</td>
+        <td>Your personal directory. Referenced as <code>~</code>, <code>$HOME</code>, or <code>/home/username</code>.</td>
+      </tr>
+      <tr>
+        <td>Root user</td>
+        <td>UID 0, has full system access. Use <code>sudo</code> instead of logging in as root.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ==========================================================
+       EXERCISES
+       ========================================================== -->
+
+  <h2 id="exercises">Exercises</h2>
+
+  <div class="exercise">
+    <h3>Exercise 1: Exploring the Filesystem</h3>
+    <p>Open a terminal and complete the following tasks. Write down the output of each command.</p>
+    <ol>
+      <li>Run <code>pwd</code> to see your current directory. Where are you?</li>
+      <li>Run <code>ls /</code> to list the contents of the root directory. How many directories do you see?</li>
+      <li>Navigate to <code>/etc</code> using <code>cd /etc</code>. Now run <code>pwd</code> to confirm.</li>
+      <li>List the files in <code>/etc</code> with <code>ls</code>. Can you find the file <code>hostname</code>?</li>
+      <li>Navigate back to your home directory using <strong>three different methods</strong>: <code>cd ~</code>, <code>cd $HOME</code>, and just <code>cd</code>. Verify with <code>pwd</code> each time.</li>
+      <li>List your hidden files with <code>ls -la</code>. Can you find <code>.bashrc</code>?</li>
+      <li>Run <code>cat /etc/hostname</code> to see your machine's hostname.</li>
+      <li>Run <code>uname -a</code> to see your kernel version. What kernel version are you running?</li>
+    </ol>
+    <details>
+      <summary>Show expected results</summary>
+      <pre><span class="comment"># 1. Your current directory (typically your home)</span>
+<span class="prompt">$</span> pwd
+<span class="output">/home/yourusername</span>
+
+<span class="comment"># 2. Root directory contents</span>
+<span class="prompt">$</span> ls /
+<span class="output">bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var</span>
+
+<span class="comment"># 3. Navigate to /etc</span>
+<span class="prompt">$</span> cd /etc
+<span class="prompt">$</span> pwd
+<span class="output">/etc</span>
+
+<span class="comment"># 5. Three ways home</span>
+<span class="prompt">$</span> cd ~
+<span class="prompt">$</span> pwd
+<span class="output">/home/yourusername</span>
+
+<span class="prompt">$</span> cd $HOME
+<span class="prompt">$</span> pwd
+<span class="output">/home/yourusername</span>
+
+<span class="prompt">$</span> cd
+<span class="prompt">$</span> pwd
+<span class="output">/home/yourusername</span>
+
+<span class="comment"># 8. Kernel information</span>
+<span class="prompt">$</span> uname -a
+<span class="output">Linux myhost 5.15.0-91-generic #101-Ubuntu SMP ... x86_64 GNU/Linux</span></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <h3>Exercise 2: Environment Variables Deep Dive</h3>
+    <p>Complete these tasks to practice working with environment variables:</p>
+    <ol>
+      <li>Print the values of <code>$HOME</code>, <code>$USER</code>, <code>$SHELL</code>, and <code>$PATH</code> using <code>echo</code>.</li>
+      <li>Create a new environment variable: <code>export GREETING="Hello from Linux"</code></li>
+      <li>Verify it exists by running <code>echo $GREETING</code>.</li>
+      <li>Run <code>env | grep GREETING</code> to find it in the full environment list.</li>
+      <li>Unset the variable with <code>unset GREETING</code>. Verify it's gone with <code>echo $GREETING</code>.</li>
+      <li>Run <code>which bash</code> to see where the bash executable lives. Now run <code>which ls</code>, <code>which cat</code>, and <code>which which</code>. Are they in directories listed in your <code>$PATH</code>?</li>
+      <li>Count how many directories are in your PATH: <code>echo $PATH | tr ':' '\n' | wc -l</code></li>
+      <li>Add a custom directory to your PATH: <code>export PATH="$HOME/my-scripts:$PATH"</code>. Verify with <code>echo $PATH</code>.</li>
+    </ol>
+    <details>
+      <summary>Show expected results</summary>
+      <pre><span class="comment"># 1. Print important variables</span>
+<span class="prompt">$</span> echo $HOME
+<span class="output">/home/alice</span>
+<span class="prompt">$</span> echo $USER
+<span class="output">alice</span>
+<span class="prompt">$</span> echo $SHELL
+<span class="output">/bin/bash</span>
+<span class="prompt">$</span> echo $PATH
+<span class="output">/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</span>
+
+<span class="comment"># 2-5. Create, verify, and remove a variable</span>
+<span class="prompt">$</span> export GREETING="Hello from Linux"
+<span class="prompt">$</span> echo $GREETING
+<span class="output">Hello from Linux</span>
+<span class="prompt">$</span> env | grep GREETING
+<span class="output">GREETING=Hello from Linux</span>
+<span class="prompt">$</span> unset GREETING
+<span class="prompt">$</span> echo $GREETING
+<span class="output">(nothing - variable is gone)</span>
+
+<span class="comment"># 6. Locate executables</span>
+<span class="prompt">$</span> which bash
+<span class="output">/usr/bin/bash</span>
+<span class="prompt">$</span> which ls
+<span class="output">/usr/bin/ls</span>
+
+<span class="comment"># 7. Count PATH directories</span>
+<span class="prompt">$</span> echo $PATH | tr ':' '\n' | wc -l
+<span class="output">6</span></pre>
+    </details>
+  </div>
+
+  <!-- ==========================================================
+       QUIZZES
+       ========================================================== -->
+
+  <h2 id="quizzes">Quizzes</h2>
+
+  <div class="quiz">
+    <h3>Quiz 1: Core Concepts</h3>
+    <ol>
+      <li>
+        <p><strong>What is the Linux kernel responsible for?</strong></p>
+        <ol type="a">
+          <li>Displaying the graphical desktop</li>
+          <li>Managing hardware, memory, processes, and file systems</li>
+          <li>Running web browsers and applications</li>
+          <li>Providing a text-based command interface</li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>b)</strong> The kernel manages hardware, memory, processes, and file systems. It is the core of the operating system that sits between software and hardware.</p></details>
+      </li>
+      <li>
+        <p><strong>Which of these is an absolute path?</strong></p>
+        <ol type="a">
+          <li><code>documents/report.txt</code></li>
+          <li><code>./report.txt</code></li>
+          <li><code>/home/alice/documents/report.txt</code></li>
+          <li><code>../alice/report.txt</code></li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>c)</strong> An absolute path always starts with <code>/</code> (the root directory). The others are all relative paths.</p></details>
+      </li>
+      <li>
+        <p><strong>What does the <code>$PATH</code> environment variable control?</strong></p>
+        <ol type="a">
+          <li>The file path you are currently in</li>
+          <li>The list of directories the shell searches for executable commands</li>
+          <li>The route network packets take to reach a server</li>
+          <li>The directory where downloaded files are saved</li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>b)</strong> <code>$PATH</code> is a colon-separated list of directories. When you type a command, the shell searches each directory in <code>$PATH</code> (left to right) to find the executable.</p></details>
+      </li>
+      <li>
+        <p><strong>What does <code>..</code> refer to in a file path?</strong></p>
+        <ol type="a">
+          <li>The current directory</li>
+          <li>The home directory</li>
+          <li>The root directory</li>
+          <li>The parent directory (one level up)</li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>d)</strong> Two dots (<code>..</code>) always refer to the parent directory. One dot (<code>.</code>) refers to the current directory.</p></details>
+      </li>
+      <li>
+        <p><strong>Why should you NOT work as the root user all the time?</strong></p>
+        <ol type="a">
+          <li>Root is slower than a normal user</li>
+          <li>Root does not have access to graphical applications</li>
+          <li>A single mistake as root can damage or destroy the entire system</li>
+          <li>Root cannot use the bash shell</li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>c)</strong> Root has unrestricted access. A typo in a command (like <code>rm -rf /</code>) can irreversibly destroy all data. Use <code>sudo</code> for individual commands instead.</p></details>
+      </li>
+    </ol>
+  </div>
+
+  <div class="quiz">
+    <h3>Quiz 2: Practical Scenarios</h3>
+    <ol>
+      <li>
+        <p><strong>You are in <code>/home/alice/documents</code> and want to access <code>/home/bob/shared/notes.txt</code>. Which relative path is correct?</strong></p>
+        <ol type="a">
+          <li><code>bob/shared/notes.txt</code></li>
+          <li><code>../bob/shared/notes.txt</code></li>
+          <li><code>../../bob/shared/notes.txt</code></li>
+          <li><code>~/bob/shared/notes.txt</code></li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>c)</strong> From <code>/home/alice/documents</code>, go up to <code>/home/alice</code> (<code>..</code>), up to <code>/home</code> (<code>../..</code>), then down into <code>bob/shared/notes.txt</code>. Full relative path: <code>../../bob/shared/notes.txt</code>.</p></details>
+      </li>
+      <li>
+        <p><strong>Which command reveals hidden files in your home directory?</strong></p>
+        <ol type="a">
+          <li><code>ls ~</code></li>
+          <li><code>ls -l ~</code></li>
+          <li><code>ls -a ~</code></li>
+          <li><code>ls --hidden ~</code></li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>c)</strong> The <code>-a</code> flag shows <strong>all</strong> files, including hidden ones (those starting with a dot). The <code>-l</code> flag shows a long listing but still hides dot-files by default. There is no <code>--hidden</code> flag for <code>ls</code>.</p></details>
+      </li>
+      <li>
+        <p><strong>You see <code>$</code> at the end of your prompt. What does this tell you?</strong></p>
+        <ol type="a">
+          <li>You are logged in as root</li>
+          <li>You are logged in as a normal (non-root) user</li>
+          <li>The system is running in safe mode</li>
+          <li>The shell is waiting for a password</li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>b)</strong> A <code>$</code> prompt indicates a normal user. A <code>#</code> prompt indicates the root user.</p></details>
+      </li>
+      <li>
+        <p><strong>Where do system-wide configuration files typically live?</strong></p>
+        <ol type="a">
+          <li><code>/home</code></li>
+          <li><code>/tmp</code></li>
+          <li><code>/etc</code></li>
+          <li><code>/bin</code></li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>c)</strong> <code>/etc</code> is the standard location for system-wide configuration files (hostname, network settings, user accounts, service configurations, etc.).</p></details>
+      </li>
+      <li>
+        <p><strong>You want to install the <code>htop</code> package but get "Permission denied." What should you do?</strong></p>
+        <ol type="a">
+          <li>Log out and log back in</li>
+          <li>Prefix the command with <code>sudo</code>: <code>sudo apt install htop</code></li>
+          <li>Change directory to <code>/root</code></li>
+          <li>Delete the lock file manually</li>
+        </ol>
+        <details><summary>Show answer</summary><p><strong>b)</strong> Installing system packages requires root privileges. Use <code>sudo</code> to elevate for that single command: <code>sudo apt install htop</code>.</p></details>
+      </li>
+    </ol>
+  </div>
+
+  <!-- ==========================================================
+       NEXT STEPS & NAVIGATION
+       ========================================================== -->
+
+  <div class="alert alert-tip">
+    <strong>What's next?</strong> Now that you understand the fundamental building blocks of Linux, it is time to get hands-on. In <strong>Chapter 2: Terminal Basics</strong>, you will learn how to navigate the terminal, run your first commands, and start feeling comfortable in the command-line environment.
+  </div>
+
+  <div class="page-nav">
+    <span></span>
+    <a href="../02-terminal-basics/index.html">Next: Terminal Basics &rarr;</a>
+  </div>
+  <div class="footer">Linux Learning Guide</div>
+</main>
+</div>
+<script src="../../js/main.js"></script>
+</body>
+</html>

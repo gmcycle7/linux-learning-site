@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linux Daily Workflow for Beginners — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../pages/06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../pages/09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../pages/10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../pages/13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../pages/15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="command-index.html">Command Index</a>
+    <a class="sidebar__link" href="glossary.html">Glossary</a>
+    <a class="sidebar__link" href="top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="exercises.html">Exercises</a>
+    <a class="sidebar__link active" href="daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <h1>Linux Daily Workflow for Beginners</h1>
+
+  <p>This page walks you through a typical day using Linux as a developer or junior sysadmin. Each section covers a real task you will do regularly, with exact commands and expected output. Follow along in your own terminal to build muscle memory.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">How to use this page</div>
+    <p>Read through each section in order. Open a terminal and type the commands yourself. Over time, this sequence will become second nature. Bookmark this page and revisit it during your first weeks with Linux.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>1. Morning: Check the System</h2>
+  <!-- ================================================================ -->
+
+  <p>The first thing to do when you sit down at a Linux machine (especially a server) is check that everything is healthy. These quick checks take under a minute and tell you if anything needs attention.</p>
+
+  <h3>How long has the system been running?</h3>
+
+  <div class="code-block"><pre><span class="prompt">$</span> uptime
+<span class="output"> 09:01:23 up 45 days,  3:22,  2 users,  load average: 0.15, 0.20, 0.18</span></pre></div>
+
+  <p>This tells you:</p>
+  <ul>
+    <li><strong>Current time</strong>: 09:01:23</li>
+    <li><strong>Uptime</strong>: 45 days, 3 hours, 22 minutes since last reboot</li>
+    <li><strong>Users</strong>: 2 users currently logged in</li>
+    <li><strong>Load average</strong>: CPU load over the last 1, 5, and 15 minutes. Values below the number of CPU cores are healthy.</li>
+  </ul>
+
+  <h3>How much disk space is left?</h3>
+
+  <div class="code-block"><pre><span class="prompt">$</span> df -h
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="output">/dev/sda1       500G  120G  355G  26% /</span>
+<span class="output">tmpfs           7.8G   24M  7.8G   1% /dev/shm</span>
+<span class="output">/dev/sdb1       1.0T  450G  550G  45% /data</span></pre></div>
+
+  <div class="alert alert-warning">
+    <div class="alert__title">Watch the Use% column</div>
+    <p>If any filesystem is above 80%, investigate. At 90% or above, take action immediately. Full disks cause applications to crash, databases to corrupt, and logs to stop writing.</p>
+  </div>
+
+  <h3>How much memory is available?</h3>
+
+  <div class="code-block"><pre><span class="prompt">$</span> free -h
+<span class="output">              total        used        free      shared  buff/cache   available</span>
+<span class="output">Mem:           15Gi       4.2Gi       8.1Gi       256Mi       3.1Gi        10Gi</span>
+<span class="output">Swap:         2.0Gi          0B       2.0Gi</span></pre></div>
+
+  <p>Focus on the <strong>available</strong> column, not "free." Linux uses spare memory for caching, which is normal and healthy. If "available" is low and "swap" is being used heavily, you may have a memory problem.</p>
+
+  <h3>Check recent logs for errors</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Check the last 20 lines of the system log</span>
+<span class="prompt">$</span> sudo tail -20 /var/log/syslog
+<span class="output">Mar 31 09:00:01 server CRON[12345]: (root) CMD (test -x /usr/sbin/anacron ...)</span>
+<span class="output">Mar 31 09:01:00 server systemd[1]: Started Session 45 of user admin.</span>
+<span class="output">...</span>
+
+<span class="prompt"># Search for errors in the last hour</span>
+<span class="prompt">$</span> sudo journalctl --since "1 hour ago" -p err
+<span class="output">-- No entries --</span>
+<span class="prompt"># Good news - no errors in the last hour</span></pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Make it a one-liner</div>
+    <p>Create an alias to run all morning checks at once:</p>
+  </div>
+
+  <div class="code-block"><pre><span class="prompt"># Add to ~/.bashrc</span>
+morning() {
+    echo "=== Uptime ==="
+    uptime
+    echo ""
+    echo "=== Disk Usage ==="
+    df -h | grep -E '^/dev'
+    echo ""
+    echo "=== Memory ==="
+    free -h | head -2
+    echo ""
+    echo "=== Recent Errors ==="
+    sudo journalctl --since "1 hour ago" -p err --no-pager 2>/dev/null || echo "No errors"
+}
+
+<span class="prompt">$</span> morning
+<span class="output">=== Uptime ===</span>
+<span class="output"> 09:01:23 up 45 days,  3:22,  2 users,  load average: 0.15, 0.20, 0.18</span>
+<span class="output"></span>
+<span class="output">=== Disk Usage ===</span>
+<span class="output">/dev/sda1       500G  120G  355G  26% /</span>
+<span class="output">/dev/sdb1       1.0T  450G  550G  45% /data</span>
+<span class="output"></span>
+<span class="output">=== Memory ===</span>
+<span class="output">              total        used        free      shared  buff/cache   available</span>
+<span class="output">Mem:           15Gi       4.2Gi       8.1Gi       256Mi       3.1Gi        10Gi</span>
+<span class="output"></span>
+<span class="output">=== Recent Errors ===</span>
+<span class="output">No errors</span></pre></div>
+
+  <!-- ================================================================ -->
+  <h2>2. Navigate Your Project</h2>
+  <!-- ================================================================ -->
+
+  <p>Once you know the system is healthy, navigate to your working directory and orient yourself.</p>
+
+  <div class="code-block"><pre><span class="prompt"># Go to your project directory</span>
+<span class="prompt">$</span> cd ~/projects/my-web-app
+<span class="prompt">$</span> pwd
+<span class="output">/home/user/projects/my-web-app</span>
+
+<span class="prompt"># See what is here</span>
+<span class="prompt">$</span> ls -la
+<span class="output">total 32</span>
+<span class="output">drwxr-xr-x  6 user user 4096 Mar 31 08:00 .</span>
+<span class="output">drwxr-xr-x  5 user user 4096 Mar 28 14:00 ..</span>
+<span class="output">drwxr-xr-x  8 user user 4096 Mar 31 08:00 .git</span>
+<span class="output">-rw-r--r--  1 user user   45 Mar 30 16:00 .gitignore</span>
+<span class="output">-rw-r--r--  1 user user 1234 Mar 30 16:00 README.md</span>
+<span class="output">drwxr-xr-x  3 user user 4096 Mar 30 16:00 src</span>
+<span class="output">drwxr-xr-x  2 user user 4096 Mar 29 10:00 tests</span>
+<span class="output">-rw-r--r--  1 user user  567 Mar 30 16:00 package.json</span>
+
+<span class="prompt"># See the directory tree (if tree is installed)</span>
+<span class="prompt">$</span> tree -L 2
+<span class="output">.</span>
+<span class="output">├── README.md</span>
+<span class="output">├── package.json</span>
+<span class="output">├── src</span>
+<span class="output">│   ├── index.js</span>
+<span class="output">│   ├── routes</span>
+<span class="output">│   └── utils</span>
+<span class="output">└── tests</span>
+<span class="output">    ├── test_routes.js</span>
+<span class="output">    └── test_utils.js</span>
+
+<span class="prompt"># Check git status to see where you left off</span>
+<span class="prompt">$</span> git status
+<span class="output">On branch feature/user-auth</span>
+<span class="output">Changes not staged for commit:</span>
+<span class="output">  modified:   src/routes/auth.js</span>
+<span class="output">Untracked files:</span>
+<span class="output">  src/routes/profile.js</span>
+
+<span class="prompt"># See recent git commits</span>
+<span class="prompt">$</span> git log --oneline -5
+<span class="output">a1b2c3d Add login endpoint</span>
+<span class="output">e4f5g6h Set up authentication middleware</span>
+<span class="output">i7j8k9l Initialize project structure</span></pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Navigation shortcuts</div>
+    <p>Use <code>cd -</code> to go back to the previous directory. Use <code>cd ~</code> to go home. Use <code>pushd</code>/<code>popd</code> to manage a stack of directories. Tab completion saves typing.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>3. Work with Files</h2>
+  <!-- ================================================================ -->
+
+  <p>Throughout the day, you will create, edit, and manage files constantly. Here is a typical sequence.</p>
+
+  <h3>Create a new file</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Create a new source file</span>
+<span class="prompt">$</span> touch src/routes/profile.js
+
+<span class="prompt"># Or create it with initial content</span>
+<span class="prompt">$</span> cat &lt;&lt;'EOF' > src/routes/profile.js
+// Profile routes
+const express = require('express');
+const router = express.Router();
+
+router.get('/profile', (req, res) => {
+    res.json({ user: req.user });
+});
+
+module.exports = router;
+EOF</pre></div>
+
+  <h3>Edit a file with nano</h3>
+
+  <div class="code-block"><pre><span class="prompt">$</span> nano src/routes/profile.js
+
+<span class="prompt"># Inside nano:</span>
+<span class="prompt"># - Type to add text</span>
+<span class="prompt"># - Ctrl+O then Enter to save</span>
+<span class="prompt"># - Ctrl+X to exit</span>
+<span class="prompt"># - Ctrl+K to cut a line</span>
+<span class="prompt"># - Ctrl+U to paste a line</span>
+<span class="prompt"># - Ctrl+W to search</span></pre></div>
+
+  <h3>Copy and back up files</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Make a backup before a risky edit</span>
+<span class="prompt">$</span> cp src/routes/auth.js src/routes/auth.js.bak
+
+<span class="prompt"># Copy a file to another directory</span>
+<span class="prompt">$</span> cp src/utils/helpers.js tests/fixtures/
+
+<span class="prompt"># Copy an entire directory</span>
+<span class="prompt">$</span> cp -r src/routes/ src/routes-backup/</pre></div>
+
+  <h3>Move and rename files</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Rename a file</span>
+<span class="prompt">$</span> mv src/routes/profile.js src/routes/user-profile.js
+
+<span class="prompt"># Move a file to a different directory</span>
+<span class="prompt">$</span> mv old-notes.txt ~/Documents/archive/</pre></div>
+
+  <h3>Delete files you no longer need</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Delete a backup you no longer need</span>
+<span class="prompt">$</span> rm src/routes/auth.js.bak
+
+<span class="prompt"># Delete a directory and its contents (be careful!)</span>
+<span class="prompt">$</span> rm -ri src/routes-backup/
+<span class="output">rm: descend into 'src/routes-backup/'? y</span>
+<span class="output">rm: remove regular file 'src/routes-backup/auth.js'? y</span>
+<span class="output">rm: remove directory 'src/routes-backup/'? y</span></pre></div>
+
+  <!-- ================================================================ -->
+  <h2>4. Search for Things</h2>
+  <!-- ================================================================ -->
+
+  <p>You will constantly need to find files and search for text. These are the commands you will use most.</p>
+
+  <h3>Search for text inside files</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Find all files containing "TODO" in your project</span>
+<span class="prompt">$</span> grep -rn "TODO" src/
+<span class="output">src/routes/auth.js:15:    // TODO: Add rate limiting</span>
+<span class="output">src/utils/helpers.js:42:  // TODO: Handle edge case for empty input</span>
+
+<span class="prompt"># Search for a function definition</span>
+<span class="prompt">$</span> grep -rn "function validateUser" src/
+<span class="output">src/utils/helpers.js:10:function validateUser(data) {</span>
+
+<span class="prompt"># Case-insensitive search</span>
+<span class="prompt">$</span> grep -rni "error" /var/log/syslog | tail -5</pre></div>
+
+  <h3>Find files by name</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Find all JavaScript files in the project</span>
+<span class="prompt">$</span> find . -name "*.js" -type f
+<span class="output">./src/index.js</span>
+<span class="output">./src/routes/auth.js</span>
+<span class="output">./src/routes/user-profile.js</span>
+<span class="output">./src/utils/helpers.js</span>
+<span class="output">./tests/test_routes.js</span>
+<span class="output">./tests/test_utils.js</span>
+
+<span class="prompt"># Find files modified today</span>
+<span class="prompt">$</span> find . -name "*.js" -mtime 0
+<span class="output">./src/routes/auth.js</span>
+<span class="output">./src/routes/user-profile.js</span>
+
+<span class="prompt"># Find large files (over 10 MB)</span>
+<span class="prompt">$</span> find ~ -type f -size +10M -exec ls -lh {} \; 2>/dev/null | head -5</pre></div>
+
+  <h3>Search your command history</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Search history for a previous command</span>
+<span class="prompt">$</span> history | grep "docker"
+<span class="output"> 1042  docker ps</span>
+<span class="output"> 1043  docker build -t myapp .</span>
+<span class="output"> 1055  docker-compose up -d</span>
+
+<span class="prompt"># Interactive reverse search: press Ctrl+R and start typing</span>
+<span class="prompt">(reverse-i-search)`dock': docker-compose up -d</span>
+<span class="prompt"># Press Enter to run it, or Ctrl+R again to see older matches</span></pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Faster searching with grep</div>
+    <p><code>grep -rn</code> is your best friend. <code>-r</code> = recursive (search all subdirectories), <code>-n</code> = show line numbers. Add <code>-i</code> for case-insensitive and <code>-l</code> to show only matching filenames.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>5. Monitor What is Running</h2>
+  <!-- ================================================================ -->
+
+  <p>Throughout the day, you will need to check on running processes, especially when something seems slow or unresponsive.</p>
+
+  <h3>Quick process check</h3>
+
+  <div class="code-block"><pre><span class="prompt"># See all your running processes</span>
+<span class="prompt">$</span> ps aux --sort=-%mem | head -10
+<span class="output">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND</span>
+<span class="output">user     15234  2.1  8.5 1234567 130000 ?      Sl   08:30   1:23 node server.js</span>
+<span class="output">user     15456  0.5  3.2  456789  49000 ?       Sl   08:30   0:18 python3 worker.py</span>
+<span class="output">mysql    12345  1.2  2.8  654321  43000 ?       Ssl  Mar30   5:42 /usr/sbin/mysqld</span>
+<span class="output">...</span>
+
+<span class="prompt"># Find a specific process</span>
+<span class="prompt">$</span> ps aux | grep "node"
+<span class="output">user     15234  2.1  8.5 1234567 130000 ?      Sl   08:30   1:23 node server.js</span>
+
+<span class="prompt"># Or use pgrep for just PIDs</span>
+<span class="prompt">$</span> pgrep -a node
+<span class="output">15234 node server.js</span></pre></div>
+
+  <h3>Real-time monitoring with top</h3>
+
+  <div class="code-block"><pre><span class="prompt">$</span> top
+<span class="output">top - 14:30:00 up 45 days,  8:51,  2 users,  load average: 0.42, 0.35, 0.28</span>
+<span class="output">Tasks: 187 total,   1 running, 186 sleeping,   0 stopped,   0 zombie</span>
+<span class="output">%Cpu(s):  5.2 us,  1.1 sy,  0.0 ni, 93.2 id,  0.3 wa,  0.0 hi,  0.2 si</span>
+<span class="output">MiB Mem:  15920.0 total,   8100.0 free,   4200.0 used,   3620.0 buff/cache</span>
+<span class="output"></span>
+<span class="output">    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND</span>
+<span class="output">  15234 user      20   0 1234567 130000  12000 S   2.1   8.5   1:23.45 node</span>
+<span class="output">  12345 mysql     20   0  654321  43000   8000 S   1.2   2.8   5:42.10 mysqld</span>
+
+<span class="prompt"># Inside top:</span>
+<span class="prompt"># Press 'q' to quit</span>
+<span class="prompt"># Press 'M' to sort by memory</span>
+<span class="prompt"># Press 'P' to sort by CPU</span>
+<span class="prompt"># Press 'k' to kill a process (enter PID)</span></pre></div>
+
+  <h3>Check if a service is running</h3>
+
+  <div class="code-block"><pre><span class="prompt">$</span> systemctl status nginx
+<span class="output">● nginx.service - A high performance web server</span>
+<span class="output">   Loaded: loaded (/lib/systemd/system/nginx.service; enabled)</span>
+<span class="output">   Active: active (running) since Mon 2026-02-14 06:15:00 UTC; 45 days ago</span>
+<span class="output">  Process: 1234 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)</span>
+<span class="output"> Main PID: 1235 (nginx)</span>
+
+<span class="prompt"># Restart a service if needed</span>
+<span class="prompt">$</span> sudo systemctl restart nginx
+<span class="prompt">$</span> systemctl status nginx
+<span class="output">   Active: active (running) since Tue 2026-03-31 09:05:00 UTC; 2s ago</span></pre></div>
+
+  <!-- ================================================================ -->
+  <h2>6. Install or Update Software</h2>
+  <!-- ================================================================ -->
+
+  <p>On Debian/Ubuntu systems (the most common for beginners), you use <code>apt</code> to manage software.</p>
+
+  <h3>Update package lists and upgrade</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Update the list of available packages</span>
+<span class="prompt">$</span> sudo apt update
+<span class="output">Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease</span>
+<span class="output">Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [110 kB]</span>
+<span class="output">...</span>
+<span class="output">Reading package lists... Done</span>
+<span class="output">12 packages can be upgraded. Run 'apt list --upgradable' to see them.</span>
+
+<span class="prompt"># See what can be upgraded</span>
+<span class="prompt">$</span> apt list --upgradable
+<span class="output">Listing...</span>
+<span class="output">libssl3/jammy-security 3.0.2-0ubuntu1.16 amd64 [upgradable from: 3.0.2-0ubuntu1.15]</span>
+<span class="output">nginx/jammy-security 1.18.0-6ubuntu14.5 amd64 [upgradable from: 1.18.0-6ubuntu14.4]</span>
+<span class="output">...</span>
+
+<span class="prompt"># Upgrade all packages</span>
+<span class="prompt">$</span> sudo apt upgrade -y</pre></div>
+
+  <h3>Install new software</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Search for a package</span>
+<span class="prompt">$</span> apt search tree
+<span class="output">tree/jammy 2.0.2-1 amd64</span>
+<span class="output">  list contents of directories in a tree-like format</span>
+
+<span class="prompt"># Install it</span>
+<span class="prompt">$</span> sudo apt install tree
+<span class="output">Reading package lists... Done</span>
+<span class="output">The following NEW packages will be installed:</span>
+<span class="output">  tree</span>
+<span class="output">Do you want to continue? [Y/n] y</span>
+
+<span class="prompt"># Verify installation</span>
+<span class="prompt">$</span> which tree
+<span class="output">/usr/bin/tree</span>
+<span class="prompt">$</span> tree --version
+<span class="output">tree v2.0.2</span></pre></div>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Always update before installing</div>
+    <p>Run <code>sudo apt update</code> before installing new packages. This ensures you get the latest version available.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>7. Transfer Files</h2>
+  <!-- ================================================================ -->
+
+  <p>Moving files between machines is a daily task, whether deploying code, pulling data, or sharing files.</p>
+
+  <h3>Copy files to/from a remote server with scp</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Copy a local file to a remote server</span>
+<span class="prompt">$</span> scp report.pdf user@server:/home/user/Documents/
+<span class="output">report.pdf                     100%  2.3MB  10.5MB/s   00:00</span>
+
+<span class="prompt"># Copy a file from a remote server to local</span>
+<span class="prompt">$</span> scp user@server:/var/log/app.log ./logs/
+<span class="output">app.log                        100%  15MB   12.0MB/s   00:01</span>
+
+<span class="prompt"># Copy an entire directory</span>
+<span class="prompt">$</span> scp -r user@server:/home/user/project/ ./project-copy/</pre></div>
+
+  <h3>Sync directories with rsync</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Sync a local directory to a remote server</span>
+<span class="prompt">$</span> rsync -avz ~/projects/my-app/ user@server:/var/www/my-app/
+<span class="output">sending incremental file list</span>
+<span class="output">./</span>
+<span class="output">src/routes/auth.js</span>
+<span class="output">src/routes/user-profile.js</span>
+<span class="output">sent 4,567 bytes  received 123 bytes  3,126.67 bytes/sec</span>
+<span class="output">total size is 45,678  speedup is 9.74</span>
+
+<span class="prompt"># Dry run first to see what would be transferred</span>
+<span class="prompt">$</span> rsync -avz --dry-run ~/projects/my-app/ user@server:/var/www/my-app/
+
+<span class="prompt"># Sync and delete files on remote that no longer exist locally</span>
+<span class="prompt">$</span> rsync -avz --delete ~/projects/my-app/ user@server:/var/www/my-app/</pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">rsync vs scp</div>
+    <p>Use <code>scp</code> for simple, one-time copies. Use <code>rsync</code> for syncing directories, especially large ones, because rsync only transfers files that have changed. Always use <code>--dry-run</code> first with rsync.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>8. End of Day: Clean Up</h2>
+  <!-- ================================================================ -->
+
+  <p>Before wrapping up for the day, check that things are tidy and your work is saved.</p>
+
+  <h3>Check disk usage again</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Quick disk check</span>
+<span class="prompt">$</span> df -h /
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="output">/dev/sda1       500G  122G  353G  26% /</span>
+
+<span class="prompt"># Find what is using the most space in your home directory</span>
+<span class="prompt">$</span> du -h --max-depth=1 ~ 2>/dev/null | sort -rh | head -10
+<span class="output">2.3G    /home/user</span>
+<span class="output">850M    /home/user/.cache</span>
+<span class="output">420M    /home/user/Downloads</span>
+<span class="output">310M    /home/user/projects</span>
+<span class="output">180M    /home/user/Documents</span></pre></div>
+
+  <h3>Remove temporary files</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Clean up your Downloads folder</span>
+<span class="prompt">$</span> ls ~/Downloads/
+<span class="output">report-v1.pdf  report-v2.pdf  report-final.pdf  temp.zip  old-installer.deb</span>
+
+<span class="prompt">$</span> rm ~/Downloads/temp.zip ~/Downloads/old-installer.deb
+
+<span class="prompt"># Clean the apt cache (can recover significant space)</span>
+<span class="prompt">$</span> sudo apt clean
+<span class="prompt">$</span> sudo apt autoremove -y
+<span class="output">Removing linux-headers-5.15.0-90 ...</span>
+<span class="output">0 upgraded, 0 newly installed, 3 to remove and 0 not upgraded.</span>
+
+<span class="prompt"># Clear old journal logs (keep last 7 days)</span>
+<span class="prompt">$</span> sudo journalctl --vacuum-time=7d
+<span class="output">Vacuuming done, freed 120.0M of archived journals.</span></pre></div>
+
+  <h3>Commit and push your work</h3>
+
+  <div class="code-block"><pre><span class="prompt">$</span> cd ~/projects/my-web-app
+<span class="prompt">$</span> git status
+<span class="output">On branch feature/user-auth</span>
+<span class="output">Changes not staged for commit:</span>
+<span class="output">  modified:   src/routes/auth.js</span>
+<span class="output">Untracked files:</span>
+<span class="output">  src/routes/user-profile.js</span>
+
+<span class="prompt">$</span> git add -A
+<span class="prompt">$</span> git commit -m "Add user profile endpoint"
+<span class="output">[feature/user-auth d4e5f6g] Add user profile endpoint</span>
+<span class="output"> 2 files changed, 45 insertions(+), 3 deletions(-)</span>
+<span class="output"> create mode 100644 src/routes/user-profile.js</span>
+
+<span class="prompt">$</span> git push origin feature/user-auth</pre></div>
+
+  <h3>Back up important work</h3>
+
+  <div class="code-block"><pre><span class="prompt"># Create a quick backup of today's work</span>
+<span class="prompt">$</span> tar -czf ~/backups/my-web-app-$(date +%Y%m%d).tar.gz -C ~/projects my-web-app/
+<span class="prompt">$</span> ls -lh ~/backups/
+<span class="output">-rw-r--r-- 1 user user 2.3M Mar 31 17:30 my-web-app-20260331.tar.gz</span>
+<span class="output">-rw-r--r-- 1 user user 2.1M Mar 30 17:30 my-web-app-20260330.tar.gz</span></pre></div>
+
+  <!-- ================================================================ -->
+  <h2>9. Essential Keyboard Shortcuts</h2>
+  <!-- ================================================================ -->
+
+  <p>These keyboard shortcuts will save you hundreds of keystrokes every day. Learn them and use them constantly.</p>
+
+  <div class="concept-box">
+    <h3>Terminal Control Shortcuts</h3>
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Shortcut</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">What It Does</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">When to Use It</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+C</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Cancel / interrupt the running command</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">A command is taking too long or you typed it wrong</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+D</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Exit the current shell / send EOF</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Log out of SSH, exit a sub-shell, close the terminal</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+Z</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Suspend the current process</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Pause a running program to do something else (resume with <code>fg</code> or <code>bg</code>)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+L</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Clear the terminal screen</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">The screen is cluttered and you want a fresh view (same as typing <code>clear</code>)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+R</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Reverse history search</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Find and rerun a previous command by typing part of it</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Tab</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Auto-complete file names and commands</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Always. Press Tab after typing the first few characters of any filename or command</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Tab Tab</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Show all possible completions</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">When Tab does not complete uniquely, press it again to see all options</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Up Arrow</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Previous command from history</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Rerun or modify the last command</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Down Arrow</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Next command from history</td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Navigate forward through history after pressing Up</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="concept-box">
+    <h3>Command Line Editing Shortcuts</h3>
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">Shortcut</th>
+          <th style="text-align:left; padding:8px; border-bottom:2px solid var(--border);">What It Does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+A</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Move cursor to the beginning of the line</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+E</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Move cursor to the end of the line</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+W</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Delete the word before the cursor</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+U</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Delete from cursor to the beginning of the line</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Ctrl+K</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Delete from cursor to the end of the line</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Alt+B</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Move cursor back one word</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>Alt+F</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Move cursor forward one word</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>!!</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Repeat the last command (type as two exclamation marks)</td>
+        </tr>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid var(--border);"><kbd>!$</kbd></td>
+          <td style="padding:8px; border-bottom:1px solid var(--border);">Reuse the last argument of the previous command</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Shortcuts in action</h3>
+
+  <div class="code-block"><pre><span class="prompt"># You forgot sudo:</span>
+<span class="prompt">$</span> apt update
+<span class="output">E: Could not open lock file - open (13: Permission denied)</span>
+
+<span class="prompt"># Rerun with sudo using !!:</span>
+<span class="prompt">$</span> sudo !!
+<span class="output">sudo apt update</span>
+<span class="output">Hit:1 http://archive.ubuntu.com/ubuntu ...</span>
+
+<span class="prompt"># Reuse the last argument with !$:</span>
+<span class="prompt">$</span> mkdir /tmp/my-new-directory
+<span class="prompt">$</span> cd !$
+<span class="output">cd /tmp/my-new-directory</span>
+
+<span class="prompt"># Tab completion example:</span>
+<span class="prompt">$</span> cat /etc/ho[Tab]
+<span class="output">cat /etc/hostname</span>
+<span class="prompt"># Bash completed "ho" to "hostname" because it is the only match</span></pre></div>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">The #1 time saver: Tab completion</div>
+    <p>If you learn only one shortcut, let it be <kbd>Tab</kbd>. It autocompletes file paths, command names, and arguments. It prevents typos, saves typing, and works everywhere. Press it constantly.</p>
+  </div>
+
+  <!-- ================================================================ -->
+  <h2>Putting It All Together</h2>
+  <!-- ================================================================ -->
+
+  <div class="concept-box">
+    <h3>A Complete Daily Routine</h3>
+    <div class="code-block"><pre><span class="prompt"># === MORNING ===</span>
+<span class="prompt">$</span> uptime                        # Check system health
+<span class="prompt">$</span> df -h                         # Check disk space
+<span class="prompt">$</span> free -h                       # Check memory
+
+<span class="prompt"># === START WORKING ===</span>
+<span class="prompt">$</span> cd ~/projects/my-app          # Navigate to project
+<span class="prompt">$</span> git pull                      # Get latest changes
+<span class="prompt">$</span> git status                    # See where you left off
+
+<span class="prompt"># === DURING THE DAY ===</span>
+<span class="prompt">$</span> nano src/feature.js           # Edit files
+<span class="prompt">$</span> grep -rn "TODO" src/          # Find todos
+<span class="prompt">$</span> find . -name "*.log" -delete  # Clean up logs
+<span class="prompt">$</span> ps aux | grep node            # Check processes
+<span class="prompt">$</span> sudo systemctl restart nginx  # Restart services
+
+<span class="prompt"># === END OF DAY ===</span>
+<span class="prompt">$</span> git add -A                    # Stage changes
+<span class="prompt">$</span> git commit -m "Feature done"  # Commit work
+<span class="prompt">$</span> git push                      # Push to remote
+<span class="prompt">$</span> du -h --max-depth=1 ~         # Check home dir size
+<span class="prompt">$</span> sudo apt clean                # Clean package cache</pre></div>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Practice makes it natural</div>
+    <p>Your first week using Linux will feel slow. That is normal. By the end of your first month, these commands will become automatic. The key is to use the terminal every day, even for simple tasks. Resist the urge to use a GUI file manager. The terminal is faster once you build the habit.</p>
+  </div>
+
+  <div class="exercise">
+    <h3>Daily Challenge</h3>
+    <p>Try this for one week: every morning when you open your terminal, run the morning checks (uptime, df, free). Throughout the day, use <kbd>Ctrl+R</kbd> instead of retyping commands. At the end of the day, commit your work and clean up temp files. After seven days, these steps will feel natural.</p>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

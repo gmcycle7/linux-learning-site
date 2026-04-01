@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 16: Cron Jobs &amp; Systemd — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link active" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &rsaquo;
+    <span>Cron &amp; Systemd</span>
+  </nav>
+
+  <h1>Chapter 16: Cron Jobs &amp; Systemd</h1>
+
+  <p>Running commands manually is fine for one-off tasks, but real-world Linux systems depend on <strong>automation</strong>. Backups need to happen every night, log files need rotating, services need to start at boot, and health checks need to run around the clock &mdash; all without a human typing commands. This chapter teaches you the two pillars of Linux automation: <strong>cron</strong> (the classic task scheduler) and <strong>systemd</strong> (the modern service and system manager).</p>
+
+  <!-- ===== SECTION 1: What is Task Scheduling? ===== -->
+  <h2 id="what-is-task-scheduling">1. What is Task Scheduling?</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Task Scheduling</div>
+    <p>Think of task scheduling like setting alarms on your phone. You set the alarm once (define the schedule and the action), and the phone wakes you up at the right time every day &mdash; you don't need to remember to do it yourself.</p>
+    <p>On Linux, the <strong>cron daemon</strong> is like a tireless alarm clock that checks every minute: &ldquo;Is there a job scheduled right now?&rdquo; If yes, it runs the command. <strong>Systemd timers</strong> are a more modern alternative that work the same way but are integrated into the systemd service manager.</p>
+  </div>
+
+  <p>Common tasks you would schedule:</p>
+  <ul>
+    <li><strong>Backups</strong> &mdash; Archive important files nightly to a remote server.</li>
+    <li><strong>Log cleanup</strong> &mdash; Delete or compress old log files to free disk space.</li>
+    <li><strong>Monitoring</strong> &mdash; Check disk usage every hour and send an alert if it exceeds 90%.</li>
+    <li><strong>Updates</strong> &mdash; Pull the latest data from an API every 15 minutes.</li>
+    <li><strong>Reports</strong> &mdash; Generate and email a daily summary report.</li>
+    <li><strong>Certificate renewal</strong> &mdash; Renew SSL/TLS certificates before they expire.</li>
+  </ul>
+
+  <!-- ===== SECTION 2: Cron ===== -->
+  <h2 id="cron">2. Cron &mdash; The Classic Scheduler</h2>
+
+  <p><strong>Cron</strong> is a time-based job scheduler that has been part of Unix and Linux since the 1970s. The word comes from <em>Chronos</em>, the Greek word for time. It consists of:</p>
+  <ul>
+    <li><strong>The cron daemon (<code>crond</code> or <code>cron</code>)</strong> &mdash; A background process that runs continuously and checks the schedule every minute.</li>
+    <li><strong>Crontab files</strong> &mdash; Configuration files where users define their scheduled jobs.</li>
+    <li><strong>System cron directories</strong> &mdash; Special folders for system-wide scheduled scripts.</li>
+  </ul>
+
+  <p>The daemon starts at boot and sleeps between checks. Every minute, it wakes up, reads all crontab files, and executes any jobs whose schedule matches the current time.</p>
+
+  <h3 id="cron-schedule-format">The Cron Schedule Format</h3>
+
+  <p>Every cron job line follows this format:</p>
+
+  <div class="code-box">
+<pre>
+ ┌───────────── Minute (0 - 59)
+ │ ┌───────────── Hour (0 - 23)
+ │ │ ┌───────────── Day of month (1 - 31)
+ │ │ │ ┌───────────── Month (1 - 12)
+ │ │ │ │ ┌───────────── Day of week (0 - 7, Sun = 0 or 7)
+ │ │ │ │ │
+ * * * * *  command_to_execute
+</pre>
+  </div>
+
+  <p>Each field can contain:</p>
+  <ul>
+    <li><code>*</code> &mdash; Any value (wildcard).</li>
+    <li><code>5</code> &mdash; A specific value.</li>
+    <li><code>1,3,5</code> &mdash; A list of values.</li>
+    <li><code>1-5</code> &mdash; A range of values.</li>
+    <li><code>*/10</code> &mdash; A step value (every 10th).</li>
+  </ul>
+
+  <h3 id="common-schedules">Common Schedule Patterns</h3>
+
+  <table>
+    <thead>
+      <tr><th>Schedule</th><th>Cron Expression</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Every minute</td><td><code>* * * * *</code></td><td>Runs at the start of every minute</td></tr>
+      <tr><td>Every 5 minutes</td><td><code>*/5 * * * *</code></td><td>Runs at :00, :05, :10, :15, ...</td></tr>
+      <tr><td>Every 15 minutes</td><td><code>*/15 * * * *</code></td><td>Runs at :00, :15, :30, :45</td></tr>
+      <tr><td>Every hour</td><td><code>0 * * * *</code></td><td>Runs at the top of every hour</td></tr>
+      <tr><td>Every day at midnight</td><td><code>0 0 * * *</code></td><td>Runs at 00:00 daily</td></tr>
+      <tr><td>Every day at 6 AM</td><td><code>0 6 * * *</code></td><td>Runs at 06:00 daily</td></tr>
+      <tr><td>Every Monday at 9 AM</td><td><code>0 9 * * 1</code></td><td>Runs at 09:00 every Monday</td></tr>
+      <tr><td>Weekdays at 8 AM</td><td><code>0 8 * * 1-5</code></td><td>Mon&ndash;Fri at 08:00</td></tr>
+      <tr><td>First of every month</td><td><code>0 0 1 * *</code></td><td>Runs at midnight on the 1st</td></tr>
+      <tr><td>Every Sunday at 2 AM</td><td><code>0 2 * * 0</code></td><td>Runs at 02:00 every Sunday</td></tr>
+      <tr><td>Every 30 min, business hours</td><td><code>*/30 9-17 * * 1-5</code></td><td>Every half hour, 9AM&ndash;5PM, Mon&ndash;Fri</td></tr>
+      <tr><td>Twice a day</td><td><code>0 6,18 * * *</code></td><td>Runs at 06:00 and 18:00</td></tr>
+      <tr><td>Every quarter (Jan, Apr, Jul, Oct)</td><td><code>0 0 1 1,4,7,10 *</code></td><td>Midnight on the 1st of quarter months</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Shortcut Strings</div>
+    <p>Many cron implementations support shortcuts instead of the five-field format:</p>
+    <ul>
+      <li><code>@reboot</code> &mdash; Run once at startup</li>
+      <li><code>@yearly</code> or <code>@annually</code> &mdash; <code>0 0 1 1 *</code></li>
+      <li><code>@monthly</code> &mdash; <code>0 0 1 * *</code></li>
+      <li><code>@weekly</code> &mdash; <code>0 0 * * 0</code></li>
+      <li><code>@daily</code> or <code>@midnight</code> &mdash; <code>0 0 * * *</code></li>
+      <li><code>@hourly</code> &mdash; <code>0 * * * *</code></li>
+    </ul>
+  </div>
+
+  <!-- ===== SECTION 3: Crontab ===== -->
+  <h2 id="crontab">3. Managing Cron Jobs with <code>crontab</code></h2>
+
+  <p>The <code>crontab</code> command is how you create, view, and manage your personal cron jobs. Each user has their own crontab file.</p>
+
+  <h3>Essential <code>crontab</code> Commands</h3>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>crontab -e</code></td><td>Edit your crontab (opens in your default editor)</td></tr>
+      <tr><td><code>crontab -l</code></td><td>List (display) your current crontab</td></tr>
+      <tr><td><code>crontab -r</code></td><td>Remove (delete) your entire crontab</td></tr>
+      <tr><td><code>crontab -u username -e</code></td><td>Edit another user's crontab (requires root)</td></tr>
+      <tr><td><code>crontab -u username -l</code></td><td>List another user's crontab (requires root)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Warning: <code>crontab -r</code> Deletes Everything</div>
+    <p><code>crontab -r</code> removes your <strong>entire</strong> crontab without asking for confirmation. There is no undo. Always back up your crontab first with <code>crontab -l &gt; my_crontab_backup.txt</code> before making risky changes. On some keyboards, <kbd>r</kbd> is right next to <kbd>e</kbd> &mdash; one slip and your jobs are gone.</p>
+  </div>
+
+  <h3 id="crontab-examples">Crontab Examples</h3>
+
+  <pre><code><span class="comment"># View your current cron jobs</span>
+<span class="prompt">$</span> crontab -l
+<span class="output">no crontab for user</span>
+
+<span class="comment"># Edit your crontab (opens in vi/nano)</span>
+<span class="prompt">$</span> crontab -e</code></pre>
+
+  <p>Inside the crontab file, you would add lines like these:</p>
+
+  <pre><code><span class="comment"># Back up the home directory every day at 2 AM</span>
+0 2 * * * tar -czf /backup/home_$(date +\%Y\%m\%d).tar.gz /home/user
+
+<span class="comment"># Delete log files older than 30 days every Sunday at 3 AM</span>
+0 3 * * 0 find /var/log/myapp -name "*.log" -mtime +30 -delete
+
+<span class="comment"># Check disk usage every hour, email alert if above 90%</span>
+0 * * * * df -h / | awk 'NR==2 {if ($5+0 > 90) print "Disk alert: "$5}' | mail -s "Disk Warning" admin@example.com
+
+<span class="comment"># Pull latest data from API every 15 minutes</span>
+*/15 * * * * /usr/local/bin/fetch_data.sh >> /var/log/fetch.log 2>&1
+
+<span class="comment"># Restart a service every Monday at 4 AM</span>
+0 4 * * 1 /usr/bin/systemctl restart myapp.service
+
+<span class="comment"># Run a database cleanup every night at midnight</span>
+0 0 * * * /usr/local/bin/db_cleanup.py >> /var/log/db_cleanup.log 2>&1
+
+<span class="comment"># Sync files to remote server twice a day</span>
+0 6,18 * * * rsync -avz /data/ user@backup-server:/data/ >> /var/log/sync.log 2>&1
+
+<span class="comment"># Generate a weekly report every Friday at 5 PM</span>
+0 17 * * 5 /usr/local/bin/weekly_report.sh | mail -s "Weekly Report" team@example.com
+
+<span class="comment"># Renew SSL certificates on the 1st of every month</span>
+0 3 1 * * /usr/bin/certbot renew --quiet >> /var/log/certbot.log 2>&1
+
+<span class="comment"># Clear tmp directory every day at 4 AM</span>
+0 4 * * * find /tmp -type f -atime +7 -delete
+
+<span class="comment"># Monitor website uptime every 5 minutes</span>
+*/5 * * * * curl -sf https://example.com > /dev/null || echo "Site down!" | mail -s "Alert" admin@example.com
+
+<span class="comment"># Run a script at boot (use @reboot)</span>
+@reboot /usr/local/bin/start_my_service.sh</code></pre>
+
+  <h3 id="cron-environment">Cron Environment Gotchas</h3>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Warning: Cron Has a Minimal Environment</div>
+    <p>Cron jobs do <strong>not</strong> run in your normal shell environment. The <code>PATH</code> is usually just <code>/usr/bin:/bin</code>, and environment variables from your <code>.bashrc</code> or <code>.profile</code> are not loaded. This is the number-one cause of &ldquo;it works in my terminal but not in cron.&rdquo;</p>
+  </div>
+
+  <p><strong>Solutions for PATH issues:</strong></p>
+
+  <pre><code><span class="comment"># Solution 1: Use absolute paths for every command</span>
+0 2 * * * /usr/bin/python3 /home/user/scripts/backup.py
+
+<span class="comment"># Solution 2: Set PATH at the top of your crontab</span>
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
+0 2 * * * python3 /home/user/scripts/backup.py
+
+<span class="comment"># Solution 3: Source your profile inside the job</span>
+0 2 * * * . /home/user/.profile && python3 /home/user/scripts/backup.py
+
+<span class="comment"># Solution 4: Set variables directly in the crontab</span>
+SHELL=/bin/bash
+MAILTO=admin@example.com
+HOME=/home/user</code></pre>
+
+  <p><strong>Other common gotchas:</strong></p>
+  <ul>
+    <li><strong>Percent signs (<code>%</code>)</strong> &mdash; In crontab, <code>%</code> is a special character (newline). Escape it as <code>\%</code>. This is why the <code>date</code> command above uses <code>\%Y\%m\%d</code> instead of <code>%Y%m%d</code>.</li>
+    <li><strong>No terminal</strong> &mdash; Cron jobs have no terminal attached. Interactive commands will fail.</li>
+    <li><strong>Output goes nowhere</strong> &mdash; By default, cron mails output to the user. If mail is not configured, output is lost. Always redirect: <code>&gt;&gt; /var/log/myjob.log 2&gt;&amp;1</code></li>
+    <li><strong>Working directory</strong> &mdash; Cron starts in the user's home directory. Use <code>cd</code> or absolute paths to be safe.</li>
+  </ul>
+
+  <h3>Debugging Cron Jobs</h3>
+
+  <pre><code><span class="comment"># Check if cron daemon is running</span>
+<span class="prompt">$</span> systemctl status cron
+<span class="output">● cron.service - Regular background program processing daemon
+     Active: active (running) since Mon 2024-01-15 08:00:00 UTC</span>
+
+<span class="comment"># View cron logs (Debian/Ubuntu)</span>
+<span class="prompt">$</span> grep CRON /var/log/syslog
+
+<span class="comment"># View cron logs (RHEL/CentOS)</span>
+<span class="prompt">$</span> grep CRON /var/log/cron
+
+<span class="comment"># Test your cron command manually first</span>
+<span class="prompt">$</span> /bin/bash -c 'your_cron_command_here'</code></pre>
+
+  <!-- ===== SECTION 4: System Cron Directories ===== -->
+  <h2 id="system-cron">4. System Cron Directories</h2>
+
+  <p>In addition to user crontabs, Linux provides system-wide cron directories for scripts that need to run as root:</p>
+
+  <table>
+    <thead>
+      <tr><th>Directory</th><th>Runs</th><th>Use Case</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/etc/cron.hourly/</code></td><td>Once per hour</td><td>Frequent checks (monitoring, log rotation)</td></tr>
+      <tr><td><code>/etc/cron.daily/</code></td><td>Once per day</td><td>Backups, cleanup, updates</td></tr>
+      <tr><td><code>/etc/cron.weekly/</code></td><td>Once per week</td><td>Weekly reports, database maintenance</td></tr>
+      <tr><td><code>/etc/cron.monthly/</code></td><td>Once per month</td><td>Certificate renewal, monthly reports</td></tr>
+      <tr><td><code>/etc/cron.d/</code></td><td>Custom schedule</td><td>Package-installed cron jobs with full cron syntax</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>How to use them:</strong> Drop an executable script into the appropriate directory. No cron expression needed (except for <code>/etc/cron.d/</code>).</p>
+
+  <pre><code><span class="comment"># Create a daily cleanup script</span>
+<span class="prompt">$</span> sudo nano /etc/cron.daily/cleanup-tmp
+<span class="comment"># Add your script content, then make it executable:</span>
+<span class="prompt">$</span> sudo chmod +x /etc/cron.daily/cleanup-tmp
+
+<span class="comment"># Verify it is listed</span>
+<span class="prompt">$</span> ls -la /etc/cron.daily/
+<span class="output">-rwxr-xr-x 1 root root  123 Jan 15 10:00 cleanup-tmp
+-rwxr-xr-x 1 root root  379 Jan  5 08:00 logrotate
+-rwxr-xr-x 1 root root  249 Jan  5 08:00 apt-compat</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">When to Use Each Approach</div>
+    <ul>
+      <li><strong>User crontab (<code>crontab -e</code>)</strong> &mdash; For personal tasks that run as your user.</li>
+      <li><strong><code>/etc/cron.d/</code></strong> &mdash; For system tasks that need a custom schedule (full cron syntax, includes a username field).</li>
+      <li><strong><code>/etc/cron.daily/</code> etc.</strong> &mdash; For simple scripts that just need to run at a regular interval. No schedule to configure.</li>
+    </ul>
+  </div>
+
+  <p>Files in <code>/etc/cron.d/</code> have a slightly different format &mdash; they include a <strong>username</strong> field:</p>
+
+  <pre><code><span class="comment"># Format for /etc/cron.d/ files (note the username field)</span>
+*/10 * * * * root /usr/local/bin/health_check.sh
+0 2 * * * www-data /var/www/scripts/cleanup.sh</code></pre>
+
+  <!-- ===== SECTION 5: Systemd Basics ===== -->
+  <h2 id="systemd-basics">5. Systemd Basics</h2>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Systemd</div>
+    <p>If cron is the alarm clock, <strong>systemd</strong> is the entire building management system. It does not just schedule tasks &mdash; it manages <em>everything</em> that runs on a modern Linux system: services (web servers, databases), mount points, network configuration, logging, and yes, even scheduled tasks (timers).</p>
+    <p>Systemd is the first process that runs (PID 1). It starts all other services in the correct order, monitors them, and restarts them if they crash. Think of it as the orchestra conductor that makes sure every instrument starts on cue.</p>
+  </div>
+
+  <p><strong>Systemd</strong> replaced the older <strong>SysVinit</strong> (and Upstart) on most major Linux distributions. Here is why:</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>SysVinit (Old)</th><th>Systemd (Modern)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Boot speed</td><td>Sequential (slow)</td><td>Parallel (fast)</td></tr>
+      <tr><td>Service files</td><td>Shell scripts in <code>/etc/init.d/</code></td><td>Declarative unit files</td></tr>
+      <tr><td>Dependency handling</td><td>Manual ordering</td><td>Automatic dependency resolution</td></tr>
+      <tr><td>Service monitoring</td><td>Basic PID files</td><td>Full process tracking via cgroups</td></tr>
+      <tr><td>Logging</td><td>Text files (syslog)</td><td>Structured journal (journald)</td></tr>
+      <tr><td>Restart on crash</td><td>Requires extra tools</td><td>Built-in (<code>Restart=</code> directive)</td></tr>
+      <tr><td>Socket activation</td><td>Not supported</td><td>Built-in</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Unit Files</h3>
+
+  <p>Systemd manages things through <strong>unit files</strong>. The most common types are:</p>
+
+  <ul>
+    <li><code>.service</code> &mdash; A daemon or one-shot process (web server, database, backup script).</li>
+    <li><code>.timer</code> &mdash; A scheduled trigger (replaces cron jobs).</li>
+    <li><code>.socket</code> &mdash; A network or IPC socket for socket activation.</li>
+    <li><code>.mount</code> &mdash; A filesystem mount point.</li>
+    <li><code>.target</code> &mdash; A group of units (similar to runlevels).</li>
+  </ul>
+
+  <p>Unit files live in these directories (in order of priority):</p>
+
+  <table>
+    <thead>
+      <tr><th>Directory</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/etc/systemd/system/</code></td><td>Local admin customizations (highest priority)</td></tr>
+      <tr><td><code>/run/systemd/system/</code></td><td>Runtime units (generated on the fly)</td></tr>
+      <tr><td><code>/usr/lib/systemd/system/</code></td><td>Units installed by packages (do not edit directly)</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ===== SECTION 6: systemctl ===== -->
+  <h2 id="systemctl">6. Managing Services with <code>systemctl</code></h2>
+
+  <p><code>systemctl</code> is the primary command for interacting with systemd. It lets you start, stop, restart, enable, and inspect services.</p>
+
+  <h3>Essential <code>systemctl</code> Commands</h3>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>systemctl start &lt;unit&gt;</code></td><td>Start a service now</td></tr>
+      <tr><td><code>systemctl stop &lt;unit&gt;</code></td><td>Stop a running service</td></tr>
+      <tr><td><code>systemctl restart &lt;unit&gt;</code></td><td>Stop then start a service</td></tr>
+      <tr><td><code>systemctl reload &lt;unit&gt;</code></td><td>Reload config without restarting (if supported)</td></tr>
+      <tr><td><code>systemctl enable &lt;unit&gt;</code></td><td>Start automatically at boot</td></tr>
+      <tr><td><code>systemctl disable &lt;unit&gt;</code></td><td>Do not start at boot</td></tr>
+      <tr><td><code>systemctl status &lt;unit&gt;</code></td><td>Show current state and recent logs</td></tr>
+      <tr><td><code>systemctl is-active &lt;unit&gt;</code></td><td>Check if a service is running (returns active/inactive)</td></tr>
+      <tr><td><code>systemctl is-enabled &lt;unit&gt;</code></td><td>Check if a service starts at boot</td></tr>
+      <tr><td><code>systemctl list-units</code></td><td>List all loaded units</td></tr>
+      <tr><td><code>systemctl list-unit-files</code></td><td>List all installed unit files and their state</td></tr>
+      <tr><td><code>systemctl daemon-reload</code></td><td>Reload systemd after editing unit files</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="systemctl-examples"><code>systemctl</code> Examples</h3>
+
+  <pre><code><span class="comment"># Check the status of the SSH service</span>
+<span class="prompt">$</span> systemctl status sshd
+<span class="output">● sshd.service - OpenSSH server daemon
+     Loaded: loaded (/usr/lib/systemd/system/sshd.service; enabled)
+     Active: active (running) since Mon 2024-01-15 08:00:12 UTC; 3h ago
+   Main PID: 1234 (sshd)
+      Tasks: 1 (limit: 4915)
+     Memory: 5.2M
+        CPU: 42ms
+     CGroup: /system.slice/sshd.service
+             └─1234 sshd: /usr/sbin/sshd -D</span></code></pre>
+
+  <pre><code><span class="comment"># Start the nginx web server</span>
+<span class="prompt">$</span> sudo systemctl start nginx
+
+<span class="comment"># Stop nginx</span>
+<span class="prompt">$</span> sudo systemctl stop nginx
+
+<span class="comment"># Restart nginx (stop + start)</span>
+<span class="prompt">$</span> sudo systemctl restart nginx
+
+<span class="comment"># Reload nginx config without dropping connections</span>
+<span class="prompt">$</span> sudo systemctl reload nginx</code></pre>
+
+  <pre><code><span class="comment"># Enable a service to start at boot</span>
+<span class="prompt">$</span> sudo systemctl enable nginx
+<span class="output">Created symlink /etc/systemd/system/multi-user.target.wants/nginx.service
+  → /usr/lib/systemd/system/nginx.service.</span>
+
+<span class="comment"># Enable AND start immediately</span>
+<span class="prompt">$</span> sudo systemctl enable --now nginx
+
+<span class="comment"># Disable a service from starting at boot</span>
+<span class="prompt">$</span> sudo systemctl disable nginx
+<span class="output">Removed /etc/systemd/system/multi-user.target.wants/nginx.service.</span></code></pre>
+
+  <pre><code><span class="comment"># Quick checks (useful in scripts)</span>
+<span class="prompt">$</span> systemctl is-active nginx
+<span class="output">active</span>
+
+<span class="prompt">$</span> systemctl is-enabled nginx
+<span class="output">enabled</span>
+
+<span class="comment"># Use in a script</span>
+<span class="prompt">$</span> systemctl is-active --quiet nginx && echo "Nginx is running"
+<span class="output">Nginx is running</span></code></pre>
+
+  <pre><code><span class="comment"># List all running services</span>
+<span class="prompt">$</span> systemctl list-units --type=service --state=running
+<span class="output">UNIT                     LOAD   ACTIVE SUB     DESCRIPTION
+cron.service             loaded active running Regular background program processing
+nginx.service            loaded active running A high performance web server
+sshd.service             loaded active running OpenSSH server daemon
+...
+</span>
+<span class="comment"># List all enabled services</span>
+<span class="prompt">$</span> systemctl list-unit-files --type=service --state=enabled
+<span class="output">UNIT FILE              STATE   VENDOR PRESET
+cron.service           enabled enabled
+nginx.service          enabled enabled
+sshd.service           enabled enabled
+...</span></code></pre>
+
+  <pre><code><span class="comment"># After editing a unit file, reload systemd's configuration</span>
+<span class="prompt">$</span> sudo systemctl daemon-reload
+
+<span class="comment"># View the contents of a unit file</span>
+<span class="prompt">$</span> systemctl cat nginx.service
+<span class="output"># /usr/lib/systemd/system/nginx.service
+[Unit]
+Description=A high performance web server and a reverse proxy server
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/run/nginx.pid
+ExecStart=/usr/sbin/nginx
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target</span></code></pre>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Tip: <code>enable --now</code> and <code>disable --now</code></div>
+    <p>The <code>--now</code> flag combines two operations: <code>systemctl enable --now nginx</code> both enables the service for future boots <em>and</em> starts it immediately. Likewise, <code>disable --now</code> stops it and prevents it from starting at boot.</p>
+  </div>
+
+  <!-- ===== SECTION 7: journalctl ===== -->
+  <h2 id="journalctl">7. Viewing Logs with <code>journalctl</code></h2>
+
+  <p>Systemd includes its own logging system called the <strong>journal</strong>, managed by <code>journald</code>. Instead of scattered text files in <code>/var/log/</code>, the journal stores structured, indexed logs that you can filter and search efficiently. The <code>journalctl</code> command is how you read them.</p>
+
+  <h3>Essential <code>journalctl</code> Commands</h3>
+
+  <table>
+    <thead>
+      <tr><th>Command</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>journalctl</code></td><td>Show all logs (oldest first)</td></tr>
+      <tr><td><code>journalctl -u &lt;unit&gt;</code></td><td>Show logs for a specific service</td></tr>
+      <tr><td><code>journalctl -f</code></td><td>Follow logs in real time (like <code>tail -f</code>)</td></tr>
+      <tr><td><code>journalctl -b</code></td><td>Show logs from the current boot only</td></tr>
+      <tr><td><code>journalctl -b -1</code></td><td>Show logs from the previous boot</td></tr>
+      <tr><td><code>journalctl --since &lt;time&gt;</code></td><td>Show logs since a given time</td></tr>
+      <tr><td><code>journalctl --until &lt;time&gt;</code></td><td>Show logs until a given time</td></tr>
+      <tr><td><code>journalctl -p &lt;priority&gt;</code></td><td>Filter by severity (emerg, alert, crit, err, warning, notice, info, debug)</td></tr>
+      <tr><td><code>journalctl -n &lt;N&gt;</code></td><td>Show the last N log entries</td></tr>
+      <tr><td><code>journalctl --no-pager</code></td><td>Output all logs without paging (useful for piping)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 id="journalctl-examples"><code>journalctl</code> Examples</h3>
+
+  <pre><code><span class="comment"># View all logs for nginx</span>
+<span class="prompt">$</span> journalctl -u nginx.service
+<span class="output">Jan 15 08:00:12 server systemd[1]: Starting A high performance web server...
+Jan 15 08:00:12 server systemd[1]: Started A high performance web server.
+Jan 15 10:23:45 server systemd[1]: Reloading A high performance web server...
+Jan 15 10:23:45 server systemd[1]: Reloaded A high performance web server.</span></code></pre>
+
+  <pre><code><span class="comment"># Follow logs in real time (Ctrl+C to stop)</span>
+<span class="prompt">$</span> journalctl -u nginx -f
+<span class="output">-- Logs begin at Mon 2024-01-15 08:00:00 UTC. --
+Jan 15 14:30:01 server nginx[5678]: 192.168.1.50 GET /index.html 200
+Jan 15 14:30:02 server nginx[5678]: 192.168.1.51 GET /api/data 200
+...</span></code></pre>
+
+  <pre><code><span class="comment"># View logs from the current boot</span>
+<span class="prompt">$</span> journalctl -b
+
+<span class="comment"># View logs from the previous boot</span>
+<span class="prompt">$</span> journalctl -b -1
+
+<span class="comment"># List all recorded boots</span>
+<span class="prompt">$</span> journalctl --list-boots
+<span class="output"> -2 abc123... Mon 2024-01-13 08:00:00 UTC—Mon 2024-01-13 23:59:59 UTC
+ -1 def456... Tue 2024-01-14 08:00:00 UTC—Tue 2024-01-14 23:59:59 UTC
+  0 ghi789... Wed 2024-01-15 08:00:00 UTC—Wed 2024-01-15 14:35:00 UTC</span></code></pre>
+
+  <pre><code><span class="comment"># View logs from a specific time range</span>
+<span class="prompt">$</span> journalctl --since "2024-01-15 09:00" --until "2024-01-15 12:00"
+
+<span class="comment"># Logs from the last hour</span>
+<span class="prompt">$</span> journalctl --since "1 hour ago"
+
+<span class="comment"># Logs from today</span>
+<span class="prompt">$</span> journalctl --since today</code></pre>
+
+  <pre><code><span class="comment"># Show only error messages and above</span>
+<span class="prompt">$</span> journalctl -p err
+<span class="output">Jan 15 09:12:33 server sshd[4567]: error: Received disconnect from 10.0.0.5
+Jan 15 10:45:01 server kernel: EXT4-fs error (device sda1): ...</span>
+
+<span class="comment"># Show only critical and emergency messages</span>
+<span class="prompt">$</span> journalctl -p crit</code></pre>
+
+  <pre><code><span class="comment"># Show the last 20 log entries</span>
+<span class="prompt">$</span> journalctl -n 20
+
+<span class="comment"># Last 50 entries for sshd</span>
+<span class="prompt">$</span> journalctl -u sshd -n 50</code></pre>
+
+  <pre><code><span class="comment"># Combine filters: errors from nginx since today</span>
+<span class="prompt">$</span> journalctl -u nginx -p err --since today
+
+<span class="comment"># Output as JSON (for scripting)</span>
+<span class="prompt">$</span> journalctl -u nginx -n 5 -o json-pretty
+
+<span class="comment"># Show disk usage of the journal</span>
+<span class="prompt">$</span> journalctl --disk-usage
+<span class="output">Archived and active journals take up 256.0M in the file system.</span>
+
+<span class="comment"># Clean up old journal entries (keep last 2 weeks)</span>
+<span class="prompt">$</span> sudo journalctl --vacuum-time=2weeks
+<span class="output">Vacuuming done, freed 128.0M of archived journals.</span></code></pre>
+
+  <!-- ===== SECTION 8: Creating a Systemd Service ===== -->
+  <h2 id="creating-service">8. Creating a Custom Systemd Service</h2>
+
+  <p>Let's walk through creating a simple service from scratch. Suppose you have a Python web application at <code>/opt/myapp/app.py</code> and you want systemd to manage it.</p>
+
+  <h3>Step 1: Create the Service File</h3>
+
+  <pre><code><span class="prompt">$</span> sudo nano /etc/systemd/system/myapp.service</code></pre>
+
+  <p>Add the following content:</p>
+
+  <pre><code>[Unit]
+Description=My Python Web Application
+Documentation=https://github.com/myuser/myapp
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/myapp
+ExecStart=/usr/bin/python3 /opt/myapp/app.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+Environment=NODE_ENV=production
+Environment=PORT=8080
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+  <h3>Understanding Each Section</h3>
+
+  <table>
+    <thead>
+      <tr><th>Section</th><th>Directive</th><th>Meaning</th></tr>
+    </thead>
+    <tbody>
+      <tr><td rowspan="3"><code>[Unit]</code></td><td><code>Description</code></td><td>Human-readable name shown in <code>systemctl status</code></td></tr>
+      <tr><td><code>After</code></td><td>Start this service only after the network is up</td></tr>
+      <tr><td><code>Wants</code></td><td>Weak dependency &mdash; try to start network, but don't fail if it doesn't</td></tr>
+      <tr><td rowspan="7"><code>[Service]</code></td><td><code>Type=simple</code></td><td>The process started by <code>ExecStart</code> is the main process</td></tr>
+      <tr><td><code>User / Group</code></td><td>Run the service as this user (not root)</td></tr>
+      <tr><td><code>WorkingDirectory</code></td><td>Set the working directory before starting</td></tr>
+      <tr><td><code>ExecStart</code></td><td>The command to run</td></tr>
+      <tr><td><code>Restart=on-failure</code></td><td>Automatically restart if the process crashes</td></tr>
+      <tr><td><code>RestartSec=5</code></td><td>Wait 5 seconds before restarting</td></tr>
+      <tr><td><code>Environment</code></td><td>Set environment variables for the process</td></tr>
+      <tr><td><code>[Install]</code></td><td><code>WantedBy</code></td><td>Which target pulls in this service (multi-user = normal boot)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Step 2: Reload, Enable, and Start</h3>
+
+  <pre><code><span class="comment"># Tell systemd about the new file</span>
+<span class="prompt">$</span> sudo systemctl daemon-reload
+
+<span class="comment"># Enable the service to start at boot</span>
+<span class="prompt">$</span> sudo systemctl enable myapp.service
+<span class="output">Created symlink /etc/systemd/system/multi-user.target.wants/myapp.service
+  → /etc/systemd/system/myapp.service.</span>
+
+<span class="comment"># Start the service now</span>
+<span class="prompt">$</span> sudo systemctl start myapp.service</code></pre>
+
+  <h3>Step 3: Verify It Works</h3>
+
+  <pre><code><span class="prompt">$</span> systemctl status myapp.service
+<span class="output">● myapp.service - My Python Web Application
+     Loaded: loaded (/etc/systemd/system/myapp.service; enabled)
+     Active: active (running) since Mon 2024-01-15 14:30:00 UTC; 10s ago
+       Docs: https://github.com/myuser/myapp
+   Main PID: 6789 (python3)
+      Tasks: 3 (limit: 4915)
+     Memory: 24.5M
+        CPU: 150ms
+     CGroup: /system.slice/myapp.service
+             └─6789 /usr/bin/python3 /opt/myapp/app.py
+
+Jan 15 14:30:00 server systemd[1]: Started My Python Web Application.
+Jan 15 14:30:01 server python3[6789]: Server running on port 8080</span>
+
+<span class="comment"># View the logs</span>
+<span class="prompt">$</span> journalctl -u myapp.service -f</code></pre>
+
+  <h3>Step 4: Managing Your Service</h3>
+
+  <pre><code><span class="comment"># Stop the service</span>
+<span class="prompt">$</span> sudo systemctl stop myapp.service
+
+<span class="comment"># Restart after code changes</span>
+<span class="prompt">$</span> sudo systemctl restart myapp.service
+
+<span class="comment"># If you edit the .service file, always reload first</span>
+<span class="prompt">$</span> sudo systemctl daemon-reload
+<span class="prompt">$</span> sudo systemctl restart myapp.service</code></pre>
+
+  <div class="alert alert-warn">
+    <div class="alert__title">Warning: Always Run <code>daemon-reload</code> After Editing Unit Files</div>
+    <p>If you modify a <code>.service</code> file and try to restart without running <code>sudo systemctl daemon-reload</code> first, systemd will use the old cached version. You will see a warning: <em>&ldquo;Warning: The unit file, source configuration file or drop-ins of myapp.service changed on disk. Run 'systemctl daemon-reload' to reload units.&rdquo;</em></p>
+  </div>
+
+  <!-- ===== SECTION 9: Systemd Timers vs Cron ===== -->
+  <h2 id="timers-vs-cron">9. Systemd Timers vs Cron</h2>
+
+  <p>Systemd timers are the modern alternative to cron jobs. They consist of two unit files: a <code>.timer</code> file (the schedule) and a matching <code>.service</code> file (the task to run).</p>
+
+  <h3>Example: A Systemd Timer</h3>
+
+  <p>Create a timer that runs a backup script daily at 2 AM:</p>
+
+  <pre><code><span class="comment"># /etc/systemd/system/backup.service</span>
+[Unit]
+Description=Daily backup job
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/backup.sh</code></pre>
+
+  <pre><code><span class="comment"># /etc/systemd/system/backup.timer</span>
+[Unit]
+Description=Run backup daily at 2 AM
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target</code></pre>
+
+  <pre><code><span class="comment"># Enable and start the timer (not the service)</span>
+<span class="prompt">$</span> sudo systemctl daemon-reload
+<span class="prompt">$</span> sudo systemctl enable --now backup.timer
+
+<span class="comment"># Check timer status</span>
+<span class="prompt">$</span> systemctl list-timers
+<span class="output">NEXT                        LEFT       LAST                        PASSED  UNIT          ACTIVATES
+Tue 2024-01-16 02:00:00 UTC 11h left   Mon 2024-01-15 02:00:00 UTC 12h ago backup.timer  backup.service
+...</span></code></pre>
+
+  <h3>Comparison Table</h3>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>Cron</th><th>Systemd Timers</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Setup complexity</td><td>Simple &mdash; one line per job</td><td>More complex &mdash; two unit files needed</td></tr>
+      <tr><td>Logging</td><td>Manual (redirect output)</td><td>Automatic via journal</td></tr>
+      <tr><td>Missed jobs</td><td>Skipped if system was off</td><td><code>Persistent=true</code> catches up missed runs</td></tr>
+      <tr><td>Dependencies</td><td>None</td><td>Can depend on other services or targets</td></tr>
+      <tr><td>Resource control</td><td>None</td><td>Can limit CPU, memory, IO via cgroups</td></tr>
+      <tr><td>Randomized delay</td><td>Not built-in</td><td><code>RandomizedDelaySec=</code> to spread load</td></tr>
+      <tr><td>Accuracy</td><td>Minute-level only</td><td>Second-level or monotonic (every N seconds)</td></tr>
+      <tr><td>Viewing schedule</td><td><code>crontab -l</code></td><td><code>systemctl list-timers</code></td></tr>
+      <tr><td>Viewing logs</td><td>Grep syslog or custom log</td><td><code>journalctl -u &lt;service&gt;</code></td></tr>
+      <tr><td>User familiarity</td><td>Universally known</td><td>Newer, less familiar</td></tr>
+      <tr><td>Available on</td><td>All Unix/Linux systems</td><td>Systemd-based distros only</td></tr>
+      <tr><td>Environment</td><td>Minimal PATH, no shell profile</td><td>Controlled via unit file directives</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Which Should You Use?</div>
+    <ul>
+      <li><strong>Use cron</strong> for quick, simple scheduled tasks. It is easier to set up and universally understood.</li>
+      <li><strong>Use systemd timers</strong> when you need logging integration, dependency management, resource limits, catch-up after downtime (<code>Persistent=true</code>), or second-level precision.</li>
+      <li>For most beginner use cases, cron is perfectly fine. As your needs grow, systemd timers are worth learning.</li>
+    </ul>
+  </div>
+
+  <!-- ===== Exercises ===== -->
+  <h2 id="exercises">Exercises</h2>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Write Cron Expressions</div>
+    <p>Write a cron expression for each of these schedules. Try without looking at the table above.</p>
+    <ol>
+      <li>Every day at 6:30 AM</li>
+      <li>Every 10 minutes</li>
+      <li>Every Wednesday and Friday at 3 PM</li>
+      <li>The first day of every month at midnight</li>
+      <li>Every weekday (Mon&ndash;Fri) at 9 AM and 5 PM</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <ol>
+        <li><code>30 6 * * *</code> &mdash; Minute 30, hour 6, every day.</li>
+        <li><code>*/10 * * * *</code> &mdash; Every 10th minute.</li>
+        <li><code>0 15 * * 3,5</code> &mdash; Minute 0, hour 15, day-of-week 3 (Wed) and 5 (Fri).</li>
+        <li><code>0 0 1 * *</code> &mdash; Minute 0, hour 0, day 1 of every month.</li>
+        <li><code>0 9,17 * * 1-5</code> &mdash; Minute 0, hours 9 and 17, days 1&ndash;5 (Mon&ndash;Fri).</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Investigate a Service</div>
+    <p>Pick any service running on your system and answer these questions using <code>systemctl</code> and <code>journalctl</code>:</p>
+    <ol>
+      <li>Is the service currently active?</li>
+      <li>Is it enabled to start at boot?</li>
+      <li>What is its main PID?</li>
+      <li>What do its last 10 log entries say?</li>
+    </ol>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="comment"># Example using sshd</span>
+
+<span class="comment"># 1. Is it active?</span>
+<span class="prompt">$</span> systemctl is-active sshd
+<span class="output">active</span>
+
+<span class="comment"># 2. Is it enabled?</span>
+<span class="prompt">$</span> systemctl is-enabled sshd
+<span class="output">enabled</span>
+
+<span class="comment"># 3. What is its PID? (look at the "Main PID" line)</span>
+<span class="prompt">$</span> systemctl status sshd
+<span class="output">● sshd.service - OpenSSH server daemon
+     Active: active (running)
+   Main PID: 1234 (sshd)</span>
+
+<span class="comment"># 4. Last 10 log entries</span>
+<span class="prompt">$</span> journalctl -u sshd -n 10
+<span class="output">Jan 15 08:00:12 server sshd[1234]: Server listening on 0.0.0.0 port 22.
+Jan 15 09:15:33 server sshd[2345]: Accepted publickey for user from 10.0.0.5
+...</span></code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Create a Custom Service and Timer</div>
+    <p>Create a simple script that appends the current date and disk usage to a log file. Then create a systemd service and timer to run it every hour.</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="comment"># Step 1: Create the script</span>
+<span class="prompt">$</span> sudo nano /usr/local/bin/disk-monitor.sh</code></pre>
+      <pre><code>#!/bin/bash
+echo "=== $(date) ===" >> /var/log/disk-monitor.log
+df -h / >> /var/log/disk-monitor.log
+echo "" >> /var/log/disk-monitor.log</code></pre>
+      <pre><code><span class="prompt">$</span> sudo chmod +x /usr/local/bin/disk-monitor.sh
+
+<span class="comment"># Step 2: Create the service file</span>
+<span class="prompt">$</span> sudo nano /etc/systemd/system/disk-monitor.service</code></pre>
+      <pre><code>[Unit]
+Description=Log disk usage
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/disk-monitor.sh</code></pre>
+      <pre><code><span class="comment"># Step 3: Create the timer file</span>
+<span class="prompt">$</span> sudo nano /etc/systemd/system/disk-monitor.timer</code></pre>
+      <pre><code>[Unit]
+Description=Run disk monitor every hour
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target</code></pre>
+      <pre><code><span class="comment"># Step 4: Enable and start</span>
+<span class="prompt">$</span> sudo systemctl daemon-reload
+<span class="prompt">$</span> sudo systemctl enable --now disk-monitor.timer
+
+<span class="comment"># Step 5: Verify</span>
+<span class="prompt">$</span> systemctl list-timers | grep disk-monitor
+<span class="output">Mon 2024-01-15 16:00:00 UTC  25min left  Mon 2024-01-15 15:00:00 UTC  34min ago  disk-monitor.timer  disk-monitor.service</span>
+
+<span class="comment"># Test it manually</span>
+<span class="prompt">$</span> sudo systemctl start disk-monitor.service
+<span class="prompt">$</span> cat /var/log/disk-monitor.log
+<span class="output">=== Mon Jan 15 15:35:00 UTC 2024 ===
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   22G   26G  46% /</span></code></pre>
+    </details>
+  </div>
+
+  <!-- ===== Quizzes ===== -->
+  <h2 id="quizzes">Quick Quizzes</h2>
+
+  <div class="quiz">
+    <div class="quiz__question">Quiz 1: What does the cron expression <code>30 4 * * 0</code> mean?</div>
+    <button class="quiz__check">Show Answer</button>
+    <div class="quiz__answer">It runs at <strong>4:30 AM every Sunday</strong>. Reading the fields: minute = 30, hour = 4, day of month = any, month = any, day of week = 0 (Sunday).</div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">Quiz 2: You edited <code>/etc/systemd/system/myapp.service</code> and then ran <code>sudo systemctl restart myapp</code>. The service restarted, but your changes do not seem to have taken effect. What did you forget?</div>
+    <button class="quiz__check">Show Answer</button>
+    <div class="quiz__answer">You forgot to run <code>sudo systemctl daemon-reload</code> before restarting. Systemd caches unit file contents in memory. Without <code>daemon-reload</code>, it still uses the old version of the file. The correct sequence is: edit the file, then <code>daemon-reload</code>, then <code>restart</code>.</div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="prev-next">
+    <a class="prev-next__link prev-next__prev" href="../15-comparisons/index.html">&larr; 15. Comparisons</a>
+    <a class="prev-next__link prev-next__next" href="../17-git-basics/index.html">17. Git Basics &rarr;</a>
+  </nav>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>

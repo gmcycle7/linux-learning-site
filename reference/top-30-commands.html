@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Top 30 Commands — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../pages/01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../pages/02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../pages/03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../pages/04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../pages/05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../pages/06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../pages/07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../pages/08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../pages/09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../pages/10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../pages/11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../pages/12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../pages/13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../pages/14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../pages/15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../pages/16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../pages/17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link" href="../pages/18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="command-index.html">Command Index</a>
+    <a class="sidebar__link" href="glossary.html">Glossary</a>
+    <a class="sidebar__link active" href="top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="exercises.html">Exercises</a>
+    <a class="sidebar__link" href="daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+  <div class="breadcrumb">
+    <a href="../index.html">Home</a><span class="sep">/</span>Reference<span class="sep">/</span>Top 30 Commands
+  </div>
+
+  <h1>If You Only Remember 30 Commands, Remember These</h1>
+
+  <p>These are the 30 most essential Linux commands for a beginner, ranked by how often you will use them and how critical they are to daily work. Master these and you can handle the vast majority of tasks on any Linux system.</p>
+
+  <div class="alert alert-info">
+    <div class="alert__title">How to use this list</div>
+    <p>Start from the top and work down. The first 10 commands are ones you will use in literally every terminal session. The next 10 come up multiple times a day. The final 10 round out your essential toolkit.</p>
+  </div>
+
+  <!-- ===== #1 ===== -->
+  <h2>1. <code>cd</code> &mdash; Change Directory</h2>
+  <p>Navigate to any location on the filesystem. This is the first command you will type in almost every session.</p>
+  <p><strong>Key flags:</strong> <code>~</code> (home), <code>-</code> (previous directory), <code>..</code> (parent directory)</p>
+  <pre><code><span class="prompt">$</span> cd <span class="path">/var/log</span>         <span class="comment"># go to an absolute path</span>
+<span class="prompt">$</span> cd <span class="flag">..</span>               <span class="comment"># go up one level</span>
+<span class="prompt">$</span> cd <span class="flag">~</span>                <span class="comment"># go to your home directory</span>
+<span class="prompt">$</span> cd <span class="flag">-</span>                <span class="comment"># go back to previous directory</span></code></pre>
+  <p><strong>Why top 30:</strong> You cannot do anything useful without moving around the filesystem. This is the most fundamental navigation command.</p>
+
+  <!-- ===== #2 ===== -->
+  <h2>2. <code>ls</code> &mdash; List Directory Contents</h2>
+  <p>See what files and folders exist in a directory. You will pair this with <code>cd</code> constantly.</p>
+  <p><strong>Key flags:</strong> <code>-l</code> (long format), <code>-a</code> (show hidden), <code>-h</code> (human-readable sizes), <code>-t</code> (sort by time)</p>
+  <pre><code><span class="prompt">$</span> ls <span class="flag">-lah</span>
+<span class="output">drwxr-xr-x  5 alex alex 4.0K Mar 15 10:00 .
+<span class="output">drwxr-xr-x 20 alex alex 4.0K Mar 15 09:30 ..</span>
+<span class="output">-rw-r--r--  1 alex alex  12K Mar 15 10:00 notes.txt</span>
+<span class="output">drwxr-xr-x  3 alex alex 4.0K Mar 14 14:22 projects</span></span></code></pre>
+  <p><strong>Why top 30:</strong> You need to see what is around you before you can act on it. <code>ls -la</code> is probably the single most typed command sequence on Linux.</p>
+
+  <!-- ===== #3 ===== -->
+  <h2>3. <code>pwd</code> &mdash; Print Working Directory</h2>
+  <p>Show exactly where you are in the filesystem right now.</p>
+  <p><strong>Key flags:</strong> <code>-P</code> (resolve symlinks to show the physical path)</p>
+  <pre><code><span class="prompt">$</span> pwd
+<span class="output">/home/alex/projects/webapp</span></code></pre>
+  <p><strong>Why top 30:</strong> When you get lost (and you will), <code>pwd</code> is your GPS. It is fast, simple, and always works.</p>
+
+  <!-- ===== #4 ===== -->
+  <h2>4. <code>cat</code> &mdash; Print File Contents</h2>
+  <p>Quickly display the entire contents of a file. Best for short files.</p>
+  <p><strong>Key flags:</strong> <code>-n</code> (number lines), <code>-b</code> (number non-blank lines)</p>
+  <pre><code><span class="prompt">$</span> cat <span class="path">/etc/hostname</span>
+<span class="output">webserver01</span></code></pre>
+  <p><strong>Why top 30:</strong> Viewing file contents is the most common reason you open a terminal. <code>cat</code> is the fastest way to peek at a configuration file, a script, or a log snippet.</p>
+
+  <!-- ===== #5 ===== -->
+  <h2>5. <code>grep</code> &mdash; Search for Text Patterns</h2>
+  <p>Find specific text inside files or command output. Indispensable for logs, config files, and data analysis.</p>
+  <p><strong>Key flags:</strong> <code>-i</code> (ignore case), <code>-r</code> (recursive), <code>-n</code> (line numbers), <code>-v</code> (invert match), <code>-c</code> (count)</p>
+  <pre><code><span class="prompt">$</span> grep <span class="flag">-rn</span> "ERROR" <span class="path">/var/log/app/</span>
+<span class="output">/var/log/app/server.log:142:2024-03-15 ERROR: Connection refused</span>
+<span class="output">/var/log/app/server.log:289:2024-03-15 ERROR: Timeout exceeded</span></code></pre>
+  <p><strong>Why top 30:</strong> Searching for text is one of the most powerful things you can do on the command line. <code>grep</code> replaces Ctrl+F for entire directory trees of files.</p>
+
+  <!-- ===== #6 ===== -->
+  <h2>6. <code>sudo</code> &mdash; Run as Superuser</h2>
+  <p>Execute a command with root (administrator) privileges. Required for system administration tasks.</p>
+  <p><strong>Key flags:</strong> <code>-i</code> (open a root shell), <code>-u user</code> (run as another user)</p>
+  <pre><code><span class="prompt">$</span> sudo apt update
+<span class="prompt">$</span> sudo systemctl restart nginx</code></pre>
+  <p><strong>Why top 30:</strong> Any time you install software, edit system files, or manage services, you need <code>sudo</code>. It is the gatekeeper to administrative power.</p>
+
+  <!-- ===== #7 ===== -->
+  <h2>7. <code>cp</code> &mdash; Copy Files and Directories</h2>
+  <p>Duplicate files or entire directory trees.</p>
+  <p><strong>Key flags:</strong> <code>-r</code> (recursive, for directories), <code>-i</code> (ask before overwriting), <code>-v</code> (verbose)</p>
+  <pre><code><span class="prompt">$</span> cp <span class="path">config.yaml</span> <span class="path">config.yaml.bak</span>
+<span class="prompt">$</span> cp <span class="flag">-r</span> <span class="path">project/</span> <span class="path">project-backup/</span></code></pre>
+  <p><strong>Why top 30:</strong> Making backups before editing is the most important safety habit in Linux. <code>cp</code> is how you do it.</p>
+
+  <!-- ===== #8 ===== -->
+  <h2>8. <code>mv</code> &mdash; Move or Rename</h2>
+  <p>Move files to a new location or rename them. Works for both files and directories.</p>
+  <p><strong>Key flags:</strong> <code>-i</code> (ask before overwriting), <code>-v</code> (verbose)</p>
+  <pre><code><span class="prompt">$</span> mv <span class="path">report.txt</span> <span class="path">final-report.txt</span>        <span class="comment"># rename</span>
+<span class="prompt">$</span> mv <span class="path">downloads/*.pdf</span> <span class="path">~/documents/</span>       <span class="comment"># move</span></code></pre>
+  <p><strong>Why top 30:</strong> Renaming and organizing files is a daily activity. <code>mv</code> handles both in one command.</p>
+
+  <!-- ===== #9 ===== -->
+  <h2>9. <code>rm</code> &mdash; Remove Files</h2>
+  <p>Delete files and directories. There is no trash can on the command line, so be careful.</p>
+  <p><strong>Key flags:</strong> <code>-r</code> (recursive, for directories), <code>-i</code> (ask before each deletion), <code>-v</code> (verbose)</p>
+  <pre><code><span class="prompt">$</span> rm <span class="path">temp.log</span>
+<span class="prompt">$</span> rm <span class="flag">-ri</span> <span class="path">old-project/</span>     <span class="comment"># ask before deleting each file</span></code></pre>
+  <div class="alert alert-danger">
+    <div class="alert__title">Warning</div>
+    <p>Never run <code>rm -rf /</code> or <code>rm -rf ~</code>. Always double-check your path before pressing Enter. Use <code>-i</code> when in doubt.</p>
+  </div>
+  <p><strong>Why top 30:</strong> Cleaning up files is essential for keeping a system organized and freeing disk space.</p>
+
+  <!-- ===== #10 ===== -->
+  <h2>10. <code>mkdir</code> &mdash; Create Directories</h2>
+  <p>Create new directories (folders).</p>
+  <p><strong>Key flags:</strong> <code>-p</code> (create parent directories as needed), <code>-v</code> (verbose)</p>
+  <pre><code><span class="prompt">$</span> mkdir <span class="flag">-p</span> <span class="path">projects/webapp/src/components</span></code></pre>
+  <p><strong>Why top 30:</strong> Organizing files into directories is the foundation of a clean system. The <code>-p</code> flag saves you from creating each level one at a time.</p>
+
+  <!-- ===== #11 ===== -->
+  <h2>11. <code>less</code> &mdash; Page Through Files</h2>
+  <p>View large files one screen at a time, with scrolling and searching.</p>
+  <p><strong>Key flags:</strong> <code>-N</code> (line numbers), <code>-S</code> (chop long lines). Inside less: <code>/</code> to search, <code>n</code> next match, <code>q</code> quit.</p>
+  <pre><code><span class="prompt">$</span> less <span class="flag">-N</span> <span class="path">/var/log/syslog</span></code></pre>
+  <p><strong>Why top 30:</strong> <code>cat</code> floods the screen with large files. <code>less</code> lets you read them comfortably with searching and navigation.</p>
+
+  <!-- ===== #12 ===== -->
+  <h2>12. <code>man</code> &mdash; Read the Manual</h2>
+  <p>Display the manual page for any command. This is your built-in documentation system.</p>
+  <p><strong>Key flags:</strong> <code>-k keyword</code> (search all man pages by keyword)</p>
+  <pre><code><span class="prompt">$</span> man <span class="flag">grep</span>
+<span class="prompt">$</span> man <span class="flag">-k</span> "copy files"</code></pre>
+  <p><strong>Why top 30:</strong> You cannot memorize every flag for every command. <code>man</code> is how you learn on the fly. The best Linux users are the ones who read man pages.</p>
+
+  <!-- ===== #13 ===== -->
+  <h2>13. <code>find</code> &mdash; Search for Files</h2>
+  <p>Locate files by name, type, size, modification time, and many other criteria.</p>
+  <p><strong>Key flags:</strong> <code>-name</code> (by name), <code>-type f/d</code> (file or directory), <code>-size</code> (by size), <code>-mtime</code> (by modification time), <code>-exec</code> (run a command on results)</p>
+  <pre><code><span class="prompt">$</span> find <span class="path">/home</span> <span class="flag">-name</span> "*.log" <span class="flag">-size</span> +50M <span class="flag">-mtime</span> +30
+<span class="comment"># Find .log files over 50MB that haven't been modified in 30 days</span></code></pre>
+  <p><strong>Why top 30:</strong> On a real system with thousands of files, you need a way to find things. <code>find</code> is the most powerful file-searching tool on Linux.</p>
+
+  <!-- ===== #14 ===== -->
+  <h2>14. <code>chmod</code> &mdash; Change Permissions</h2>
+  <p>Control who can read, write, and execute a file.</p>
+  <p><strong>Key flags:</strong> <code>-R</code> (recursive), numeric mode (755, 644) or symbolic mode (u+x, go-w)</p>
+  <pre><code><span class="prompt">$</span> chmod <span class="flag">+x</span> <span class="path">deploy.sh</span>         <span class="comment"># make a script executable</span>
+<span class="prompt">$</span> chmod <span class="flag">644</span> <span class="path">config.yaml</span>      <span class="comment"># owner read/write, others read only</span></code></pre>
+  <p><strong>Why top 30:</strong> You will run into "Permission denied" errors regularly. <code>chmod</code> is how you fix them. Understanding permissions is essential for security.</p>
+
+  <!-- ===== #15 ===== -->
+  <h2>15. <code>tail</code> &mdash; View End of File</h2>
+  <p>Show the last lines of a file. With <code>-f</code>, it follows a file in real time.</p>
+  <p><strong>Key flags:</strong> <code>-n N</code> (show N lines), <code>-f</code> (follow live updates)</p>
+  <pre><code><span class="prompt">$</span> tail <span class="flag">-f</span> <span class="path">/var/log/nginx/access.log</span>
+<span class="comment"># Watch requests hit your web server in real time. Ctrl+C to stop.</span></code></pre>
+  <p><strong>Why top 30:</strong> <code>tail -f</code> is the single most important debugging tool for servers. When something goes wrong, the first thing you do is watch the logs.</p>
+
+  <!-- ===== #16 ===== -->
+  <h2>16. <code>echo</code> &mdash; Print Text</h2>
+  <p>Display a line of text, a variable's value, or output to a file.</p>
+  <p><strong>Key flags:</strong> <code>-n</code> (no trailing newline), <code>-e</code> (enable escape sequences)</p>
+  <pre><code><span class="prompt">$</span> echo "Hello, $USER"
+<span class="output">Hello, alex</span>
+<span class="prompt">$</span> echo $PATH</code></pre>
+  <p><strong>Why top 30:</strong> Essential for debugging scripts, checking variable values, and generating output. It is the <code>print</code> statement of the shell.</p>
+
+  <!-- ===== #17 ===== -->
+  <h2>17. <code>touch</code> &mdash; Create Empty Files</h2>
+  <p>Create a new empty file, or update the timestamp of an existing file.</p>
+  <p><strong>Key flags:</strong> <code>-t</code> (set a specific timestamp)</p>
+  <pre><code><span class="prompt">$</span> touch <span class="path">index.html</span> <span class="path">style.css</span> <span class="path">app.js</span></code></pre>
+  <p><strong>Why top 30:</strong> The quickest way to create files. Often paired with <code>mkdir -p</code> to set up project structures.</p>
+
+  <!-- ===== #18 ===== -->
+  <h2>18. <code>ps</code> &mdash; View Running Processes</h2>
+  <p>Show a snapshot of all running processes.</p>
+  <p><strong>Key flags:</strong> <code>aux</code> (all users, detailed), <code>-ef</code> (full format), <code>--forest</code> (tree view)</p>
+  <pre><code><span class="prompt">$</span> ps <span class="flag">aux</span> | grep <span class="flag">nginx</span>
+<span class="output">root   1234  0.0  0.1  12345  6789 ?  Ss  10:00  0:00 nginx: master</span>
+<span class="output">www    1235  0.0  0.2  12345  9876 ?  S   10:00  0:01 nginx: worker</span></code></pre>
+  <p><strong>Why top 30:</strong> Knowing what is running on your system is crucial for troubleshooting, performance monitoring, and security.</p>
+
+  <!-- ===== #19 ===== -->
+  <h2>19. <code>kill</code> &mdash; Stop a Process</h2>
+  <p>Send a signal to a process to terminate or control it.</p>
+  <p><strong>Key flags:</strong> <code>-9</code> (SIGKILL, force stop), <code>-15</code> (SIGTERM, graceful stop, the default)</p>
+  <pre><code><span class="prompt">$</span> kill <span class="flag">1234</span>       <span class="comment"># politely ask process 1234 to stop</span>
+<span class="prompt">$</span> kill <span class="flag">-9 1234</span>   <span class="comment"># force-kill it immediately</span></code></pre>
+  <p><strong>Why top 30:</strong> Programs hang, loops run forever, and services misbehave. <code>kill</code> is how you take control back.</p>
+
+  <!-- ===== #20 ===== -->
+  <h2>20. <code>df</code> &mdash; Check Disk Space</h2>
+  <p>Show how much disk space is used and available on all mounted filesystems.</p>
+  <p><strong>Key flags:</strong> <code>-h</code> (human-readable sizes), <code>-T</code> (show filesystem type)</p>
+  <pre><code><span class="prompt">$</span> df <span class="flag">-h</span>
+<span class="output">Filesystem      Size  Used  Avail  Use%  Mounted on</span>
+<span class="output">/dev/sda1        50G   32G    16G   67%  /</span>
+<span class="output">/dev/sdb1       200G   89G   101G   47%  /data</span></code></pre>
+  <p><strong>Why top 30:</strong> Running out of disk space is one of the most common causes of server failures. <code>df -h</code> is the first thing to check.</p>
+
+  <!-- ===== #21 ===== -->
+  <h2>21. <code>du</code> &mdash; Check Directory Size</h2>
+  <p>Find out how much space files and directories are using.</p>
+  <p><strong>Key flags:</strong> <code>-h</code> (human-readable), <code>-s</code> (summary, total only), <code>-d N</code> (depth limit)</p>
+  <pre><code><span class="prompt">$</span> du <span class="flag">-sh</span> <span class="path">*</span> | sort <span class="flag">-rh</span> | head <span class="flag">-5</span>
+<span class="output">4.2G    node_modules</span>
+<span class="output">1.1G    build</span>
+<span class="output">256M    data</span>
+<span class="output">45M     src</span>
+<span class="output">12M     docs</span></code></pre>
+  <p><strong>Why top 30:</strong> When <code>df</code> tells you the disk is full, <code>du</code> tells you which directories are the culprits.</p>
+
+  <!-- ===== #22 ===== -->
+  <h2>22. <code>head</code> &mdash; View Start of File</h2>
+  <p>Show the first N lines of a file. The counterpart to <code>tail</code>.</p>
+  <p><strong>Key flags:</strong> <code>-n N</code> (show N lines, default 10)</p>
+  <pre><code><span class="prompt">$</span> head <span class="flag">-n 5</span> <span class="path">data.csv</span>
+<span class="output">id,name,email,department</span>
+<span class="output">1,Alice,alice@example.com,engineering</span>
+<span class="output">2,Bob,bob@example.com,marketing</span>
+<span class="output">3,Carol,carol@example.com,engineering</span>
+<span class="output">4,Dave,dave@example.com,sales</span></code></pre>
+  <p><strong>Why top 30:</strong> Great for peeking at data files, checking CSV headers, or verifying a file's format without loading the whole thing.</p>
+
+  <!-- ===== #23 ===== -->
+  <h2>23. <code>ssh</code> &mdash; Secure Remote Login</h2>
+  <p>Connect to a remote machine securely over the network.</p>
+  <p><strong>Key flags:</strong> <code>-p port</code> (custom port), <code>-i keyfile</code> (identity file)</p>
+  <pre><code><span class="prompt">$</span> ssh <span class="flag">alex@</span>192.168.1.50
+<span class="prompt">$</span> ssh <span class="flag">-i ~/.ssh/deploy_key</span> deploy@production-server.com</code></pre>
+  <p><strong>Why top 30:</strong> If you work with servers, <code>ssh</code> is how you access them. It is the universal remote access tool for Linux machines.</p>
+
+  <!-- ===== #24 ===== -->
+  <h2>24. <code>tar</code> &mdash; Create and Extract Archives</h2>
+  <p>Bundle files into an archive and optionally compress them.</p>
+  <p><strong>Key flags:</strong> <code>-c</code> (create), <code>-x</code> (extract), <code>-z</code> (gzip), <code>-f file</code> (filename), <code>-v</code> (verbose)</p>
+  <pre><code><span class="prompt">$</span> tar <span class="flag">-czf</span> <span class="path">backup-2024-03-15.tar.gz</span> <span class="path">project/</span>    <span class="comment"># create</span>
+<span class="prompt">$</span> tar <span class="flag">-xzf</span> <span class="path">backup-2024-03-15.tar.gz</span>              <span class="comment"># extract</span></code></pre>
+  <p><strong>Why top 30:</strong> Backups, deployments, and file transfers almost always involve tar archives. The flags are famously tricky, so memorize <code>-czf</code> (create) and <code>-xzf</code> (extract).</p>
+
+  <!-- ===== #25 ===== -->
+  <h2>25. <code>history</code> &mdash; Command History</h2>
+  <p>Show the list of all commands you have typed previously.</p>
+  <p><strong>Key flags:</strong> <code>-c</code> (clear history). Shortcuts: <code>!!</code> (repeat last command), <code>!N</code> (repeat command N), <code>Ctrl+R</code> (reverse search).</p>
+  <pre><code><span class="prompt">$</span> history | grep <span class="flag">"apt install"</span>
+<span class="output">  142  sudo apt install nginx</span>
+<span class="output">  287  sudo apt install postgresql</span>
+<span class="prompt">$</span> <span class="flag">!142</span>    <span class="comment"># re-run command #142</span></code></pre>
+  <p><strong>Why top 30:</strong> You will often need to re-run or find a command you typed earlier. <code>Ctrl+R</code> for reverse search is a massive productivity boost.</p>
+
+  <!-- ===== #26 ===== -->
+  <h2>26. <code>apt</code> &mdash; Install Software (Debian/Ubuntu)</h2>
+  <p>The package manager for Debian-based systems. Install, update, and remove software.</p>
+  <p><strong>Key subcommands:</strong> <code>update</code> (refresh package list), <code>upgrade</code> (upgrade packages), <code>install</code> (install a package), <code>remove</code> (remove a package), <code>search</code> (find packages)</p>
+  <pre><code><span class="prompt">$</span> sudo apt update &amp;&amp; sudo apt upgrade <span class="flag">-y</span>
+<span class="prompt">$</span> sudo apt install <span class="flag">htop</span></code></pre>
+  <p><strong>Why top 30:</strong> Installing software is one of the first things you do on a new system. If you use Ubuntu or Debian (the most popular distros), <code>apt</code> is your gateway to all available software.</p>
+
+  <!-- ===== #27 ===== -->
+  <h2>27. <code>ping</code> &mdash; Test Network Connectivity</h2>
+  <p>Send test packets to a host to check if it is reachable over the network.</p>
+  <p><strong>Key flags:</strong> <code>-c N</code> (send N packets and stop)</p>
+  <pre><code><span class="prompt">$</span> ping <span class="flag">-c 4</span> google.com
+<span class="output">PING google.com (142.250.80.46): 56 data bytes</span>
+<span class="output">64 bytes from 142.250.80.46: icmp_seq=0 ttl=118 time=12.3 ms</span>
+<span class="output">--- google.com ping statistics ---</span>
+<span class="output">4 packets transmitted, 4 received, 0% packet loss</span></code></pre>
+  <p><strong>Why top 30:</strong> The first step in diagnosing any network problem. "Can I reach the server?" is always the first question.</p>
+
+  <!-- ===== #28 ===== -->
+  <h2>28. <code>curl</code> &mdash; Transfer Data from URLs</h2>
+  <p>Fetch data from or send data to a URL. Supports HTTP, HTTPS, FTP, and many other protocols.</p>
+  <p><strong>Key flags:</strong> <code>-O</code> (save with remote filename), <code>-o file</code> (save to specific file), <code>-L</code> (follow redirects), <code>-s</code> (silent), <code>-I</code> (headers only)</p>
+  <pre><code><span class="prompt">$</span> curl <span class="flag">-I</span> https://example.com          <span class="comment"># check HTTP headers</span>
+<span class="prompt">$</span> curl <span class="flag">-O</span> https://example.com/file.tar.gz  <span class="comment"># download a file</span></code></pre>
+  <p><strong>Why top 30:</strong> Downloading files, testing APIs, checking web servers, and automating HTTP requests. <code>curl</code> is the Swiss Army knife of the internet.</p>
+
+  <!-- ===== #29 ===== -->
+  <h2>29. <code>free</code> &mdash; Check Memory Usage</h2>
+  <p>Show how much RAM and swap space is used and available.</p>
+  <p><strong>Key flags:</strong> <code>-h</code> (human-readable)</p>
+  <pre><code><span class="prompt">$</span> free <span class="flag">-h</span>
+<span class="output">              total   used   free   shared  buff/cache  available</span>
+<span class="output">Mem:          16Gi   5.2Gi  3.1Gi   512Mi      7.7Gi     10.1Gi</span>
+<span class="output">Swap:          4Gi     0B    4Gi</span></code></pre>
+  <p><strong>Why top 30:</strong> When a system is slow, memory is one of the first things to check. <code>free -h</code> gives you the answer instantly.</p>
+
+  <!-- ===== #30 ===== -->
+  <h2>30. <code>chown</code> &mdash; Change File Ownership</h2>
+  <p>Change which user and/or group owns a file or directory.</p>
+  <p><strong>Key flags:</strong> <code>-R</code> (recursive), <code>user:group</code> format</p>
+  <pre><code><span class="prompt">$</span> sudo chown <span class="flag">-R www-data:www-data</span> <span class="path">/var/www/html/</span></code></pre>
+  <p><strong>Why top 30:</strong> File ownership errors are one of the most common causes of "Permission denied" on servers. <code>chown</code> fixes them. It goes hand-in-hand with <code>chmod</code>.</p>
+
+  <!-- ===== SUMMARY TABLE ===== -->
+  <h2>Quick Summary</h2>
+
+  <table>
+    <thead>
+      <tr><th>Rank</th><th>Command</th><th>What It Does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><code>cd</code></td><td>Change directory</td></tr>
+      <tr><td>2</td><td><code>ls</code></td><td>List files</td></tr>
+      <tr><td>3</td><td><code>pwd</code></td><td>Where am I?</td></tr>
+      <tr><td>4</td><td><code>cat</code></td><td>View file contents</td></tr>
+      <tr><td>5</td><td><code>grep</code></td><td>Search for text</td></tr>
+      <tr><td>6</td><td><code>sudo</code></td><td>Run as root</td></tr>
+      <tr><td>7</td><td><code>cp</code></td><td>Copy files</td></tr>
+      <tr><td>8</td><td><code>mv</code></td><td>Move/rename files</td></tr>
+      <tr><td>9</td><td><code>rm</code></td><td>Delete files</td></tr>
+      <tr><td>10</td><td><code>mkdir</code></td><td>Create directories</td></tr>
+      <tr><td>11</td><td><code>less</code></td><td>Page through files</td></tr>
+      <tr><td>12</td><td><code>man</code></td><td>Read the manual</td></tr>
+      <tr><td>13</td><td><code>find</code></td><td>Search for files</td></tr>
+      <tr><td>14</td><td><code>chmod</code></td><td>Change permissions</td></tr>
+      <tr><td>15</td><td><code>tail</code></td><td>View end of file / follow logs</td></tr>
+      <tr><td>16</td><td><code>echo</code></td><td>Print text and variables</td></tr>
+      <tr><td>17</td><td><code>touch</code></td><td>Create empty files</td></tr>
+      <tr><td>18</td><td><code>ps</code></td><td>View processes</td></tr>
+      <tr><td>19</td><td><code>kill</code></td><td>Stop a process</td></tr>
+      <tr><td>20</td><td><code>df</code></td><td>Check disk space</td></tr>
+      <tr><td>21</td><td><code>du</code></td><td>Check directory size</td></tr>
+      <tr><td>22</td><td><code>head</code></td><td>View start of file</td></tr>
+      <tr><td>23</td><td><code>ssh</code></td><td>Remote login</td></tr>
+      <tr><td>24</td><td><code>tar</code></td><td>Create/extract archives</td></tr>
+      <tr><td>25</td><td><code>history</code></td><td>Command history</td></tr>
+      <tr><td>26</td><td><code>apt</code></td><td>Install software</td></tr>
+      <tr><td>27</td><td><code>ping</code></td><td>Test network connectivity</td></tr>
+      <tr><td>28</td><td><code>curl</code></td><td>Transfer data from URLs</td></tr>
+      <tr><td>29</td><td><code>free</code></td><td>Check memory usage</td></tr>
+      <tr><td>30</td><td><code>chown</code></td><td>Change file ownership</td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-tip">
+    <div class="alert__title">Next steps</div>
+    <p>Once you are comfortable with these 30 commands, explore the full <a href="cheatsheet.html">Cheat Sheet</a> and <a href="command-index.html">Command Index</a> to expand your toolkit.</p>
+  </div>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../js/main.js"></script>
+</body>
+</html>

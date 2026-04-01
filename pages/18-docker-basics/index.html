@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chapter 18: Docker Basics — Linux Learning Guide</title>
+  <link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+  <button class="topbar__toggle" aria-label="Toggle menu">&#9776;</button>
+  <a href="../../index.html" class="topbar__logo">
+    <span class="logo-icon">&#127427;</span> Linux Learning Guide
+  </a>
+  <div class="topbar__search">
+    <span class="search-icon">&#128269;</span>
+    <input type="text" placeholder="Search commands, topics..." aria-label="Search">
+    <div class="search-results"></div>
+  </div>
+</header>
+
+<div class="layout">
+<!-- Sidebar navigation -->
+<nav class="sidebar">
+  <div class="sidebar__section"><span class="sidebar__heading">Getting Started</span><a class="sidebar__link" href="../../index.html">Home</a></div>
+  <div class="sidebar__section"><span class="sidebar__heading">Core Lessons</span>
+    <a class="sidebar__link" href="../01-fundamentals/index.html">1. Linux Fundamentals</a>
+    <a class="sidebar__link" href="../02-terminal-basics/index.html">2. Terminal Basics</a>
+    <a class="sidebar__link" href="../03-files-directories/index.html">3. Files &amp; Directories</a>
+    <a class="sidebar__link" href="../04-viewing-editing/index.html">4. Viewing &amp; Editing</a>
+    <a class="sidebar__link" href="../05-search-filtering/index.html">5. Search &amp; Filtering</a>
+    <a class="sidebar__link" href="../06-permissions/index.html">6. Permissions</a>
+    <a class="sidebar__link" href="../07-processes/index.html">7. Processes &amp; Jobs</a>
+    <a class="sidebar__link" href="../08-system-disk/index.html">8. System &amp; Disk Info</a>
+    <a class="sidebar__link" href="../09-networking/index.html">9. Networking</a>
+    <a class="sidebar__link" href="../10-archives/index.html">10. Archives</a>
+    <a class="sidebar__link" href="../11-packages/index.html">11. Package Management</a>
+    <a class="sidebar__link" href="../12-shell-scripting/index.html">12. Shell &amp; Scripting</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Practical</span>
+    <a class="sidebar__link" href="../13-workflows/index.html">13. Workflows</a>
+    <a class="sidebar__link" href="../14-troubleshooting/index.html">14. Troubleshooting</a>
+    <a class="sidebar__link" href="../15-comparisons/index.html">15. Comparisons</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Advanced</span>
+    <a class="sidebar__link" href="../16-cron-systemd/index.html">16. Cron &amp; Systemd</a>
+    <a class="sidebar__link" href="../17-git-basics/index.html">17. Git Basics</a>
+    <a class="sidebar__link active" href="../18-docker-basics/index.html">18. Docker Basics</a>
+  </div>
+  <div class="sidebar__section"><span class="sidebar__heading">Reference</span>
+    <a class="sidebar__link" href="../../reference/cheatsheet.html">Cheat Sheet</a>
+    <a class="sidebar__link" href="../../reference/command-index.html">Command Index</a>
+    <a class="sidebar__link" href="../../reference/glossary.html">Glossary</a>
+    <a class="sidebar__link" href="../../reference/top-30-commands.html">Top 30 Commands</a>
+    <a class="sidebar__link" href="../../reference/dangerous-commands.html">Dangerous Commands</a>
+    <a class="sidebar__link" href="../../reference/exercises.html">Exercises</a>
+    <a class="sidebar__link" href="../../reference/daily-workflow.html">Daily Workflow</a>
+    <a class="sidebar__link" href="../../reference/interview-commands.html">Interview Commands</a>
+  </div>
+</nav>
+
+<!-- Main content -->
+<main class="main">
+
+  <nav class="breadcrumb">
+    <a href="../../index.html">Home</a> &rsaquo;
+    <span>Docker Basics</span>
+  </nav>
+
+  <h1>Chapter 18: Docker Basics</h1>
+
+  <p>Docker has revolutionized how software is built, shipped, and run. Instead of wrestling with "it works on my machine" problems, Docker lets you package an application along with <em>everything it needs</em> into a portable, self-contained unit called a <strong>container</strong>. If you can run Docker, you can run the container &mdash; on any Linux distribution, any cloud provider, any machine.</p>
+
+  <p>This chapter teaches you the essential Docker commands and concepts you need as a Linux user, from running your first container to building custom images and orchestrating multi-service applications.</p>
+
+  <!-- ============================================================ -->
+  <h2 id="what-is-docker">1. What Is Docker?</h2>
+  <!-- ============================================================ -->
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: The Shipping Container Analogy</div>
+    <p>Before standardized shipping containers, goods were loaded loose onto ships &mdash; fragile items broke, perishables spoiled, and every port needed different equipment. Then came the <strong>intermodal shipping container</strong>: a standard steel box. No matter what was inside (electronics, food, furniture), the container was handled the same way by cranes, trucks, and ships worldwide.</p>
+    <p>Docker does the same thing for software. A <strong>Docker container</strong> is a standardized unit that packages your application, its libraries, its configuration, and its dependencies into one portable box. The "crane" is the Docker engine &mdash; it runs containers identically on your laptop, your test server, or a cloud VM.</p>
+  </div>
+
+  <p>Docker is a platform for developing, shipping, and running applications inside <strong>containers</strong>. A container is a lightweight, standalone, executable package that includes everything needed to run a piece of software: the code, runtime, system tools, libraries, and settings.</p>
+
+  <h3 id="containers-vs-vms">Containers vs Virtual Machines</h3>
+
+  <p>Containers are often compared to virtual machines (VMs), but they work very differently under the hood:</p>
+
+  <table>
+    <thead>
+      <tr><th>Feature</th><th>Containers</th><th>Virtual Machines</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Virtualization level</td><td>OS-level (shares host kernel)</td><td>Hardware-level (full guest OS)</td></tr>
+      <tr><td>Startup time</td><td>Seconds</td><td>Minutes</td></tr>
+      <tr><td>Size</td><td>Megabytes (typically 10&ndash;500 MB)</td><td>Gigabytes (typically 1&ndash;20 GB)</td></tr>
+      <tr><td>Resource overhead</td><td>Minimal (no duplicate OS)</td><td>Heavy (full OS per VM)</td></tr>
+      <tr><td>Isolation</td><td>Process-level isolation via namespaces</td><td>Full hardware-level isolation</td></tr>
+      <tr><td>Performance</td><td>Near-native</td><td>Some overhead from hypervisor</td></tr>
+      <tr><td>Portability</td><td>Runs anywhere Docker is installed</td><td>Requires compatible hypervisor</td></tr>
+      <tr><td>Use case</td><td>Microservices, CI/CD, dev environments</td><td>Running different OS, strict isolation</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Apartments vs Houses</div>
+    <p>Think of <strong>virtual machines</strong> as separate <strong>houses</strong> on a street. Each house has its own foundation, plumbing, electrical, roof &mdash; completely independent but expensive to build and maintain.</p>
+    <p><strong>Containers</strong> are like <strong>apartments</strong> in a building. They share the foundation, plumbing, and structure (the host kernel), but each apartment has its own interior, locks, and furnishings (its own filesystem, processes, and network). Much cheaper and faster to set up, but they share the building infrastructure.</p>
+  </div>
+
+  <h3>Why Docker Matters</h3>
+  <ul>
+    <li><strong>Consistency</strong> &mdash; "It works on my machine" becomes "it works everywhere."</li>
+    <li><strong>Speed</strong> &mdash; Containers start in seconds, not minutes.</li>
+    <li><strong>Isolation</strong> &mdash; Each container has its own filesystem and process tree.</li>
+    <li><strong>Efficiency</strong> &mdash; Run dozens of containers on a single machine.</li>
+    <li><strong>Reproducibility</strong> &mdash; A Dockerfile is an exact recipe for building an environment.</li>
+    <li><strong>CI/CD friendly</strong> &mdash; Build, test, and deploy in identical environments.</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <h2 id="installing-docker">2. Installing Docker</h2>
+  <!-- ============================================================ -->
+
+  <p>On Ubuntu/Debian, install Docker Engine from the official Docker repository for the latest version:</p>
+
+  <pre><code><span class="comment"># Update package index and install prerequisites</span>
+<span class="prompt">$</span> sudo apt update
+<span class="prompt">$</span> sudo apt install -y ca-certificates curl gnupg
+
+<span class="comment"># Add Docker's official GPG key</span>
+<span class="prompt">$</span> sudo install -m 0755 -d /etc/apt/keyrings
+<span class="prompt">$</span> curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+<span class="comment"># Set up the Docker repository</span>
+<span class="prompt">$</span> echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+<span class="comment"># Install Docker Engine</span>
+<span class="prompt">$</span> sudo apt update
+<span class="prompt">$</span> sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin</code></pre>
+
+  <pre><code><span class="comment"># Verify the installation</span>
+<span class="prompt">$</span> docker --version
+<span class="output">Docker version 24.0.7, build afdd53b</span>
+
+<span class="comment"># Add your user to the docker group (avoids needing sudo every time)</span>
+<span class="prompt">$</span> sudo usermod -aG docker $USER
+
+<span class="comment"># Log out and back in, then verify</span>
+<span class="prompt">$</span> docker info
+<span class="output">Client: Docker Engine - Community
+ Version:    24.0.7
+ ...
+Server: Docker Engine - Community
+ Engine:
+  Version:          24.0.7
+  ...</span></code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Note</div>
+    <p>After adding yourself to the <code>docker</code> group, you must <strong>log out and log back in</strong> (or run <code>newgrp docker</code>) for the group change to take effect. Until then, you will still need <code>sudo</code>.</p>
+  </div>
+
+  <pre><code><span class="comment"># Test that Docker is working</span>
+<span class="prompt">$</span> docker run hello-world
+<span class="output">Hello from Docker!
+This message shows that your installation appears to be working correctly.
+...</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="key-concepts">3. Key Concepts</h2>
+  <!-- ============================================================ -->
+
+  <p>Before diving into commands, understand these core terms:</p>
+
+  <ul>
+    <li><strong>Image</strong> &mdash; A read-only template with instructions for creating a container. Think of it as a <em>blueprint</em> or a <em>snapshot</em>. Images are built in layers.</li>
+    <li><strong>Container</strong> &mdash; A running instance of an image. You can create many containers from one image, each isolated from the others.</li>
+    <li><strong>Registry</strong> &mdash; A storage and distribution system for images. <strong>Docker Hub</strong> (<code>hub.docker.com</code>) is the default public registry.</li>
+    <li><strong>Dockerfile</strong> &mdash; A text file containing step-by-step instructions to build an image.</li>
+    <li><strong>Layer</strong> &mdash; Each instruction in a Dockerfile creates a layer. Layers are cached and reused, making builds fast.</li>
+    <li><strong>Volume</strong> &mdash; Persistent storage that survives container restarts and removal.</li>
+    <li><strong>Tag</strong> &mdash; A version label for an image, such as <code>nginx:1.25</code> or <code>ubuntu:22.04</code>.</li>
+  </ul>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Image &rarr; Container Relationship</div>
+    <div class="diagram">
+<pre>
+  +---------------------+
+  |      Dockerfile      |   &larr; Recipe (instructions)
+  +---------------------+
+            |
+        docker build
+            |
+            v
+  +---------------------+
+  |       Image          |   &larr; Blueprint (read-only template)
+  |  (e.g., nginx:1.25) |
+  +---------------------+
+        /       \
+   docker run  docker run
+      /             \
+     v               v
++-----------+   +-----------+
+| Container |   | Container |   &larr; Running instances
+|   (web1)  |   |   (web2)  |      (isolated, writable)
++-----------+   +-----------+
+</pre>
+    </div>
+    <p>One image can spawn many containers. Each container gets its own writable layer on top of the read-only image layers. Deleting a container does not affect the image or other containers.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-run">4. <code>docker run</code> &mdash; Running Containers</h2>
+  <!-- ============================================================ -->
+
+  <p>The <code>docker run</code> command creates and starts a container from an image. It is the most important Docker command you will use.</p>
+
+  <pre><code><span class="comment"># Basic syntax</span>
+<span class="prompt">$</span> docker run [OPTIONS] IMAGE [COMMAND] [ARGS]</code></pre>
+
+  <h3>Key Options</h3>
+  <table>
+    <thead>
+      <tr><th>Option</th><th>Purpose</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>-d</code></td><td>Detached mode (run in background)</td><td><code>docker run -d nginx</code></td></tr>
+      <tr><td><code>-it</code></td><td>Interactive + terminal (for shell access)</td><td><code>docker run -it ubuntu bash</code></td></tr>
+      <tr><td><code>--name</code></td><td>Assign a name to the container</td><td><code>docker run --name web nginx</code></td></tr>
+      <tr><td><code>-p</code></td><td>Map host port to container port</td><td><code>docker run -p 8080:80 nginx</code></td></tr>
+      <tr><td><code>-v</code></td><td>Mount a volume or bind mount</td><td><code>docker run -v /data:/app/data nginx</code></td></tr>
+      <tr><td><code>--rm</code></td><td>Remove container when it stops</td><td><code>docker run --rm nginx</code></td></tr>
+      <tr><td><code>-e</code></td><td>Set environment variable</td><td><code>docker run -e DB_HOST=db nginx</code></td></tr>
+      <tr><td><code>--network</code></td><td>Connect to a specific network</td><td><code>docker run --network mynet nginx</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Examples</h3>
+
+  <pre><code><span class="comment"># Run an interactive Ubuntu container with a bash shell</span>
+<span class="prompt">$</span> docker run -it ubuntu bash
+<span class="output">root@a1b2c3d4e5f6:/# ls
+bin  boot  dev  etc  home  lib  ...</span>
+<span class="output">root@a1b2c3d4e5f6:/# exit</span></code></pre>
+
+  <pre><code><span class="comment"># Run Nginx in the background on port 8080</span>
+<span class="prompt">$</span> docker run -d --name my-web -p 8080:80 nginx
+<span class="output">f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8</span></code></pre>
+
+  <pre><code><span class="comment"># Run a container with environment variables</span>
+<span class="prompt">$</span> docker run -d --name mydb \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  -e MYSQL_DATABASE=myapp \
+  -p 3306:3306 \
+  mysql:8.0</code></pre>
+
+  <pre><code><span class="comment"># Run a one-off command and auto-remove the container</span>
+<span class="prompt">$</span> docker run --rm alpine echo "Hello from Alpine!"
+<span class="output">Hello from Alpine!</span></code></pre>
+
+  <pre><code><span class="comment"># Mount a host directory into the container</span>
+<span class="prompt">$</span> docker run -d --name web \
+  -p 8080:80 \
+  -v /home/user/website:/usr/share/nginx/html:ro \
+  nginx</code></pre>
+
+  <pre><code><span class="comment"># Run a container on a specific network</span>
+<span class="prompt">$</span> docker run -d --name api --network my-network node:18-alpine</code></pre>
+
+  <pre><code><span class="comment"># Run a Python script inside a container</span>
+<span class="prompt">$</span> docker run --rm -v $(pwd):/app -w /app python:3.11 python script.py</code></pre>
+
+  <pre><code><span class="comment"># Run a Redis cache in the background</span>
+<span class="prompt">$</span> docker run -d --name cache -p 6379:6379 redis:7-alpine</code></pre>
+
+  <pre><code><span class="comment"># Run with resource limits</span>
+<span class="prompt">$</span> docker run -d --name limited --memory=512m --cpus=1.5 nginx</code></pre>
+
+  <pre><code><span class="comment"># Run with a restart policy (auto-restart on failure)</span>
+<span class="prompt">$</span> docker run -d --name resilient --restart unless-stopped nginx</code></pre>
+
+  <pre><code><span class="comment"># Run with multiple port mappings</span>
+<span class="prompt">$</span> docker run -d --name multi-port -p 8080:80 -p 8443:443 nginx</code></pre>
+
+  <pre><code><span class="comment"># Run with an env file instead of individual -e flags</span>
+<span class="prompt">$</span> docker run -d --name app --env-file .env myapp:latest</code></pre>
+
+  <div class="alert alert-warning">
+    <strong>Caution:</strong> When using <code>-p 8080:80</code>, the format is <code>HOST_PORT:CONTAINER_PORT</code>. A common mistake is reversing the order. The host port comes first.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-images">5. <code>docker images</code> &mdash; Managing Images</h2>
+  <!-- ============================================================ -->
+
+  <p>Images are the building blocks. You pull them from registries, build them from Dockerfiles, and use them to create containers.</p>
+
+  <pre><code><span class="comment"># List all local images</span>
+<span class="prompt">$</span> docker images
+<span class="output">REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
+nginx        latest    a8758716bb6a   2 days ago     187MB
+ubuntu       22.04     3b418d7b466a   1 week ago     77.8MB
+alpine       latest    05455a08881e   2 weeks ago    7.38MB</span></code></pre>
+
+  <pre><code><span class="comment"># Pull an image from Docker Hub</span>
+<span class="prompt">$</span> docker pull python:3.11-slim
+<span class="output">3.11-slim: Pulling from library/python
+Digest: sha256:abc123...
+Status: Downloaded newer image for python:3.11-slim</span></code></pre>
+
+  <pre><code><span class="comment"># Pull a specific version (tag)</span>
+<span class="prompt">$</span> docker pull node:18-alpine</code></pre>
+
+  <pre><code><span class="comment"># Inspect image details</span>
+<span class="prompt">$</span> docker image inspect nginx:latest</code></pre>
+
+  <pre><code><span class="comment"># View image history (layers)</span>
+<span class="prompt">$</span> docker history nginx:latest
+<span class="output">IMAGE          CREATED       CREATED BY                                      SIZE
+a8758716bb6a   2 days ago    CMD ["nginx" "-g" "daemon off;"]                 0B
+&lt;missing&gt;      2 days ago    EXPOSE map[80/tcp:{}]                            0B
+&lt;missing&gt;      2 days ago    STOPSIGNAL SIGQUIT                               0B
+...</span></code></pre>
+
+  <pre><code><span class="comment"># Remove an image</span>
+<span class="prompt">$</span> docker image rm python:3.11-slim
+<span class="comment"># Shorthand:</span>
+<span class="prompt">$</span> docker rmi python:3.11-slim</code></pre>
+
+  <pre><code><span class="comment"># Remove all unused images</span>
+<span class="prompt">$</span> docker image prune
+<span class="output">WARNING! This will remove all dangling images.
+Are you sure you want to continue? [y/N] y</span></code></pre>
+
+  <pre><code><span class="comment"># Tag an image (create an alias)</span>
+<span class="prompt">$</span> docker tag nginx:latest myregistry.com/nginx:v1.0</code></pre>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Security Warning: Untrusted Images</div>
+    <p><strong>Never blindly pull and run images from unknown sources.</strong> Docker images can contain malicious software, cryptocurrency miners, or backdoors. Always:</p>
+    <ul>
+      <li>Prefer <strong>official images</strong> (marked with a blue badge on Docker Hub).</li>
+      <li>Check the Dockerfile source if available.</li>
+      <li>Verify the publisher and download count.</li>
+      <li>Scan images for vulnerabilities: <code>docker scout cves IMAGE</code>.</li>
+    </ul>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-ps">6. <code>docker ps</code> &mdash; Listing Containers</h2>
+  <!-- ============================================================ -->
+
+  <p>Use <code>docker ps</code> to see what containers are running (or have run).</p>
+
+  <pre><code><span class="comment"># List running containers</span>
+<span class="prompt">$</span> docker ps
+<span class="output">CONTAINER ID   IMAGE   COMMAND                  CREATED          STATUS          PORTS                  NAMES
+f7a8b9c0d1e2   nginx   "/docker-entrypoint.…"   10 minutes ago   Up 10 minutes   0.0.0.0:8080->80/tcp   my-web</span></code></pre>
+
+  <pre><code><span class="comment"># List ALL containers (including stopped)</span>
+<span class="prompt">$</span> docker ps -a
+<span class="output">CONTAINER ID   IMAGE    COMMAND     CREATED          STATUS                      NAMES
+f7a8b9c0d1e2   nginx    "..."       10 min ago       Up 10 minutes               my-web
+a1b2c3d4e5f6   ubuntu   "bash"      30 min ago       Exited (0) 25 min ago       keen_tesla</span></code></pre>
+
+  <pre><code><span class="comment"># Show only container IDs (useful for scripting)</span>
+<span class="prompt">$</span> docker ps -q
+<span class="output">f7a8b9c0d1e2</span></code></pre>
+
+  <pre><code><span class="comment"># Show all container IDs (running + stopped)</span>
+<span class="prompt">$</span> docker ps -aq</code></pre>
+
+  <pre><code><span class="comment"># Filter by status</span>
+<span class="prompt">$</span> docker ps --filter "status=exited"</code></pre>
+
+  <pre><code><span class="comment"># Filter by name</span>
+<span class="prompt">$</span> docker ps --filter "name=web"</code></pre>
+
+  <pre><code><span class="comment"># Filter by image</span>
+<span class="prompt">$</span> docker ps --filter "ancestor=nginx"</code></pre>
+
+  <pre><code><span class="comment"># Custom output format</span>
+<span class="prompt">$</span> docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+<span class="output">NAMES    IMAGE   STATUS          PORTS
+my-web   nginx   Up 10 minutes   0.0.0.0:8080->80/tcp</span></code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-stop-start">7. <code>docker stop</code> / <code>start</code> / <code>restart</code></h2>
+  <!-- ============================================================ -->
+
+  <p>Manage the lifecycle of running containers.</p>
+
+  <pre><code><span class="comment"># Stop a running container (sends SIGTERM, then SIGKILL after 10s)</span>
+<span class="prompt">$</span> docker stop my-web
+<span class="output">my-web</span></code></pre>
+
+  <pre><code><span class="comment"># Start a stopped container</span>
+<span class="prompt">$</span> docker start my-web
+<span class="output">my-web</span></code></pre>
+
+  <pre><code><span class="comment"># Restart a container (stop + start)</span>
+<span class="prompt">$</span> docker restart my-web</code></pre>
+
+  <pre><code><span class="comment"># Stop with a custom timeout (wait 30 seconds before SIGKILL)</span>
+<span class="prompt">$</span> docker stop -t 30 my-web</code></pre>
+
+  <pre><code><span class="comment"># Stop ALL running containers</span>
+<span class="prompt">$</span> docker stop $(docker ps -q)</code></pre>
+
+  <pre><code><span class="comment"># Force kill a container (immediate SIGKILL, no graceful shutdown)</span>
+<span class="prompt">$</span> docker kill my-web</code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Tip</div>
+    <p>Always prefer <code>docker stop</code> over <code>docker kill</code>. Stopping sends <code>SIGTERM</code> first, giving the application time to clean up (close database connections, flush buffers, etc.). Killing sends <code>SIGKILL</code> immediately, which can cause data loss.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-rm">8. <code>docker rm</code> &mdash; Removing Containers</h2>
+  <!-- ============================================================ -->
+
+  <p>Stopped containers still consume disk space. Remove them to reclaim resources.</p>
+
+  <pre><code><span class="comment"># Remove a stopped container</span>
+<span class="prompt">$</span> docker rm my-web</code></pre>
+
+  <pre><code><span class="comment"># Force-remove a running container (stops it first)</span>
+<span class="prompt">$</span> docker rm -f my-web</code></pre>
+
+  <pre><code><span class="comment"># Remove multiple containers</span>
+<span class="prompt">$</span> docker rm container1 container2 container3</code></pre>
+
+  <pre><code><span class="comment"># Remove ALL stopped containers</span>
+<span class="prompt">$</span> docker container prune
+<span class="output">WARNING! This will remove all stopped containers.
+Are you sure you want to continue? [y/N] y
+Deleted Containers:
+a1b2c3d4e5f6...
+Total reclaimed space: 150MB</span></code></pre>
+
+  <pre><code><span class="comment"># Remove all stopped containers (scripting approach)</span>
+<span class="prompt">$</span> docker rm $(docker ps -aq --filter "status=exited")</code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">Tip</div>
+    <p>Use <code>--rm</code> with <code>docker run</code> to automatically remove the container when it exits. This is ideal for one-off commands and testing.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-exec">9. <code>docker exec</code> &mdash; Running Commands in Containers</h2>
+  <!-- ============================================================ -->
+
+  <p>Use <code>docker exec</code> to run commands inside an already running container. This is essential for debugging and maintenance.</p>
+
+  <pre><code><span class="comment"># Open an interactive shell in a running container</span>
+<span class="prompt">$</span> docker exec -it my-web bash
+<span class="output">root@f7a8b9c0d1e2:/# ls /usr/share/nginx/html
+50x.html  index.html</span></code></pre>
+
+  <pre><code><span class="comment"># Run a single command without entering the container</span>
+<span class="prompt">$</span> docker exec my-web cat /etc/nginx/nginx.conf</code></pre>
+
+  <pre><code><span class="comment"># Check which processes are running inside the container</span>
+<span class="prompt">$</span> docker exec my-web ps aux
+<span class="output">USER       PID  %CPU %MEM  COMMAND
+root         1   0.0  0.1  nginx: master process
+nginx       29   0.0  0.0  nginx: worker process</span></code></pre>
+
+  <pre><code><span class="comment"># If bash is not available, try sh (common in Alpine-based images)</span>
+<span class="prompt">$</span> docker exec -it my-alpine-container sh</code></pre>
+
+  <pre><code><span class="comment"># Run a command as a specific user</span>
+<span class="prompt">$</span> docker exec -u www-data my-web whoami
+<span class="output">www-data</span></code></pre>
+
+  <pre><code><span class="comment"># Set environment variables for the exec session</span>
+<span class="prompt">$</span> docker exec -e MY_VAR=hello my-web env | grep MY_VAR
+<span class="output">MY_VAR=hello</span></code></pre>
+
+  <div class="alert alert-warning">
+    <strong>Common Mistake:</strong> <code>docker exec</code> only works on <em>running</em> containers. If the container is stopped, start it first with <code>docker start</code>, then exec into it.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-logs">10. <code>docker logs</code> &mdash; Viewing Container Logs</h2>
+  <!-- ============================================================ -->
+
+  <p>Containers write output to <code>stdout</code> and <code>stderr</code>, and Docker captures it all.</p>
+
+  <pre><code><span class="comment"># View all logs from a container</span>
+<span class="prompt">$</span> docker logs my-web</code></pre>
+
+  <pre><code><span class="comment"># Follow logs in real time (like tail -f)</span>
+<span class="prompt">$</span> docker logs -f my-web
+<span class="output">172.17.0.1 - - [15/Jan/2025:10:30:01 +0000] "GET / HTTP/1.1" 200 615
+172.17.0.1 - - [15/Jan/2025:10:30:05 +0000] "GET /favicon.ico HTTP/1.1" 404 153
+^C</span></code></pre>
+
+  <pre><code><span class="comment"># Show only the last 20 lines</span>
+<span class="prompt">$</span> docker logs --tail 20 my-web</code></pre>
+
+  <pre><code><span class="comment"># Show logs with timestamps</span>
+<span class="prompt">$</span> docker logs -t my-web
+<span class="output">2025-01-15T10:30:01.123456789Z 172.17.0.1 - - "GET / HTTP/1.1" 200</span></code></pre>
+
+  <pre><code><span class="comment"># Show logs since a specific time</span>
+<span class="prompt">$</span> docker logs --since 2h my-web
+<span class="comment"># Or with a timestamp:</span>
+<span class="prompt">$</span> docker logs --since "2025-01-15T10:00:00" my-web</code></pre>
+
+  <!-- ============================================================ -->
+  <h2 id="dockerfile">11. Dockerfile &mdash; Building Custom Images</h2>
+  <!-- ============================================================ -->
+
+  <p>A <strong>Dockerfile</strong> is a plain text file containing instructions that tell Docker how to build an image. Each instruction creates a new <strong>layer</strong> in the image.</p>
+
+  <h3>Key Dockerfile Instructions</h3>
+
+  <table>
+    <thead>
+      <tr><th>Instruction</th><th>Purpose</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>FROM</code></td><td>Base image to start from</td><td><code>FROM ubuntu:22.04</code></td></tr>
+      <tr><td><code>RUN</code></td><td>Execute a command during build</td><td><code>RUN apt update &amp;&amp; apt install -y curl</code></td></tr>
+      <tr><td><code>COPY</code></td><td>Copy files from host to image</td><td><code>COPY ./app /app</code></td></tr>
+      <tr><td><code>ADD</code></td><td>Like COPY, but also handles URLs and tar extraction</td><td><code>ADD archive.tar.gz /app</code></td></tr>
+      <tr><td><code>WORKDIR</code></td><td>Set the working directory</td><td><code>WORKDIR /app</code></td></tr>
+      <tr><td><code>EXPOSE</code></td><td>Document which port the container listens on</td><td><code>EXPOSE 8080</code></td></tr>
+      <tr><td><code>ENV</code></td><td>Set environment variables</td><td><code>ENV NODE_ENV=production</code></td></tr>
+      <tr><td><code>CMD</code></td><td>Default command when container starts</td><td><code>CMD ["node", "server.js"]</code></td></tr>
+      <tr><td><code>ENTRYPOINT</code></td><td>Main executable (harder to override than CMD)</td><td><code>ENTRYPOINT ["python"]</code></td></tr>
+      <tr><td><code>ARG</code></td><td>Build-time variables</td><td><code>ARG VERSION=1.0</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-info">
+    <div class="alert__title">CMD vs ENTRYPOINT</div>
+    <p><code>CMD</code> provides default arguments that can be overridden at run time. <code>ENTRYPOINT</code> defines the main executable. When both are used, <code>CMD</code> provides default arguments to <code>ENTRYPOINT</code>. Use <code>ENTRYPOINT</code> when the container should always run a specific program. Use <code>CMD</code> when you want flexibility.</p>
+  </div>
+
+  <h3>Example: Simple Web Server</h3>
+
+  <pre><code><span class="comment"># Dockerfile for a simple Node.js web server</span>
+
+<span class="comment"># Start from the official Node.js Alpine image (small footprint)</span>
+FROM node:18-alpine
+
+<span class="comment"># Set the working directory inside the container</span>
+WORKDIR /app
+
+<span class="comment"># Copy package files first (better layer caching)</span>
+COPY package*.json ./
+
+<span class="comment"># Install dependencies</span>
+RUN npm install --production
+
+<span class="comment"># Copy application source code</span>
+COPY . .
+
+<span class="comment"># Document the port the app uses</span>
+EXPOSE 3000
+
+<span class="comment"># Set a runtime environment variable</span>
+ENV NODE_ENV=production
+
+<span class="comment"># Command to run when the container starts</span>
+CMD ["node", "server.js"]</code></pre>
+
+  <h3>Example: Python Flask Application</h3>
+
+  <pre><code><span class="comment"># Dockerfile for a Python Flask app</span>
+FROM python:3.11-slim
+
+WORKDIR /app
+
+<span class="comment"># Copy and install dependencies first (caching)</span>
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+<span class="comment"># Copy the rest of the application</span>
+COPY . .
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]</code></pre>
+
+  <h3>Example: Static Website with Nginx</h3>
+
+  <pre><code><span class="comment"># Dockerfile for a static website</span>
+FROM nginx:alpine
+
+<span class="comment"># Remove default Nginx content</span>
+RUN rm -rf /usr/share/nginx/html/*
+
+<span class="comment"># Copy our static files</span>
+COPY ./html /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]</code></pre>
+
+  <h3>Example: Multi-Stage Build (smaller final image)</h3>
+
+  <pre><code><span class="comment"># Stage 1: Build</span>
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+<span class="comment"># Stage 2: Production (only the built output)</span>
+FROM nginx:alpine
+COPY --from=builder /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]</code></pre>
+
+  <h3>Example: Using ENTRYPOINT with CMD</h3>
+
+  <pre><code><span class="comment"># Container always runs Python, CMD provides default script</span>
+FROM python:3.11-slim
+WORKDIR /app
+COPY . .
+ENTRYPOINT ["python"]
+CMD ["main.py"]
+
+<span class="comment"># docker run myimage          &rarr; runs "python main.py"</span>
+<span class="comment"># docker run myimage test.py  &rarr; runs "python test.py"</span></code></pre>
+
+  <h3>Example: Using ARG for Build-Time Variables</h3>
+
+  <pre><code>FROM ubuntu:22.04
+ARG APP_VERSION=1.0
+ENV APP_VERSION=${APP_VERSION}
+RUN echo "Building version ${APP_VERSION}"
+COPY . /app
+CMD ["/app/start.sh"]
+
+<span class="comment"># Build with a custom version:</span>
+<span class="comment"># docker build --build-arg APP_VERSION=2.0 -t myapp:2.0 .</span></code></pre>
+
+  <h3>Example: .dockerignore File</h3>
+
+  <pre><code><span class="comment"># .dockerignore &mdash; keep your image lean</span>
+node_modules
+.git
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+*.log
+.env</code></pre>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Best Practice: Layer Caching</div>
+    <p>Docker caches each layer. If a layer has not changed, Docker reuses the cache. This is why you should <strong>copy dependency files first</strong> (like <code>package.json</code> or <code>requirements.txt</code>) and install dependencies <em>before</em> copying the rest of the source code. That way, dependencies are only reinstalled when the dependency file changes, not every time you change a line of code.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-build">12. <code>docker build</code> &mdash; Building Images</h2>
+  <!-- ============================================================ -->
+
+  <p>Use <code>docker build</code> to turn a Dockerfile into an image.</p>
+
+  <pre><code><span class="comment"># Build an image from the current directory (. is the build context)</span>
+<span class="prompt">$</span> docker build -t myapp:1.0 .
+<span class="output">[+] Building 15.2s (10/10) FINISHED
+ => [1/5] FROM node:18-alpine
+ => [2/5] WORKDIR /app
+ => [3/5] COPY package*.json ./
+ => [4/5] RUN npm install --production
+ => [5/5] COPY . .
+ => exporting to image
+ => naming to docker.io/library/myapp:1.0</span></code></pre>
+
+  <pre><code><span class="comment"># Build with a specific Dockerfile name</span>
+<span class="prompt">$</span> docker build -t myapp:1.0 -f Dockerfile.prod .</code></pre>
+
+  <pre><code><span class="comment"># Build without using cache (force fresh build)</span>
+<span class="prompt">$</span> docker build --no-cache -t myapp:1.0 .</code></pre>
+
+  <pre><code><span class="comment"># Build with build arguments</span>
+<span class="prompt">$</span> docker build --build-arg APP_VERSION=2.0 -t myapp:2.0 .</code></pre>
+
+  <pre><code><span class="comment"># Build and see full output (not collapsed)</span>
+<span class="prompt">$</span> docker build --progress=plain -t myapp:1.0 .</code></pre>
+
+  <div class="alert alert-warning">
+    <strong>Common Mistake:</strong> Forgetting the <code>.</code> (dot) at the end of <code>docker build</code>. The dot tells Docker to use the current directory as the build context. Without it, the command will fail.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-compose">13. Docker Compose &mdash; Multi-Service Applications</h2>
+  <!-- ============================================================ -->
+
+  <p><strong>Docker Compose</strong> lets you define and manage multi-container applications using a single YAML file. Instead of running multiple <code>docker run</code> commands with long option lists, you describe your entire stack in a <code>docker-compose.yml</code> file and bring it up with one command.</p>
+
+  <h3>Basic Structure</h3>
+
+  <pre><code><span class="comment"># docker-compose.yml</span>
+version: "3.8"
+
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./html:/usr/share/nginx/html
+    depends_on:
+      - api
+
+  api:
+    build: ./api
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypass
+      - POSTGRES_DB=mydb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:</code></pre>
+
+  <h3>Key Commands</h3>
+
+  <pre><code><span class="comment"># Start all services (in the background)</span>
+<span class="prompt">$</span> docker compose up -d
+<span class="output">[+] Running 3/3
+ ✔ Container myapp-db-1   Started
+ ✔ Container myapp-api-1  Started
+ ✔ Container myapp-web-1  Started</span></code></pre>
+
+  <pre><code><span class="comment"># Stop and remove all services</span>
+<span class="prompt">$</span> docker compose down</code></pre>
+
+  <pre><code><span class="comment"># Stop and remove services INCLUDING volumes (deletes data!)</span>
+<span class="prompt">$</span> docker compose down -v</code></pre>
+
+  <pre><code><span class="comment"># View running compose services</span>
+<span class="prompt">$</span> docker compose ps
+<span class="output">NAME             IMAGE             STATUS          PORTS
+myapp-db-1       postgres:15       Up 2 minutes    5432/tcp
+myapp-api-1      myapp-api         Up 2 minutes    0.0.0.0:3000->3000/tcp
+myapp-web-1      nginx:alpine      Up 2 minutes    0.0.0.0:8080->80/tcp</span></code></pre>
+
+  <pre><code><span class="comment"># View logs for all services</span>
+<span class="prompt">$</span> docker compose logs
+
+<span class="comment"># Follow logs for a specific service</span>
+<span class="prompt">$</span> docker compose logs -f api</code></pre>
+
+  <pre><code><span class="comment"># Rebuild and restart services</span>
+<span class="prompt">$</span> docker compose up -d --build</code></pre>
+
+  <pre><code><span class="comment"># Scale a service (run multiple instances)</span>
+<span class="prompt">$</span> docker compose up -d --scale api=3</code></pre>
+
+  <pre><code><span class="comment"># Execute a command in a running compose service</span>
+<span class="prompt">$</span> docker compose exec db psql -U myuser -d mydb</code></pre>
+
+  <h3>Full Example: Web App + Database</h3>
+
+  <pre><code><span class="comment"># docker-compose.yml &mdash; A WordPress site with MySQL</span>
+version: "3.8"
+
+services:
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: wp_pass
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - wp_data:/var/www/html
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: wp_pass
+      MYSQL_ROOT_PASSWORD: root_secret
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+
+volumes:
+  wp_data:
+  db_data:</code></pre>
+
+  <div class="alert alert-info">
+    <div class="alert__title">docker-compose vs docker compose</div>
+    <p>The older standalone <code>docker-compose</code> (with a hyphen) is a separate Python-based tool. Modern Docker includes Compose as a plugin: <code>docker compose</code> (with a space). They are functionally equivalent, but the plugin version is preferred going forward. This chapter uses the <code>docker compose</code> syntax.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="volumes">14. Volumes &mdash; Persistent Data</h2>
+  <!-- ============================================================ -->
+
+  <p>By default, all data inside a container is lost when the container is removed. <strong>Volumes</strong> provide persistent storage that survives container restarts and removal.</p>
+
+  <h3>Types of Storage</h3>
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Syntax</th><th>Use Case</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Named volume</td><td><code>-v mydata:/app/data</code></td><td>Database storage, persistent app data</td></tr>
+      <tr><td>Bind mount</td><td><code>-v /host/path:/container/path</code></td><td>Development (live code reloading)</td></tr>
+      <tr><td>tmpfs mount</td><td><code>--tmpfs /tmp</code></td><td>Temporary data that should not persist</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code><span class="comment"># Create a named volume</span>
+<span class="prompt">$</span> docker volume create mydata</code></pre>
+
+  <pre><code><span class="comment"># Run a container with a named volume</span>
+<span class="prompt">$</span> docker run -d --name db -v mydata:/var/lib/postgresql/data postgres:15</code></pre>
+
+  <pre><code><span class="comment"># List all volumes</span>
+<span class="prompt">$</span> docker volume ls
+<span class="output">DRIVER    VOLUME NAME
+local     mydata
+local     pgdata</span></code></pre>
+
+  <pre><code><span class="comment"># Inspect a volume (see where it's stored on the host)</span>
+<span class="prompt">$</span> docker volume inspect mydata
+<span class="output">[{
+    "CreatedAt": "2025-01-15T10:00:00Z",
+    "Driver": "local",
+    "Mountpoint": "/var/lib/docker/volumes/mydata/_data",
+    "Name": "mydata"
+}]</span></code></pre>
+
+  <pre><code><span class="comment"># Bind mount: map a host directory into the container</span>
+<span class="prompt">$</span> docker run -d --name dev-web \
+  -v $(pwd)/src:/app/src \
+  -p 3000:3000 \
+  node:18-alpine npm start</code></pre>
+
+  <pre><code><span class="comment"># Read-only bind mount (container cannot write to it)</span>
+<span class="prompt">$</span> docker run -d -v /etc/config:/app/config:ro myapp</code></pre>
+
+  <pre><code><span class="comment"># Remove unused volumes</span>
+<span class="prompt">$</span> docker volume prune</code></pre>
+
+  <div class="alert alert-warning">
+    <strong>Caution:</strong> <code>docker compose down -v</code> removes named volumes defined in the compose file. For databases, this means <strong>all your data will be deleted</strong>. Only use <code>-v</code> when you truly want a fresh start.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="networking">15. Networking Basics</h2>
+  <!-- ============================================================ -->
+
+  <p>Docker creates isolated networks so containers can communicate with each other and the outside world.</p>
+
+  <h3>Network Types</h3>
+  <table>
+    <thead>
+      <tr><th>Driver</th><th>Description</th><th>Use Case</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>bridge</code></td><td>Default. Containers on the same bridge can communicate.</td><td>Single-host container communication</td></tr>
+      <tr><td><code>host</code></td><td>Container shares the host's network stack.</td><td>Performance-sensitive apps, no port mapping needed</td></tr>
+      <tr><td><code>none</code></td><td>No networking at all.</td><td>Completely isolated containers</td></tr>
+      <tr><td><code>overlay</code></td><td>Multi-host networking for Docker Swarm.</td><td>Clustered deployments</td></tr>
+    </tbody>
+  </table>
+
+  <pre><code><span class="comment"># List Docker networks</span>
+<span class="prompt">$</span> docker network ls
+<span class="output">NETWORK ID     NAME      DRIVER    SCOPE
+abc123def456   bridge    bridge    local
+def456abc789   host      host      local
+789abc123def   none      null      local</span></code></pre>
+
+  <pre><code><span class="comment"># Create a custom bridge network</span>
+<span class="prompt">$</span> docker network create my-network</code></pre>
+
+  <pre><code><span class="comment"># Run containers on the same network (they can find each other by name)</span>
+<span class="prompt">$</span> docker run -d --name api --network my-network node:18-alpine
+<span class="prompt">$</span> docker run -d --name db --network my-network postgres:15
+
+<span class="comment"># From the 'api' container, you can now reach 'db' by hostname:</span>
+<span class="prompt">$</span> docker exec api ping db
+<span class="output">PING db (172.18.0.3): 56 data bytes
+64 bytes from 172.18.0.3: seq=0 ttl=64 time=0.089 ms</span></code></pre>
+
+  <pre><code><span class="comment"># Connect a running container to a network</span>
+<span class="prompt">$</span> docker network connect my-network existing-container</code></pre>
+
+  <pre><code><span class="comment"># Inspect a network (see connected containers)</span>
+<span class="prompt">$</span> docker network inspect my-network</code></pre>
+
+  <pre><code><span class="comment"># Port mapping recap: HOST_PORT:CONTAINER_PORT</span>
+<span class="prompt">$</span> docker run -d -p 8080:80 nginx      <span class="comment"># Host 8080 &rarr; Container 80</span>
+<span class="prompt">$</span> docker run -d -p 127.0.0.1:8080:80 nginx  <span class="comment"># Only localhost</span></code></pre>
+
+  <div class="concept-box">
+    <div class="concept-box__title">Mental Model: Container Networking</div>
+    <div class="diagram">
+<pre>
+     Host Machine (your Linux box)
+   +--------------------------------------------+
+   |                                            |
+   |   Custom Network: "my-network"             |
+   |   +------------------------------------+   |
+   |   |                                    |   |
+   |   |   +---------+     +---------+      |   |
+   |   |   |   api   |----&gt;|   db    |      |   |
+   |   |   | :3000   |     | :5432   |      |   |
+   |   |   +---------+     +---------+      |   |
+   |   |                                    |   |
+   |   +------------------------------------+   |
+   |          |                                  |
+   |     Port mapping                            |
+   |    -p 3000:3000                             |
+   |          |                                  |
+   +----------+----------------------------------+
+              |
+         External traffic
+       (http://localhost:3000)
+</pre>
+    </div>
+    <p>On a custom network, containers can reach each other by <strong>container name</strong> (Docker provides built-in DNS). The <code>-p</code> flag creates a port mapping so external traffic can reach the container.</p>
+  </div>
+
+  <div class="alert alert-warning">
+    <strong>Common Mistake:</strong> Forgetting to expose ports. The <code>EXPOSE</code> instruction in a Dockerfile is <em>documentation only</em> &mdash; it does not actually publish the port. You must use <code>-p</code> with <code>docker run</code> (or <code>ports:</code> in Compose) to make a container reachable from outside.
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="docker-cleanup">16. Docker Cleanup</h2>
+  <!-- ============================================================ -->
+
+  <p>Docker can consume significant disk space over time with old images, stopped containers, and unused volumes. Regular cleanup is important.</p>
+
+  <pre><code><span class="comment"># Nuclear option: remove ALL unused data (stopped containers, unused networks,
+# dangling images, and build cache)</span>
+<span class="prompt">$</span> docker system prune
+<span class="output">WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all dangling images
+  - unused build cache
+
+Are you sure you want to continue? [y/N] y
+Total reclaimed space: 2.3GB</span></code></pre>
+
+  <pre><code><span class="comment"># Include unused images too (not just dangling ones)</span>
+<span class="prompt">$</span> docker system prune -a
+<span class="output">WARNING! This will remove:
+  - all stopped containers
+  - all networks not used by at least one container
+  - all images without at least one container associated to them
+  - all build cache
+Total reclaimed space: 8.1GB</span></code></pre>
+
+  <pre><code><span class="comment"># See how much disk space Docker is using</span>
+<span class="prompt">$</span> docker system df
+<span class="output">TYPE            TOTAL   ACTIVE  SIZE      RECLAIMABLE
+Images          15      3       4.2GB     3.1GB (73%)
+Containers      5       2       150MB     120MB (80%)
+Local Volumes   8       3       1.5GB     800MB (53%)
+Build Cache     20      0       500MB     500MB</span></code></pre>
+
+  <pre><code><span class="comment"># Remove specific resource types</span>
+<span class="prompt">$</span> docker container prune    <span class="comment"># Remove stopped containers</span>
+<span class="prompt">$</span> docker image prune        <span class="comment"># Remove dangling images</span>
+<span class="prompt">$</span> docker volume prune       <span class="comment"># Remove unused volumes</span>
+<span class="prompt">$</span> docker network prune      <span class="comment"># Remove unused networks</span></code></pre>
+
+  <pre><code><span class="comment"># Remove images older than 24 hours</span>
+<span class="prompt">$</span> docker image prune -a --filter "until=24h"</code></pre>
+
+  <pre><code><span class="comment"># Force prune without confirmation prompt</span>
+<span class="prompt">$</span> docker system prune -f</code></pre>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Danger: Volume Pruning</div>
+    <p><code>docker volume prune</code> permanently deletes data in unnamed volumes that are not attached to any container. If you store database data in volumes, make sure you have backups before pruning. There is <strong>no undo</strong>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="common-mistakes">Common Mistakes</h2>
+  <!-- ============================================================ -->
+
+  <div class="alert alert-warning">
+    <strong>Mistake 1: Running as root inside containers.</strong>
+    <p>By default, many Docker images run processes as <code>root</code>. If an attacker exploits a vulnerability in your app, they have root access inside the container. Always create a non-root user in your Dockerfile:</p>
+    <pre><code>RUN addgroup -S appgroup &amp;&amp; adduser -S appuser -G appgroup
+USER appuser</code></pre>
+  </div>
+
+  <div class="alert alert-warning">
+    <strong>Mistake 2: Forgetting to expose or map ports.</strong>
+    <p>Your container runs fine, but you cannot reach it from the browser. You need <code>-p HOST:CONTAINER</code> when running. <code>EXPOSE</code> in the Dockerfile alone does nothing for external access.</p>
+  </div>
+
+  <div class="alert alert-warning">
+    <strong>Mistake 3: Storing data inside the container without a volume.</strong>
+    <p>If you write important data (database files, uploads) to the container filesystem, it will be <strong>lost</strong> when the container is removed. Always use volumes for persistent data.</p>
+  </div>
+
+  <div class="alert alert-warning">
+    <strong>Mistake 4: Using <code>latest</code> tag in production.</strong>
+    <p>The <code>latest</code> tag is mutable &mdash; it can point to different images over time. Pin your images to specific versions (e.g., <code>node:18.19-alpine</code> instead of <code>node:latest</code>) for reproducible builds.</p>
+  </div>
+
+  <div class="alert alert-warning">
+    <strong>Mistake 5: Putting secrets in the Dockerfile or image.</strong>
+    <p>Never put passwords, API keys, or tokens directly in a Dockerfile (<code>ENV SECRET_KEY=abc123</code>). Anyone who pulls the image can read them. Use environment variables at runtime, Docker secrets, or a secrets manager instead.</p>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="alert__title">Security Warning: Running Untrusted Images</div>
+    <p>Running <code>docker run</code> with an image you did not build yourself is equivalent to running a program you downloaded from the internet. The container has access to any ports you map, any volumes you mount, and runs with the privileges you grant. Malicious images have been found on Docker Hub that:</p>
+    <ul>
+      <li>Mine cryptocurrency using your CPU</li>
+      <li>Exfiltrate environment variables (including cloud credentials)</li>
+      <li>Install backdoors in mounted volumes</li>
+      <li>Scan your internal network</li>
+    </ul>
+    <p><strong>Always verify the source.</strong> Use official images, check the Dockerfile, and scan with <code>docker scout</code> or <code>trivy</code>.</p>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="quick-reference">Quick Reference</h2>
+  <!-- ============================================================ -->
+
+  <table>
+    <thead>
+      <tr><th>Task</th><th>Command</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Run a container</td><td><code>docker run -d --name NAME IMAGE</code></td></tr>
+      <tr><td>Run interactively</td><td><code>docker run -it IMAGE bash</code></td></tr>
+      <tr><td>List running containers</td><td><code>docker ps</code></td></tr>
+      <tr><td>List all containers</td><td><code>docker ps -a</code></td></tr>
+      <tr><td>Stop a container</td><td><code>docker stop NAME</code></td></tr>
+      <tr><td>Remove a container</td><td><code>docker rm NAME</code></td></tr>
+      <tr><td>View logs</td><td><code>docker logs NAME</code></td></tr>
+      <tr><td>Shell into a container</td><td><code>docker exec -it NAME bash</code></td></tr>
+      <tr><td>List images</td><td><code>docker images</code></td></tr>
+      <tr><td>Pull an image</td><td><code>docker pull IMAGE:TAG</code></td></tr>
+      <tr><td>Build an image</td><td><code>docker build -t NAME:TAG .</code></td></tr>
+      <tr><td>Remove an image</td><td><code>docker rmi IMAGE</code></td></tr>
+      <tr><td>Start compose stack</td><td><code>docker compose up -d</code></td></tr>
+      <tr><td>Stop compose stack</td><td><code>docker compose down</code></td></tr>
+      <tr><td>View disk usage</td><td><code>docker system df</code></td></tr>
+      <tr><td>Clean everything</td><td><code>docker system prune -a</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- ============================================================ -->
+  <h2 id="exercises">Exercises</h2>
+  <!-- ============================================================ -->
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 1: Your First Container</div>
+    <p>Pull the <code>alpine</code> image, run it interactively, create a file <code>/tmp/hello.txt</code> containing "Hello Docker!", read it, then exit. After exiting, start the same container again and verify the file still exists.</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> docker run -it --name my-alpine alpine sh
+<span class="output">/ # echo "Hello Docker!" > /tmp/hello.txt
+/ # cat /tmp/hello.txt
+Hello Docker!
+/ # exit</span>
+
+<span class="comment"># The container is stopped but not removed</span>
+<span class="prompt">$</span> docker ps -a | grep my-alpine
+<span class="output">abc123   alpine   "sh"   1 min ago   Exited (0)   my-alpine</span>
+
+<span class="comment"># Start and reattach</span>
+<span class="prompt">$</span> docker start -ai my-alpine
+<span class="output">/ # cat /tmp/hello.txt
+Hello Docker!</span>
+<span class="comment"># The file persists because the container still exists.</span>
+<span class="comment"># It would be lost only if you docker rm the container.</span>
+
+<span class="comment"># Clean up</span>
+<span class="prompt">$</span> docker rm my-alpine</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 2: Build and Run a Custom Image</div>
+    <p>Create a directory called <code>mysite</code>. Inside it, create an <code>index.html</code> file with some content and a <code>Dockerfile</code> that serves it using Nginx. Build the image as <code>mysite:v1</code>, run it on port 9090, and verify you can access it.</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> mkdir mysite && cd mysite
+
+<span class="prompt">$</span> echo '&lt;h1&gt;My Docker Site!&lt;/h1&gt;' > index.html
+
+<span class="prompt">$</span> cat > Dockerfile &lt;&lt;'EOF'
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+EOF
+
+<span class="prompt">$</span> docker build -t mysite:v1 .
+<span class="output">[+] Building 2.1s (7/7) FINISHED</span>
+
+<span class="prompt">$</span> docker run -d --name mysite-container -p 9090:80 mysite:v1
+
+<span class="prompt">$</span> curl http://localhost:9090
+<span class="output">&lt;h1&gt;My Docker Site!&lt;/h1&gt;</span>
+
+<span class="comment"># Clean up</span>
+<span class="prompt">$</span> docker stop mysite-container && docker rm mysite-container
+<span class="prompt">$</span> docker rmi mysite:v1</code></pre>
+    </details>
+  </div>
+
+  <div class="exercise">
+    <div class="exercise__title">Exercise 3: Docker Compose Multi-Service Stack</div>
+    <p>Create a <code>docker-compose.yml</code> that runs a Redis container and an Alpine container. The Alpine container should be able to connect to Redis by hostname. Bring the stack up, exec into the Alpine container, install the <code>redis</code> package, and use <code>redis-cli</code> to set and get a key.</p>
+    <details>
+      <summary>Show Solution</summary>
+      <pre><code><span class="prompt">$</span> cat > docker-compose.yml &lt;&lt;'EOF'
+version: "3.8"
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+  app:
+    image: alpine:latest
+    depends_on:
+      - redis
+    command: sleep infinity
+EOF
+
+<span class="prompt">$</span> docker compose up -d
+<span class="output">[+] Running 2/2
+ ✔ Container project-redis-1  Started
+ ✔ Container project-app-1    Started</span>
+
+<span class="prompt">$</span> docker compose exec app sh
+<span class="output">/ # apk add --no-cache redis
+/ # redis-cli -h redis SET greeting "Hello from Compose!"
+OK
+/ # redis-cli -h redis GET greeting
+"Hello from Compose!"
+/ # exit</span>
+
+<span class="comment"># Clean up</span>
+<span class="prompt">$</span> docker compose down</code></pre>
+    </details>
+  </div>
+
+  <!-- ============================================================ -->
+  <h2 id="quizzes">Quizzes</h2>
+  <!-- ============================================================ -->
+
+  <div class="quiz">
+    <div class="quiz__question">Quick Quiz 1: What is the difference between <code>docker stop</code> and <code>docker rm</code>?</div>
+    <button class="quiz__check">Show Answer</button>
+    <div class="quiz__answer"><code>docker stop</code> sends a <code>SIGTERM</code> signal to gracefully shut down a running container (it remains on disk in a "stopped" state). <code>docker rm</code> deletes a stopped container entirely from disk. You must stop a container before removing it, unless you use <code>docker rm -f</code> which forces both operations.</div>
+  </div>
+
+  <div class="quiz">
+    <div class="quiz__question">Quick Quiz 2: You built and ran a container but cannot access it from your browser at <code>http://localhost:8080</code>. The container logs show it is listening on port 3000. What went wrong and how do you fix it?</div>
+    <button class="quiz__check">Show Answer</button>
+    <div class="quiz__answer">The port mapping is wrong or missing. You need to map the host port (8080) to the <em>container</em> port (3000). The correct flag is <code>-p 8080:3000</code>. A common mistake is writing <code>-p 3000:8080</code> which maps host port 3000 to container port 8080 (reversed). Also verify the container is actually running with <code>docker ps</code> and that no firewall is blocking the port.</div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="prev-next">
+    <a class="prev-next__link prev-next__prev" href="../17-git-basics/index.html">&larr; 17. Git Basics</a>
+    <a class="prev-next__link prev-next__next" href="../../reference/cheatsheet.html">Cheat Sheet &rarr;</a>
+  </nav>
+
+  <div class="footer">
+    Linux Learning Guide &mdash; A complete beginner-friendly guide to learning Linux
+  </div>
+</main>
+</div>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>
